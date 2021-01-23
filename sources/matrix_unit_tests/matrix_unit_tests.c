@@ -96,10 +96,99 @@ TEST_START(6, "mx_mp")
 }
 TEST_END
 
+TEST_START(7, "mx_mp")
+{
+    mx_t a = {.x = 4, .y = 2};
+    NN_TYPE a_arr[] = { 3.0, 4.0, 6.0, 3.0,
+                        1.0, 5.0, 2.0, 7.0};
+    a.arr = a_arr;
+
+    mx_t b = {.x = 3, .y = 2};
+    NN_TYPE b_arr[] = { 3.0, 4.0, 5.0,
+                        2.0, 0.0, 1.0};
+    b.arr = b_arr;
+
+    mx_t out = {.x = 3, .y = 4};
+    NN_TYPE out_arr[12];
+    out.arr = out_arr;
+
+    mx_mp(a, b, &out, A);
+
+    NN_TYPE expected_arr[] ={   11, 12, 16,
+                                22, 16, 25,
+                                22, 24, 32,
+                                23, 12, 22};
+
+    for(int i = 0; i < 12; ++i)
+    {
+        TEST_IF(expected_arr[i] != out.arr[i])
+    }
+}
+TEST_END
+
+TEST_START(8, "mx_mp")
+{
+    mx_t a = {.x = 4, .y = 2};
+    NN_TYPE a_arr[] = { 3.0, 4.0, 6.0, 3.0,
+                        1.0, 5.0, 2.0, 7.0};
+    a.arr = a_arr;
+
+    mx_t b = {.x = 2, .y = 3};
+    NN_TYPE b_arr[] = { 3.0, 1.0, 
+                        4.0, 9.0, 
+                        7.0, 2.0};
+    b.arr = b_arr;
+
+    mx_t out = {.x = 3, .y = 4};
+    NN_TYPE out_arr[12];
+    out.arr = out_arr;
+
+    mx_mp(a, b, &out, BOTH);
+
+    NN_TYPE expected_arr[] ={   10, 21, 23,
+                                17, 61, 38,
+                                20, 42, 46,
+                                16, 75, 35};
+
+    for(int i = 0; i < 12; ++i)
+    {
+        TEST_IF(expected_arr[i] != out.arr[i])
+    }
+}
+TEST_END
+
+TEST_START(9, "mx_mp")
+{
+    mx_t a = {.x = 2, .y = 3};
+    NN_TYPE a_arr[] = { 3.0, 1.0,
+                        0.0, 9.0,
+                        7.0, 5.0};
+    a.arr = a_arr;
+
+    mx_t b = {.x = 3, .y = 1};
+    NN_TYPE b_arr[] = {3.0 , 4.0, 1.0};
+    b.arr = b_arr;
+
+    mx_t out = {.x = 1, .y = 2};
+    NN_TYPE out_arr[2];
+    out.arr = out_arr;
+
+    mx_mp(a, b, &out, BOTH);
+
+    NN_TYPE expected_arr[] ={   16,
+                                44};
+
+    for(int i = 0; i < 2; ++i)
+    {
+        TEST_IF(expected_arr[i] != out.arr[i])
+    }
+}
+TEST_END
+
 int main (void) 
 { 
     int (*test_ptr_arr[])(void) = { test1, test2, test3, test4, test5,
-    test6 };
+    test6 , test7, test8, test9};
     const int test_size = sizeof(test_ptr_arr)/sizeof(test_ptr_arr[0]);
     int failed = 0;
 

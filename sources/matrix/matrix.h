@@ -68,7 +68,7 @@ void mx_destroy(mx_t *mx);
  * 
  *  Function get two matrices, multiply them and store output in out.
  *  You can choose which matrix is interpreted as transposed by configuring
- *  mp_mx_params enum. Non thread-safe, input is not validated.
+ *  mx_mp_params enum. Non thread-safe, input is not validated.
  * 
  *  @param [in] a first input matrix
  *  @param [in] b second output matrix
@@ -78,6 +78,17 @@ void mx_destroy(mx_t *mx);
  *  @see mx_mp_params
  */
 void mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params);
+
+/** @brief Matrix hadamard product function.
+ * 
+ *  Function takes two matrixes, executes hadamard protuct and store
+ *  output under <out> pointer. No thread-safe and input is not validated.
+ * 
+ *  @param [in] a first input matrix
+ *  @param [in] b second output matrix
+ *  @param [out] out result of hadamard product (a o b)
+ */
+void mp_hadamard(const mx_t a, const mx_t b, mx_t* out);
 
 #endif
 
