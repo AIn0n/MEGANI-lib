@@ -10,7 +10,7 @@
 */
 #define NN_TYPE double 
 
-/** @struct matrix_t 
+/** @struct mx_t 
 *   @brief  Structure with matrix data and size.
 *
 *   I designed this struct as interpreted 1 dimensional array to make it as fast and small
@@ -23,7 +23,7 @@ typedef struct
     uint32_t x;     /**< matrix width */
     uint32_t y;     /**< matrix height*/
 }
-matrix_t;
+mx_t;
 
 /** @brief Function create new matrix and return pointer to it. 
 * 
@@ -38,21 +38,35 @@ matrix_t;
 *
 *   @see NN_TYPE
  */
-matrix_t* matrix_create(uint32_t x, uint32_t y);
+mx_t* mx_create(uint32_t x, uint32_t y);
 
 
 /**
 *   @brief Function free memory allocated for matrix.
 *
-*   Function get pointer to matrix_t and frees both structure and NN_TYPE array.
+*   Function get pointer to mx_t and frees both structure and NN_TYPE array.
 *   Very possible that this is not thread-safe.
 *
-*   @param [in] matrix pointer to matrix allocated by matrix_create function.
+*   @param [in] mx pointer to matrix allocated by matrix_create function.
 *
-*   @see matrix_create
+*   @see mx_create
 */
-void matrix_free(matrix_t *matrix);
+void mx_destroy(mx_t *mx);
 
+/**
+ *  @brief Matrix multiply with transposing.
+ * 
+ *  Function get two matrices, multiply them and store output in out. If flag trnsp_<n>
+ *  is set n input matrix is interpreted as transposed. Non thread-safe, input is not
+ *  validated.
+ * 
+ *  @param [in] a first input matrix
+ *  @param [in] b second output matrix
+ *  @param [in] trnsp_a transposing first matrix
+ *  @param [in] trnsp_a transposing second matrix
+ *  @param [out] out pointer to output matrix 
+ */
+void mx_mp(const mx_t a, const mx_t b, mx_t* out, uint8_t trnsp_a, uint8_t trnsp_b);
 
 #endif
 
@@ -60,3 +74,18 @@ void matrix_free(matrix_t *matrix);
 *   @file  matrix.h
 *   @brief Header file for matrix math.
 */
+
+/** @mainpage Caffeine-library documentation
+ *  @section Introduction
+ *  @subsection Goals
+ * 
+ *  At the end I want to have as small and fast as possible library for basic 
+ *  nerual networks which can generate images. Library is almost depedency-free and 
+ *  platform independent for easy porting to other architectures, systems etc.
+ * 
+ *  @section naming convention
+ * 
+ *  First word in every function is always a short name of thing which 
+ *  we use (example mx -> matrix). Next one is operation, after that we can 
+ *  have things like _nostdlib to mark that this func works without standard C lib.
+ */
