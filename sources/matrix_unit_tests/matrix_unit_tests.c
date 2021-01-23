@@ -27,6 +27,16 @@ TEST_START(3, "matrix_create")
 }
 TEST_END
 
+TEST_START(4, "matrix_create")
+{
+    matrix_t *a = matrix_create(1, 1);
+    TEST_IF(a == NULL)
+    TEST_IF(a->x != 1)
+    TEST_IF(a->y != 1)
+    matrix_free(a);
+}
+TEST_END
+
 int main (void) 
 { 
     int (*test_ptr_arr[])(void) = { test1, test2, test3 };

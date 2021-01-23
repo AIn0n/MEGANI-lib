@@ -25,19 +25,34 @@ typedef struct
 }
 matrix_t;
 
-/** 
- *  @brief function create new matrix and return pointer to it. 
- * 
- *  Function get size of output matrix <x, y>, check input data, allocate memory 
- *  (with calloc) for it and return pointer. If you use thread-safe calloc this
- *  function is thread-safe.
- * 
- *  On success, pointer to matrix is returned. If errors occurs, function return NULL;
- * 
- *  @param [in] x output matrix width.
- *  @param [in] y output matrix height
+/** @brief Function create new matrix and return pointer to it. 
+* 
+*   Function get size of output matrix <x, y>, check input data, allocate memory 
+*   (with calloc) for it and return pointer. Size of output matrix in memory depend on
+*   NN_TYPE. If you use thread-safe calloc this function is thread-safe.
+* 
+*   On success, pointer to matrix is returned. If errors occurs, function return NULL;
+* 
+*   @param [in] x output matrix width.
+*   @param [in] y output matrix height
+*
+*   @see NN_TYPE
  */
 matrix_t* matrix_create(uint32_t x, uint32_t y);
+
+
+/**
+*   @brief Function free memory allocated for matrix.
+*
+*   Function get pointer to matrix_t and frees both structure and NN_TYPE array.
+*   Very possible that this is not thread-safe.
+*
+*   @param [in] matrix pointer to matrix allocated by matrix_create function.
+*
+*   @see matrix_create
+*/
+void matrix_free(matrix_t *matrix);
+
 
 #endif
 

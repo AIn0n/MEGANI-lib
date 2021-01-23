@@ -1,6 +1,7 @@
 #tools
 shell = /bin/bash
 MKDIR_P ?= mkdir -p
+CC ?= gcc
 
 #directories
 BUILD_DIRS ?= ./build

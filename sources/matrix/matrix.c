@@ -20,3 +20,11 @@ matrix_create(uint32_t x, uint32_t y)
     output->y = y;
     return output;
 }
+
+void
+matrix_free(matrix_t *matrix)
+{
+    if(matrix == NULL) return;
+    if(matrix->arr != NULL) free(matrix->arr);
+    free(matrix);
+}
