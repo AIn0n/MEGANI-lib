@@ -25,6 +25,16 @@ typedef struct
 }
 mx_t;
 
+/** @brief Matrix mutliply parameters.
+ *  
+ *  Set this to choose which matrix is transposed in mulitplication.
+ */
+typedef enum {  DEF = 0,    /**< default option */
+                A = 1,      /**< first matrix is transposed */
+                B = 2,      /**< second matrix is transposed */
+                BOTH = 3    /**< both matrix are transposed */
+                } mx_mp_params;
+
 /** @brief Function create new matrix and return pointer to it. 
 * 
 *   Function get size of output matrix <x, y>, check input data, allocate memory 
@@ -56,17 +66,18 @@ void mx_destroy(mx_t *mx);
 /**
  *  @brief Matrix multiply with transposing.
  * 
- *  Function get two matrices, multiply them and store output in out. If flag trnsp_<n>
- *  is set n input matrix is interpreted as transposed. Non thread-safe, input is not
- *  validated.
+ *  Function get two matrices, multiply them and store output in out.
+ *  You can choose which matrix is interpreted as transposed by configuring
+ *  mp_mx_params enum. Non thread-safe, input is not validated.
  * 
  *  @param [in] a first input matrix
  *  @param [in] b second output matrix
- *  @param [in] trnsp_a transposing first matrix
- *  @param [in] trnsp_a transposing second matrix
+ *  @param [in] params transposing directing structure
  *  @param [out] out pointer to output matrix 
+ *
+ *  @see mx_mp_params
  */
-void mx_mp(const mx_t a, const mx_t b, mx_t* out, uint8_t trnsp_a, uint8_t trnsp_b);
+void mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params);
 
 #endif
 

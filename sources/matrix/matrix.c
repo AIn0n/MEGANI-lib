@@ -30,7 +30,34 @@ mx_destroy(mx_t *mx)
 }
 
 void 
-mx_mp(const mx_t a, const mx_t b, mx_t* out, uint8_t trnsp_a, uint8_t trnsp_b)
+mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params)
 {
-    
+    uint32_t tra_y = a.x, tra_i = 1, limit = a.x;
+    if(params & A)
+    {
+        tra_y = 1;
+        tra_i = a.x;
+        limit = a.y;
+    }
+
+    int32_t trb_x = 1, trb_i = b.x;
+    if(params & B)
+    {
+        trb_x = b.x;
+        trb_i = 1;
+    }
+
+    NN_TYPE val;
+    for(uint32_t y = 0; y < out->y; ++y)
+    {
+        for(uint32_t x = 0; x < out->x; ++x)
+        {
+            val = 0;
+            for(uint32_t i = 0; i < limit; ++i)
+            {
+                val += a.arr[i*tra_i + y*tra_y] * b.arr[x*trb_x + i*trb_i];
+            }
+            out->arr[x + y * out->x] = val; 
+        }
+    }
 }
