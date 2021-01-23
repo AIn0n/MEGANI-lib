@@ -1,7 +1,3 @@
-/**
-*   @file  matrix.h
-*   @brief Header file for matrix math.
-*/
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
 
@@ -29,13 +25,14 @@ typedef struct
 }
 matrix_t;
 
-/** matrix_create
+/** 
  *  @brief function create new matrix and return pointer to it. 
  * 
- *  Function get size of output matrix <x, y>, check input data,
- *  allocate memory (with calloc) for it and return pointer. 
+ *  Function get size of output matrix <x, y>, check input data, allocate memory 
+ *  (with calloc) for it and return pointer. If you use thread-safe calloc this
+ *  function is thread-safe.
  * 
- *  On success, pointex to matrix is returned. If errors occurs, function return NULL;
+ *  On success, pointer to matrix is returned. If errors occurs, function return NULL;
  * 
  *  @param [in] x output matrix width.
  *  @param [in] y output matrix height
@@ -43,3 +40,8 @@ matrix_t;
 matrix_t* matrix_create(uint32_t x, uint32_t y);
 
 #endif
+
+/**
+*   @file  matrix.h
+*   @brief Header file for matrix math.
+*/
