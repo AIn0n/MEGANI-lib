@@ -60,9 +60,7 @@ TEST_START(5, "mx_mp")
                             31.0, 72.0, 71.0,
                             15.0, 20.0, 35.0};
     for(int i = 0; i < 9; ++i)
-    {
         TEST_IF(expected_arr[i] != out.arr[i])
-    }
 }
 TEST_END
 
@@ -90,9 +88,7 @@ TEST_START(6, "mx_mp")
                             31.0, 72.0, 71.0,
                             15.0, 20.0, 35.0};
     for(int i = 0; i < 9; ++i)
-    {
         TEST_IF(expected_arr[i] != out.arr[i])
-    }
 }
 TEST_END
 
@@ -120,9 +116,7 @@ TEST_START(7, "mx_mp")
                                 23, 12, 22};
 
     for(int i = 0; i < 12; ++i)
-    {
         TEST_IF(expected_arr[i] != out.arr[i])
-    }
 }
 TEST_END
 
@@ -151,22 +145,20 @@ TEST_START(8, "mx_mp")
                                 16, 75, 35};
 
     for(int i = 0; i < 12; ++i)
-    {
         TEST_IF(expected_arr[i] != out.arr[i])
-    }
 }
 TEST_END
 
 TEST_START(9, "mx_mp")
 {
     mx_t a = {.x = 2, .y = 3};
-    NN_TYPE a_arr[] = { 3.0, 1.0,
-                        0.0, 9.0,
-                        7.0, 5.0};
+    NN_TYPE a_arr[] = { 3, 1,
+                        0, 9,
+                        7, 5};
     a.arr = a_arr;
 
     mx_t b = {.x = 3, .y = 1};
-    NN_TYPE b_arr[] = {3.0 , 4.0, 1.0};
+    NN_TYPE b_arr[] = {3 , 4, 1};
     b.arr = b_arr;
 
     mx_t out = {.x = 1, .y = 2};
@@ -179,9 +171,7 @@ TEST_START(9, "mx_mp")
                                 44};
 
     for(int i = 0; i < 2; ++i)
-    {
         TEST_IF(expected_arr[i] != out.arr[i])
-    }
 }
 TEST_END
 
@@ -206,9 +196,7 @@ TEST_START(10, "mx_hadamard")
     NN_TYPE expected_arr[] ={3, 30, 21, 0, 18, 72};
 
     for(int i = 0; i < 6; ++i)
-    {
         TEST_IF(expected_arr[i] != out.arr[i])
-    }
 }
 TEST_END
 
@@ -229,9 +217,7 @@ TEST_START(11, "mx_hadamard")
     NN_TYPE expected_arr[] ={3, 30, 36, 0};
 
     for(int i = 0; i < 4; ++i)
-    {
         TEST_IF(expected_arr[i] != a.arr[i])
-    }
 }
 TEST_END
 
@@ -256,17 +242,28 @@ TEST_START(12, "mx_sub")
     NN_TYPE expected_arr[] ={0, 1, 4, 11, 4, 1};
 
     for(int i = 0; i < 6; ++i)
-    {
         TEST_IF(expected_arr[i] != out.arr[i])
-    }
 }
 TEST_END
 
+TEST_START(13, "mx_mp_num")
+{
+    mx_t a = {.x = 3, .y = 2};
+    NN_TYPE a_arr[] = { 3, 10, 6, 12, 7, 5};
+    a.arr = a_arr;
+
+    mx_mp_num(&a, 3);
+    NN_TYPE expected_arr[] ={9, 30, 18, 36, 21, 15};
+
+    for(int i = 0; i < 6; ++i)
+        TEST_IF(expected_arr[i] != a.arr[i])
+}
+TEST_END
 
 int main (void) 
 { 
     int (*test_ptr_arr[])(void) = { test1, test2, test3, test4, test5,
-    test6 , test7, test8, test9, test10, test11, test12};
+    test6 , test7, test8, test9, test10, test11, test12, test13};
     const int test_size = sizeof(test_ptr_arr)/sizeof(test_ptr_arr[0]);
     int failed = 0;
 

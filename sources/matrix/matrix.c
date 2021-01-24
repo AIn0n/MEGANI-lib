@@ -81,3 +81,13 @@ mx_sub(const mx_t a, const mx_t b, mx_t* out)
         out->arr[i] = a.arr[i] - b.arr[i];
     }
 }
+
+void 
+mx_mp_num(mx_t* a, NN_TYPE num)
+{
+    uint32_t size = a->x * a->y;
+    for(uint32_t i = 0; i < size; ++i)
+    {
+        a->arr[i] *= num;
+    }
+}

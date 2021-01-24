@@ -101,6 +101,16 @@ void mx_hadamard(const mx_t a, const mx_t b, mx_t* out);
  */
 void mx_sub(const mx_t a, const mx_t b, mx_t* out);
 
+/** @brief Matrix multiplication by single number.
+ * 
+ *  Function takes pointer to <a> matrix and multiply every cell by <num>.
+ *  Non thread-safe and input is not validated.
+ * 
+ *  @param [in] a input matrix
+ *  @param [in] num every cell multiplier
+ */
+void mx_mp_num(mx_t* a, NN_TYPE num);
+
 #endif
 
 /**
