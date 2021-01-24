@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "matrix.h"
 
 mx_t* 

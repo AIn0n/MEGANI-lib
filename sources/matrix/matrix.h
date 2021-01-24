@@ -2,6 +2,7 @@
 #define _MATRIX_H_
 
 #include <stdint.h> //for uintN_t - better portability
+#include <stdlib.h>
 
 /** @def    NN_TYPE
 *   @brief  Type of variables which contain neural values.
