@@ -185,7 +185,7 @@ TEST_START(9, "mx_mp")
 }
 TEST_END
 
-TEST_START(10, "nn_hadamard")
+TEST_START(10, "mx_hadamard")
 {
     mx_t a = {.x = 3, .y = 2};
     NN_TYPE a_arr[] = { 3, 5, 7,
@@ -212,10 +212,61 @@ TEST_START(10, "nn_hadamard")
 }
 TEST_END
 
+TEST_START(11, "mx_hadamard")
+{
+    mx_t a = {.x = 2, .y = 2};
+    NN_TYPE a_arr[] = { 3, 5,
+                        4, 9};
+    a.arr = a_arr;
+
+    mx_t b = {.x = 2, .y = 2};
+    NN_TYPE b_arr[] = { 1, 6,
+                        9, 0};
+    b.arr = b_arr;
+
+    mx_hadamard(a, b, &a);
+
+    NN_TYPE expected_arr[] ={3, 30, 36, 0};
+
+    for(int i = 0; i < 4; ++i)
+    {
+        TEST_IF(expected_arr[i] != a.arr[i])
+    }
+}
+TEST_END
+
+TEST_START(12, "mx_sub")
+{
+    mx_t a = {.x = 3, .y = 2};
+    NN_TYPE a_arr[] = { 3, 10, 6,
+                        12, 7, 5};
+    a.arr = a_arr;
+
+    mx_t b = {.x = 3, .y = 2};
+    NN_TYPE b_arr[] = { 3, 9, 2,
+                        1, 3, 4};
+    b.arr = b_arr;
+
+    mx_t out = {.x = 3, .y = 2};
+    NN_TYPE out_arr[6];
+    out.arr = out_arr;
+
+    mx_sub(a, b, &out);
+
+    NN_TYPE expected_arr[] ={0, 1, 4, 11, 4, 1};
+
+    for(int i = 0; i < 6; ++i)
+    {
+        TEST_IF(expected_arr[i] != out.arr[i])
+    }
+}
+TEST_END
+
+
 int main (void) 
 { 
     int (*test_ptr_arr[])(void) = { test1, test2, test3, test4, test5,
-    test6 , test7, test8, test9, test10};
+    test6 , test7, test8, test9, test10, test11, test12};
     const int test_size = sizeof(test_ptr_arr)/sizeof(test_ptr_arr[0]);
     int failed = 0;
 

@@ -73,7 +73,7 @@ void mx_destroy(mx_t *mx);
  *  @param [in] a first input matrix
  *  @param [in] b second output matrix
  *  @param [in] params transposing directing structure
- *  @param [out] out pointer to output matrix 
+ *  @param [out] out result of matrix multiplication (a * b = out) 
  *
  *  @see mx_mp_params
  */
@@ -86,9 +86,20 @@ void mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params);
  * 
  *  @param [in] a first input matrix
  *  @param [in] b second output matrix
- *  @param [out] out result of hadamard product (a o b)
+ *  @param [out] out result of hadamard product (a o b = out)
  */
 void mx_hadamard(const mx_t a, const mx_t b, mx_t* out);
+
+/** @brief Matrix substraction function.
+ * 
+ *  Function takes two input matrices <a, b> and substract them. Result is
+ *  store in <out> matrix pointer. No thread-safe and input is not validated.
+ * 
+ *  @param [in] a first input matrix
+ *  @param [in] b second output matrix
+ *  @param [out] out result of matrix substraction (a - b = out)
+ */
+void mx_sub(const mx_t a, const mx_t b, mx_t* out);
 
 #endif
 
