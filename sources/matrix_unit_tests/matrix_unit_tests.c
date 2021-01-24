@@ -185,10 +185,37 @@ TEST_START(9, "mx_mp")
 }
 TEST_END
 
+TEST_START(10, "nn_hadamard")
+{
+    mx_t a = {.x = 3, .y = 2};
+    NN_TYPE a_arr[] = { 3, 5, 7,
+                        4, 9, 8};
+    a.arr = a_arr;
+
+    mx_t b = {.x = 3, .y = 2};
+    NN_TYPE b_arr[] = { 1, 6, 3,
+                        0, 2, 9};
+    b.arr = b_arr;
+
+    mx_t out = {.x = 3, .y = 2};
+    NN_TYPE out_arr[6];
+    out.arr = out_arr;
+
+    mx_hadamard(a, b, &out);
+
+    NN_TYPE expected_arr[] ={3, 30, 21, 0, 18, 72};
+
+    for(int i = 0; i < 6; ++i)
+    {
+        TEST_IF(expected_arr[i] != out.arr[i])
+    }
+}
+TEST_END
+
 int main (void) 
 { 
     int (*test_ptr_arr[])(void) = { test1, test2, test3, test4, test5,
-    test6 , test7, test8, test9};
+    test6 , test7, test8, test9, test10};
     const int test_size = sizeof(test_ptr_arr)/sizeof(test_ptr_arr[0]);
     int failed = 0;
 

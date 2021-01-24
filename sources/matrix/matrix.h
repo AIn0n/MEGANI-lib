@@ -88,7 +88,7 @@ void mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params);
  *  @param [in] b second output matrix
  *  @param [out] out result of hadamard product (a o b)
  */
-void mp_hadamard(const mx_t a, const mx_t b, mx_t* out);
+void mx_hadamard(const mx_t a, const mx_t b, mx_t* out);
 
 #endif
 

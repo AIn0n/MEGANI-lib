@@ -62,4 +62,10 @@ mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params)
     }
 }
 
-//void mp_hadamard(const mx_t a, const mx_t b, mx_t* out)
+void 
+mx_hadamard(const mx_t a, const mx_t b, mx_t* out)
+{
+    uint32_t out_size = out->x * out->y;
+    for(uint32_t i = 0; i < out_size; ++i)
+        out->arr[i] = a.arr[i] * b.arr[i];
+}
