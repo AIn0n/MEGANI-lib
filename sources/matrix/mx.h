@@ -116,7 +116,7 @@ void mx_mp_num(mx_t* a, NN_TYPE num);
 #endif
 
 /**
-*   @file  matrix.h
+*   @file  mx.h
 *   @brief Header file for matrix math.
 */
 

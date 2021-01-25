@@ -5,7 +5,7 @@
 
 #define MAX(a, b)	((a) < (b) ? (b) : (a))
 
-/** @struct nn_layer
+/** @struct nn_layer_t
  *  @brief Structure with single neural network layer.
  * 
  *  I designed this struct as small and fast as possible.
@@ -20,7 +20,7 @@ typedef struct
     mx_t *val;           /**< values of neurons in current layer */
     mx_t *delta;         /**< delta, used in backpropagation */
     mx_t *drop;          /**< dropout mask */
-    double drop_rate;  /**< percentage amount of turned off neurons in dropout */
+    uint8_t drop_rate;  /**< percentage amount of turned off neurons in dropout */
     void (*activ_func)(NN_TYPE*, uint8_t);  /**< activation function pointer */
 } 
 nn_layer_t;
@@ -42,11 +42,18 @@ typedef struct
 }
 nn_array_t;
 
+/** @brief struct used to configure neural layers.
+ * 
+ *  Structure have cells with every information which we need to build full, nerual network
+ *  layer. Structure made to be as fast and small as possible. Heavily depeend on matrix.h.
+ * 
+ *  @see nn_create
+ */
 typedef struct 
 {
-    uint32_t    size;
     void        (*activ_func)(NN_TYPE*, uint8_t);
-    double      drop_rate;
+    uint8_t     drop_rate;
+    uint32_t    size;
     NN_TYPE     min;
     NN_TYPE     max;
 } 
@@ -66,7 +73,17 @@ nn_params_t;
  */
 nn_array_t* nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...);
 
+/** @brief Free memory allocated for neural network struct.
+ * 
+ *  Frees memory which we allocated by nn_create() function.
+ *  Functions is not thread safe.
+ *  
+ *  @param [in] nn network which we free
+ */
 void nn_destroy(nn_array_t *nn);
+
+//TODO
+void nn_layer_drop_reroll(nn_layer_t* layer);
 
 #endif
 

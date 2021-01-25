@@ -103,3 +103,12 @@ void nn_destroy(nn_array_t *nn)
     free(nn);
     nn = NULL;
 }
+
+void nn_layer_drop_reroll(nn_layer_t* layer)
+{
+    uint32_t size = layer->drop->x * layer->drop->y;
+    for(uint32_t i = 0; i < size; ++i)
+    {
+        layer->drop->arr[i] = ((rand() % 100) >= 50);
+    }
+}

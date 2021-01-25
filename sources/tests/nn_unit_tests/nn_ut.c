@@ -4,20 +4,20 @@
 TEST_START(1, "nn_create")
 {
     nn_array_t* n = nn_create(100, 15, 2, 
-    (nn_params_t){.activ_func = NULL, .drop_rate = 0.4, .max = 0.2, .min=01, .size = 10},
-    (nn_params_t){.activ_func = NULL, .drop_rate = 0.4, .max = 0.2, .min=01, .size = 20});
+    (nn_params_t){.activ_func = NULL, .drop_rate = 40, .max = 0.2, .min=01, .size = 10},
+    (nn_params_t){.activ_func = NULL, .drop_rate = 40, .max = 0.2, .min=01, .size = 20});
 
     TEST_SIZE(n->layers[0]->delta,  10, 15)
     TEST_SIZE(n->layers[0]->out,    10, 15)
     TEST_SIZE(n->layers[0]->drop,   10, 15)
     TEST_SIZE(n->layers[0]->val,   100, 10)
-    TEST_IF(n->layers[0]->drop_rate != 0.4)
+    TEST_IF(n->layers[0]->drop_rate != 40)
 
     TEST_SIZE(n->layers[1]->delta,  20, 15)
     TEST_SIZE(n->layers[1]->out,    20, 15)
     TEST_SIZE(n->layers[1]->drop,   20, 15)
     TEST_SIZE(n->layers[1]->val,    10, 20)
-    TEST_IF(n->layers[1]->drop_rate != 0.4)
+    TEST_IF(n->layers[1]->drop_rate != 40)
 
     TEST_SIZE(n->vdelta, 100,20)
 
