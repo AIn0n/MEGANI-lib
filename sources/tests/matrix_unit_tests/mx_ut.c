@@ -1,10 +1,7 @@
 #include "matrix.h"
 #include "stdio.h"
 #include "stdlib.h"
-
-#define TEST_START(num, func) int test##num(void) { printf("-- test %i -- (%s)\n", num, func);
-#define TEST_END  puts("---- OK!"); return 0; }
-#define TEST_IF(x) if(x) { printf("---- ERROR! (line %i)\n", __LINE__); return 1; }
+#include "ut_macros.h"
 
 TEST_START(1, "mx_create")
 {
@@ -260,15 +257,17 @@ TEST_START(13, "mx_mp_num")
 }
 TEST_END
 
-int main (void) 
+int mx_ut(void) 
 { 
     int (*test_ptr_arr[])(void) = { test1, test2, test3, test4, test5,
     test6 , test7, test8, test9, test10, test11, test12, test13};
     const int test_size = sizeof(test_ptr_arr)/sizeof(test_ptr_arr[0]);
     int failed = 0;
 
+    puts("matrix unit tests\n");
+
     for(int i = 0; i < test_size; ++i) failed += (*test_ptr_arr[i])();
     
     printf("%i of %i tests failed\n", failed, test_size);
-    return 0; 
+    return failed; 
 }

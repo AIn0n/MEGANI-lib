@@ -1,7 +1,7 @@
 #ifndef _NN_H_
 #define _NN_H
 #include "matrix.h"
-
+#include <stdarg.h>
 
 /** @struct nn_layer
  *  @brief Structure with single neural network layer.
@@ -12,40 +12,49 @@
  * 
  *  @see mx_t 
  */
-typedef struct {
-    mx_t out;           /**< matrix with layer output */
-    mx_t val;           /**< values of neurons in current layer */
-    mx_t delta;         /**< delta, used in backpropagation */
-    mx_t drop;          /**< dropout mask */
-    NN_TYPE drop_rate;  /**< percentage amount of turned off neurons in dropout */
+typedef struct 
+{
+    mx_t *out;           /**< matrix with layer output */
+    mx_t *val;           /**< values of neurons in current layer */
+    mx_t *delta;         /**< delta, used in backpropagation */
+    mx_t *drop;          /**< dropout mask */
+    double drop_rate;  /**< percentage amount of turned off neurons in dropout */
     void (*activ_func)(NN_TYPE*, uint8_t);  /**< activation function pointer */
-} nn_layer;
+} 
+nn_layer_t;
 
-typedef nn_layer* nn_array;
+typedef struct 
+{
+    nn_layer_t* layer;
+    uint16_t    size; 
+}
+nn_array_t;
 
-/** @brief Function creates neural network structure.
+typedef struct 
+{
+    uint32_t    size;
+    void        (*activ_func)(NN_TYPE*, uint8_t);
+    double      drop_rate;
+    NN_TYPE     min;
+    NN_TYPE     max;
+} 
+nn_params_t;
+
+/** @brief Create and fill neural network.
  * 
- *  Function create empty neural network without any layer,
- *  it is just allocation for single NULL pointer, other funcs
- *  can adds new layers. Function is thread-safe if stdlib calloc
- *  is thread-safe.
+ *  Function check input data, after that it alloc memory for whole structure.
+ *  It gives us neural network with <nol> layers, every one of them configured
+ *  with nn_params_t structures given in place of <...>.
  * 
  *  On success, pointer to structure is returned. If errors occurs, function return NULL.
+ * 
+ *  @param [in] in_size input size (width of input matrix)
+ *  @param [in] b_size  batch size (heigh of input matrix)
+ *  @param [in] nn_size     Numer Of Layers
  */
-nn_array* nn_create(void);
+nn_array_t* nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...);
 
-/** @brief Function adds new layer to existing network.
- * 
- *          
- *              TODO
- * 
- */
-uint8_t nn_add_layer(
-nn_array*   nn, 
-uint32_t    neurons, 
-uint32_t    in_size,
-void        (*activ_func)(NN_TYPE*, uint8_t),
-uint32_t    batch_size);
+
 #endif
 
 /** @file nn.h
