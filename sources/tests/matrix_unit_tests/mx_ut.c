@@ -1,6 +1,4 @@
 #include "mx.h"
-#include "stdio.h"
-#include "stdlib.h"
 #include "ut_macros.h"
 
 TEST_START(1, "mx_create")
@@ -28,8 +26,7 @@ TEST_START(4, "mx_create")
 {
     mx_t *a = mx_create(1, 1);
     TEST_IF(a == NULL)
-    TEST_IF(a->x != 1)
-    TEST_IF(a->y != 1)
+    TEST_SIZE(a, 1, 1)
     mx_destroy(a);
 }
 TEST_END

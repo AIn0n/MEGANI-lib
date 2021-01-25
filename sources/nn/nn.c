@@ -22,10 +22,10 @@ nn_layer_create(uint32_t in_size, uint32_t b_size, nn_params_t params)
 
     do {
         out->delta  = mx_create(params.size, b_size);
-        out->val    = mx_create(in_size, params.size);
         out->out    = mx_create(params.size, b_size);
-        out->drop   = mx_create(in_size, params.size);
-        
+        out->drop   = mx_create(params.size, b_size);
+        out->val    = mx_create(in_size, params.size);
+
         if(out->delta   == NULL) break;
         if(out->out     == NULL) break;
         if(out->val     == NULL) break;
@@ -57,29 +57,34 @@ nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...)
     
     out->size = nn_size;
     out->layers = (nn_layer_t **)calloc(nn_size, sizeof(nn_layer_t *));
-    if(out->layers == NULL)
-    {
-        free(out);
-        return NULL;
-    }
+    if(out->layers == NULL) { free(out); return NULL; }
 
     va_list ap;
     va_start(ap, nn_size);
+
     nn_params_t params;
-    uint32_t prev_size = 0;
+    uint32_t    size = in_size;             //size(layer->output) == size(next->layer->input)
+    uint32_t    max_in = 0, max_out = 0;    //this vars we use to build vdelta matrix
+
     for(uint16_t i = 0; i < nn_size; ++i)
     {
         params = va_arg(ap, nn_params_t);
-        out->layers[i] = nn_layer_create(((i)?(prev_size):(in_size)), b_size, params);
+        out->layers[i] = nn_layer_create(size, b_size, params);
         if(out->layers[i] == NULL)
         {
             out->size = i;
             nn_destroy(out);
             return NULL;
         }
-        prev_size = params.size; 
+        max_in = MAX(size, max_in);
+        max_out= MAX(params.size, max_out);
+        size = params.size; 
     }
     va_end(ap);
+
+    out->vdelta = mx_create(max_in, max_out);
+    if(out->vdelta == NULL) nn_destroy(out);
+
     return out;
 }
 
@@ -87,6 +92,8 @@ void nn_destroy(nn_array_t *nn)
 {
     if(nn == NULL) return;
     for(uint16_t i = 0; i < nn->size; ++i) nn_layer_destroy(nn->layers[i]);
+    mx_destroy(nn->vdelta);
     free(nn->layers);
     free(nn);
+    nn = NULL;
 }
