@@ -1,6 +1,6 @@
 #ifndef _NN_H_
 #define _NN_H
-#include "matrix.h"
+#include "mx.h"
 #include <stdarg.h>
 
 /** @struct nn_layer
@@ -25,7 +25,7 @@ nn_layer_t;
 
 typedef struct 
 {
-    nn_layer_t* layer;
+    nn_layer_t** layers;
     uint16_t    size; 
 }
 nn_array_t;
@@ -54,6 +54,7 @@ nn_params_t;
  */
 nn_array_t* nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...);
 
+void nn_destroy(nn_array_t *nn);
 
 #endif
 

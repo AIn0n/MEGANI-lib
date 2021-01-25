@@ -1,5 +1,5 @@
-#ifndef _MATRIX_H_
-#define _MATRIX_H_
+#ifndef _MX_H_
+#define _MX_H_
 
 #include <stdint.h> //for uintN_t - better portability
 #include <stdlib.h>

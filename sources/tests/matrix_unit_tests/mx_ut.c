@@ -1,4 +1,4 @@
-#include "matrix.h"
+#include "mx.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "ut_macros.h"

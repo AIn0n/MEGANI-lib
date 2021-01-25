@@ -1,11 +1,11 @@
-#include "matrix.h"
+#include "mx.h"
 
 mx_t* 
 mx_create(uint32_t x, uint32_t y)
 {
     if(!x || !y) return NULL;
     
-    mx_t* output = (mx_t *)calloc(1, sizeof(output));
+    mx_t* output = (mx_t *)calloc(1, sizeof(mx_t));
     if(output == NULL) return NULL;
 
     output->arr = (NN_TYPE *)calloc(x * y, sizeof(NN_TYPE));
