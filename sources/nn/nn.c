@@ -1,5 +1,7 @@
 #include <nn.h>
 
+//--------------------------------STATIC FUNCTIONS---------------------------------
+
 static void 
 nn_layer_destroy(nn_layer_t* layer)
 {
@@ -34,10 +36,12 @@ nn_layer_create(uint32_t in_size, uint32_t b_size, nn_params_t params)
         if(params.min && params.max)
         {
             uint32_t val_size = out->val->x * out->val->y;
+            NN_TYPE a;
+            NN_TYPE diff = (params.max - params.min);
             for(uint32_t i = 0; i < val_size; ++i)
             {
-                //TODO
-                out->val->arr[i] = rand();
+                a = (NN_TYPE) rand() / RAND_MAX;
+                out->val->arr[i] = params.min + a * diff;
             }
         }
         return out;
@@ -46,6 +50,8 @@ nn_layer_create(uint32_t in_size, uint32_t b_size, nn_params_t params)
     nn_layer_destroy(out);
     return NULL;
 }
+
+//-----------------------------------USER FUNCTIONS---------------------------------
 
 nn_array_t* 
 nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...)
