@@ -42,6 +42,15 @@ typedef struct
 }
 nn_array_t;
 
+
+typedef struct
+{
+    NN_TYPE (*func_cell)(NN_TYPE);
+    NN_TYPE (*func_mx)(mx_t *);
+}
+act_func_t;
+
+
 /** @brief struct used to configure neural layers.
  * 
  *  Structure have cells with every information which we need to build full, nerual network
@@ -82,8 +91,7 @@ nn_array_t* nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...);
  */
 void nn_destroy(nn_array_t *nn);
 
-//TODO
-void nn_layer_drop_reroll(nn_layer_t* layer);
+void nn_predict(nn_array_t *nn, const mx_t* input, uint8_t flags);
 
 #endif
 

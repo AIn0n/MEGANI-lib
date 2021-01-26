@@ -51,6 +51,16 @@ nn_layer_create(uint32_t in_size, uint32_t b_size, nn_params_t params)
     return NULL;
 }
 
+static void 
+nn_layer_drop_reroll(nn_layer_t* layer)
+{
+    uint32_t size = layer->drop->x * layer->drop->y;
+    for(uint32_t i = 0; i < size; ++i)
+    {
+        layer->drop->arr[i] = ((rand() % 100) >= 50);
+    }
+}
+
 //-----------------------------------USER FUNCTIONS---------------------------------
 
 nn_array_t* 
@@ -94,7 +104,8 @@ nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...)
     return out;
 }
 
-void nn_destroy(nn_array_t *nn)
+void 
+nn_destroy(nn_array_t *nn)
 {
     if(nn == NULL) return;
     for(uint16_t i = 0; i < nn->size; ++i) nn_layer_destroy(nn->layers[i]);
@@ -104,11 +115,26 @@ void nn_destroy(nn_array_t *nn)
     nn = NULL;
 }
 
-void nn_layer_drop_reroll(nn_layer_t* layer)
+void 
+nn_predict(nn_array_t *nn,const mx_t* input, uint8_t flags)
 {
-    uint32_t size = layer->drop->x * layer->drop->y;
-    for(uint32_t i = 0; i < size; ++i)
+    const mx_t* prev_out = input;
+    nn_layer_t** l = nn->layers;
+    for(uint16_t i = 0; i < nn->size; ++i)
     {
-        layer->drop->arr[i] = ((rand() % 100) >= 50);
+    //layer output = layer input * layer values T
+        mx_mp(*prev_out, *(l[i]->val),  l[i]->out, B);
+        prev_out = l[i]->out;
+
+    //layer output = activation function ( layer output )
+        //TODO
+
+    //layer output = dropout mask ( layer output )
+        if((flags & 1) && l[i]->drop_rate)
+        {
+            nn_layer_drop_reroll(nn->layers[i]);
+            mx_hadamard(*(l[i]->out), *(l[i]->drop), l[i]->out);
+            mx_mp_num(l[i]->out, (l[i]->drop_rate / 100));
+        }
     }
 }
