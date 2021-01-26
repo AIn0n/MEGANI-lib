@@ -3,7 +3,37 @@
 #include "mx.h"
 #include <stdarg.h>
 
+//------------------------------------------------MACROS------------------------------------------
+
 #define MAX(a, b)	((a) < (b) ? (b) : (a))
+#define NO_FUNC ((act_func_t) {.func_cell =NULL, .func_mx =NULL})
+#define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
+
+//------------------------------------------------STRUCTURES---------------------------------------
+
+typedef struct
+{
+    NN_TYPE (*func_cell)(NN_TYPE);
+    void (*func_mx)(mx_t *);
+}
+act_func_t;
+
+/** @brief struct used to configure neural layers.
+ * 
+ *  Structure have cells with every information which we need to build full, nerual network
+ *  layer. Structure made to be as fast and small as possible. Heavily depeend on matrix.h.
+ * 
+ *  @see nn_create
+ */
+typedef struct
+{
+    act_func_t  activ_func;
+    uint8_t     drop_rate;
+    uint32_t    size;
+    NN_TYPE     min;
+    NN_TYPE     max;
+} 
+nn_params_t;
 
 /** @struct nn_layer_t
  *  @brief Structure with single neural network layer.
@@ -21,7 +51,7 @@ typedef struct
     mx_t *delta;         /**< delta, used in backpropagation */
     mx_t *drop;          /**< dropout mask */
     uint8_t drop_rate;  /**< percentage amount of turned off neurons in dropout */
-    void (*activ_func)(NN_TYPE*, uint8_t);  /**< activation function pointer */
+    act_func_t activ_func;  /**< activation function pointer */
 } 
 nn_layer_t;
 
@@ -42,31 +72,7 @@ typedef struct
 }
 nn_array_t;
 
-
-typedef struct
-{
-    NN_TYPE (*func_cell)(NN_TYPE);
-    NN_TYPE (*func_mx)(mx_t *);
-}
-act_func_t;
-
-
-/** @brief struct used to configure neural layers.
- * 
- *  Structure have cells with every information which we need to build full, nerual network
- *  layer. Structure made to be as fast and small as possible. Heavily depeend on matrix.h.
- * 
- *  @see nn_create
- */
-typedef struct 
-{
-    void        (*activ_func)(NN_TYPE*, uint8_t);
-    uint8_t     drop_rate;
-    uint32_t    size;
-    NN_TYPE     min;
-    NN_TYPE     max;
-} 
-nn_params_t;
+//------------------------------------------FUNCTIONS--------------------------------------------
 
 /** @brief Create and fill neural network.
  * 
@@ -91,7 +97,12 @@ nn_array_t* nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...);
  */
 void nn_destroy(nn_array_t *nn);
 
-void nn_predict(nn_array_t *nn, const mx_t* input, uint8_t flags);
+void nn_eval(nn_array_t *nn, const mx_t* input, uint8_t flags);
+
+//----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
+
+void relu_mx(mx_t *a);
+NN_TYPE relu_deriv_cell(NN_TYPE a);
 
 #endif
 

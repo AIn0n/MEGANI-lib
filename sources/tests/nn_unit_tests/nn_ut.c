@@ -4,8 +4,8 @@
 TEST_START(1, "nn_create")
 {
     nn_array_t* n = nn_create(100, 15, 2, 
-    (nn_params_t){.activ_func = NULL, .drop_rate = 40, .max = 0.2, .min=01, .size = 10},
-    (nn_params_t){.activ_func = NULL, .drop_rate = 40, .max = 0.2, .min=01, .size = 20});
+    (nn_params_t){.activ_func = RELU, .drop_rate = 40, .max = 0.2, .min=01, .size = 10},
+    (nn_params_t){.activ_func = NO_FUNC, .drop_rate = 40, .max = 0.2, .min=01, .size = 20});
 
     TEST_SIZE(n->layers[0]->delta,  10, 15)
     TEST_SIZE(n->layers[0]->out,    10, 15)

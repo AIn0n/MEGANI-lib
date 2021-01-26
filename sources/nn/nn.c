@@ -116,7 +116,7 @@ nn_destroy(nn_array_t *nn)
 }
 
 void 
-nn_predict(nn_array_t *nn,const mx_t* input, uint8_t flags)
+nn_eval(nn_array_t *nn,const mx_t* input, uint8_t flags)
 {
     const mx_t* prev_out = input;
     nn_layer_t** l = nn->layers;
@@ -127,7 +127,7 @@ nn_predict(nn_array_t *nn,const mx_t* input, uint8_t flags)
         prev_out = l[i]->out;
 
     //layer output = activation function ( layer output )
-        //TODO
+        (*l[i]->activ_func.func_mx)(l[i]->out);
 
     //layer output = dropout mask ( layer output )
         if((flags & 1) && l[i]->drop_rate)
@@ -138,3 +138,15 @@ nn_predict(nn_array_t *nn,const mx_t* input, uint8_t flags)
         }
     }
 }
+
+//---------------------------------ACTIVATION FUNCS------------------------------------------
+
+void relu_mx(mx_t *a)
+{
+    uint32_t size = a->x * a->y;
+    for(uint32_t i = 0; i < size; ++i)
+        a->arr[i] = MAX(a->arr[i],(NN_TYPE) 0);
+}
+
+NN_TYPE 
+relu_deriv_cell(NN_TYPE a) {return (NN_TYPE)((a > (NN_TYPE)0) ? 1 : 0);}
