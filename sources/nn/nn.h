@@ -20,8 +20,8 @@ act_func_t;
 
 /** @brief struct used to configure neural layers.
  * 
- *  Structure have cells with every information which we need to build full, nerual network
- *  layer. Structure made to be as fast and small as possible. Heavily depeend on matrix.h.
+ *  Structure have cells with every information which we need to build full, neural network
+ *  layer. The Structure was built to be as fast and small as possible. Heavily depeend on matrix.h.
  * 
  *  @see nn_create
  */
@@ -39,8 +39,7 @@ nn_params_t;
  *  @brief Structure with single neural network layer.
  * 
  *  I designed this struct as small and fast as possible.
- *  It depend matrix.h file for structs and functions for
- *  matrix.
+ *  It depend matrix.h file for matrix structs and functions.
  * 
  *  @see mx_t 
  */
@@ -84,7 +83,7 @@ nn_array_t;
  * 
  *  @param [in] in_size input size (width of input matrix)
  *  @param [in] b_size  batch size (heigh of input matrix)
- *  @param [in] nn_size numer of layers
+ *  @param [in] nn_size number of layers
  */
 nn_array_t* nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...);
 
