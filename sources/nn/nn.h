@@ -97,7 +97,9 @@ nn_array_t* nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...);
  */
 void nn_destroy(nn_array_t *nn);
 
-void nn_eval(nn_array_t *nn, const mx_t* input, uint8_t flags);
+void nn_predict(nn_array_t *nn, const mx_t* input, uint8_t flags);
+
+void nn_fit(nn_array_t *nn, const mx_t* in, const mx_t* out, NN_TYPE alpha);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
 

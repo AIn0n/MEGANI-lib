@@ -116,7 +116,7 @@ nn_destroy(nn_array_t *nn)
 }
 
 void 
-nn_eval(nn_array_t *nn,const mx_t* input, uint8_t flags)
+nn_predict(nn_array_t *nn,const mx_t* input, uint8_t flags)
 {
     const mx_t* prev_out = input;
     nn_layer_t** l = nn->layers;
@@ -139,13 +139,29 @@ nn_eval(nn_array_t *nn,const mx_t* input, uint8_t flags)
     }
 }
 
+void nn_fit(nn_array_t *nn, const mx_t* in, const mx_t* out, NN_TYPE alpha)
+{
+    nn_predict(nn, in, 1);
+
+    nn_layer_t** l = nn->layers;
+    uint16_t n_size = (nn->size - 1);
+
+    //delta = out - expected out    
+    mx_sub(*l[n_size]->out, *out, l[n_size]->delta);
+
+    for(uint16_t i = n_size - 1; i > -1; --i)
+    {
+        // delta = next delta * next values
+    }
+}
+
 //---------------------------------ACTIVATION FUNCS------------------------------------------
 
 void relu_mx(mx_t *a)
 {
     uint32_t size = a->x * a->y;
     for(uint32_t i = 0; i < size; ++i)
-        a->arr[i] = MAX(a->arr[i],(NN_TYPE) 0);
+        a->arr[i] = MAX(a->arr[i],((NN_TYPE) 0));
 }
 
 NN_TYPE 
