@@ -11,6 +11,11 @@
 */
 #define NN_TYPE double 
 
+/** @def    NN_ZERO
+ *  @brief  zero cast on NN_TYPE.
+ */
+#define NN_ZERO ((NN_TYPE)0)
+
 /** @struct mx_t 
 *   @brief  Structure with matrix data and size.
 *

@@ -112,9 +112,44 @@ TEST_START(3, "nn_predict")
 }
 TEST_END
 
+//TODO
+TEST_START(4, "nn_create > nn_predict > nn_fit")
+{
+    NN_TYPE in_arr[12] = {8.5, 0.65, 1.2, 9.5, 0.8, 1.3, 9.9, 0.8, 0.5, 9.9, 0.9, 1.0};
+    mx_t in = {.arr = in_arr, .x = 3, .y = 4};
+
+    nn_array_t *n = nn_create(3, 4, 2, 
+    (nn_params_t){.activ_func = RELU, .drop_rate = NN_ZERO, .max=NN_ZERO, .min=NN_ZERO, .size = 3},
+    (nn_params_t){.activ_func = NO_FUNC, .drop_rate = NN_ZERO, .max=NN_ZERO, .min=NN_ZERO, .size = 3});
+
+    NN_TYPE val0[9] = {0.1, 0.2, -0.1, -0.1, 0.1, 0.9, 0.1, 0.4, 0.1};
+    for(uint32_t i = 0; i < 9; ++i)
+        n->layers[0]->val->arr[i] = val0[i];
+
+    NN_TYPE val1[9] = {0.3, 1.1, -0.3, 0.1, 0.2, 0.0, 0.0, 1.3, 0.1};
+    for(uint32_t i = 0; i < 9; ++i)
+        n->layers[1]->val->arr[i] = val1[i];
+
+    NN_TYPE out_arr[12] = {0.1, 1.0, 0.1, 0.0, 1.0, 0.0, 0.0, 0.0, 0.1, 0.1, 1.0, 0.2};
+    mx_t out = {.arr = out_arr, .x = 3, .y = 4};
+
+    nn_fit(n, &in, &out, 0.01);
+
+    NN_TYPE exp_val0[9] = { 0.118847, 0.201724, -0.0977926, 
+                            -0.190674, 0.0930147, 0.886871, 
+                            0.093963, 0.399449, 0.0994944};
+    for(uint32_t i = 0; i < 9; ++i)
+    {
+        TEST_ERR(n->layers[0]->val->arr[i], exp_val0[i], 0.0001)
+    }
+
+    nn_destroy(n);
+}
+TEST_END
+
 int nn_ut(void) 
 {
-    int (*test_ptr_arr[])(void) = { test1, test2, test3};
+    int (*test_ptr_arr[])(void) = { test1, test2, test3, test4};
     const int test_size = sizeof(test_ptr_arr)/sizeof(test_ptr_arr[0]);
     int failed = 0;
 

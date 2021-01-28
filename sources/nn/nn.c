@@ -25,13 +25,15 @@ nn_layer_create(uint32_t in_size, uint32_t b_size, nn_params_t params)
     do {
         out->delta  = mx_create(params.size, b_size);
         out->out    = mx_create(params.size, b_size);
-        out->drop   = mx_create(params.size, b_size);
         out->val    = mx_create(in_size, params.size);
+
+        if(out->drop_rate > NN_ZERO) 
+            out->drop = mx_create(params.size, b_size);
 
         if(out->delta   == NULL) break;
         if(out->out     == NULL) break;
         if(out->val     == NULL) break;
-        if(out->drop    == NULL) break;
+        if((out->drop_rate > NN_ZERO) && (out->drop == NULL)) break;
 
         if(params.min && params.max)
         {
@@ -57,7 +59,7 @@ nn_layer_drop_reroll(nn_layer_t* layer)
     uint32_t size = layer->drop->x * layer->drop->y;
     for(uint32_t i = 0; i < size; ++i)
     {
-        layer->drop->arr[i] = ((rand() % 100) >= 50);
+        layer->drop->arr[i] = ((rand() % 100) >= layer->drop_rate);
     }
 }
 
@@ -127,8 +129,8 @@ nn_predict(nn_array_t *nn,const mx_t* input, uint8_t flags)
         prev_out = l[i]->out;
 
     //layer output = activation function ( layer output )
-    if(l[i]->activ_func.func_mx != NULL)
-        (*l[i]->activ_func.func_mx)(l[i]->out);
+        if(l[i]->activ_func.func_mx != NULL)
+            (*l[i]->activ_func.func_mx)(l[i]->out);
 
     //layer output = dropout mask ( layer output )
         if((flags & 1) && l[i]->drop_rate)
@@ -141,19 +143,49 @@ nn_predict(nn_array_t *nn,const mx_t* input, uint8_t flags)
 }
 
 //TODO
-void nn_fit(nn_array_t *nn, const mx_t* in, const mx_t* out, NN_TYPE alpha)
+void 
+nn_fit(nn_array_t *nn, const mx_t* in, const mx_t* out, NN_TYPE alpha)
 {
-    nn_predict(nn, in, 1);
+//counting output
+    nn_predict(nn, in, 0);
 
     nn_layer_t** l = nn->layers;
-    uint16_t n_size = (nn->size - 1);
+    int32_t n_size = (nn->size - 1);
 
-    //delta = out - expected out    
-    mx_sub(*l[n_size]->out, *out, l[n_size]->delta);
-    if(alpha) return;   //DEBUG
-    for(int32_t i = n_size - 1; i > -1; --i)
+//counting delta    
+    for(int32_t i = n_size; i > -1; --i)
     {
-        // delta = next delta * next values
+    //delta = out - expected out    
+    //delta = next delta * next values (last layer case)
+        if(i == n_size) 
+            mx_sub(*l[i]->out, *out, l[i]->delta);
+        else            
+            mx_mp(*(l[i+1]->delta), *(l[i+1]->val), l[i]->delta, DEF);
+
+    //delta = delta o activation function ( output )
+        if(l[i]->activ_func.func_cell != NULL)
+            mx_hadam_lambda(l[i]->delta, *l[i]->out, l[i]->activ_func.func_cell);
+    //delta = delta o dropout mask
+        if(l[i]->drop_rate > NN_ZERO)
+            mx_hadamard(*l[i]->delta, *l[i]->drop, l[i]->delta);
+    }
+
+//values update
+    const mx_t *prev_out = in;
+    for(uint32_t i = 0; i < nn->size; ++i)
+    {
+    //vdelta is universal for every matrix so before use we have to resize it
+        nn->vdelta->x = l[i]->val->x;
+        nn->vdelta->y = l[i]->val->y;
+    //value delta = delta^T * previous output
+    //value delta = delat^T * input (first layer case)
+        mx_mp(*l[i]->delta, *prev_out, nn->vdelta, A);
+    //value delta = value delta * alpha
+        mx_mp_num(nn->vdelta, alpha);
+    //value = value - value delta
+        mx_sub(*l[i]->val, *nn->vdelta, l[i]->val);
+
+        prev_out = l[i]->out;
     }
 }
 
@@ -163,8 +195,8 @@ void relu_mx(mx_t *a)
 {
     uint32_t size = a->x * a->y;
     for(uint32_t i = 0; i < size; ++i)
-        a->arr[i] = MAX(a->arr[i],((NN_TYPE) 0));
+        a->arr[i] = MAX(a->arr[i],NN_ZERO);
 }
 
 NN_TYPE 
-relu_deriv_cell(NN_TYPE a) {return (NN_TYPE)((a > (NN_TYPE)0) ? 1 : 0);}
+relu_deriv_cell(NN_TYPE a) {return (NN_TYPE)((a > NN_ZERO) ? 1 : 0);}
