@@ -127,6 +127,7 @@ nn_predict(nn_array_t *nn,const mx_t* input, uint8_t flags)
         prev_out = l[i]->out;
 
     //layer output = activation function ( layer output )
+    if(l[i]->activ_func.func_mx != NULL)
         (*l[i]->activ_func.func_mx)(l[i]->out);
 
     //layer output = dropout mask ( layer output )
@@ -139,6 +140,7 @@ nn_predict(nn_array_t *nn,const mx_t* input, uint8_t flags)
     }
 }
 
+//TODO
 void nn_fit(nn_array_t *nn, const mx_t* in, const mx_t* out, NN_TYPE alpha)
 {
     nn_predict(nn, in, 1);
@@ -148,8 +150,8 @@ void nn_fit(nn_array_t *nn, const mx_t* in, const mx_t* out, NN_TYPE alpha)
 
     //delta = out - expected out    
     mx_sub(*l[n_size]->out, *out, l[n_size]->delta);
-
-    for(uint16_t i = n_size - 1; i > -1; --i)
+    if(alpha) return;   //DEBUG
+    for(int32_t i = n_size - 1; i > -1; --i)
     {
         // delta = next delta * next values
     }
