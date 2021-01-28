@@ -254,10 +254,30 @@ TEST_START(13, "mx_mp_num")
 }
 TEST_END
 
+NN_TYPE foo(NN_TYPE a) {return (a > 4) ? 0 : a;}
+
+TEST_START(14, "mx_hadam_lambda")
+{
+    NN_TYPE a_arr[4] = {0, 1, 1, 6};
+    mx_t a = {.arr = a_arr, .x = 4, .y = 1};
+
+    NN_TYPE b_arr[4] = {3, 4, 8, 2};
+    mx_t b = {.arr = b_arr, .x = 4, .y = 1};
+
+    mx_hadam_lambda(&a, b, (&foo));
+
+    NN_TYPE expected_out[4] = {0, 4, 0, 12};
+    for(uint32_t i = 0; i < 4; ++i)
+    {
+        TEST_IF(a.arr[i] != expected_out[i])
+    }
+}
+TEST_END
+
 int mx_ut(void) 
 { 
     int (*test_ptr_arr[])(void) = { test1, test2, test3, test4, test5,
-    test6 , test7, test8, test9, test10, test11, test12, test13};
+    test6 , test7, test8, test9, test10, test11, test12, test13, test14};
     const int test_size = sizeof(test_ptr_arr)/sizeof(test_ptr_arr[0]);
     int failed = 0;
 

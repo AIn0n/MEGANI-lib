@@ -90,3 +90,13 @@ mx_mp_num(mx_t* a, NN_TYPE num)
         a->arr[i] *= num;
     }
 }
+
+void 
+mx_hadam_lambda(mx_t* a, const mx_t b, NN_TYPE (*lambda)(NN_TYPE))
+{
+    uint32_t size = a->x * a->y;
+    for(uint32_t i = 0; i < size; ++i)
+    {
+        a->arr[i] *= (*lambda)(b.arr[i]);
+    }
+}

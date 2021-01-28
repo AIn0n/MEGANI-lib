@@ -113,6 +113,12 @@ void mx_sub(const mx_t a, const mx_t b, mx_t* out);
  */
 void mx_mp_num(mx_t* a, NN_TYPE num);
 
+/** @brief function uses lambda on every cell of second matrix and return to first matrix hadamard product.
+ * 
+ * 
+ */
+void mx_hadam_lambda(mx_t* a, const mx_t b, NN_TYPE (*lambda)(NN_TYPE));
+
 #endif
 
 /**
