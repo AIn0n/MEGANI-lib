@@ -115,7 +115,7 @@ TEST_END
 //TODO
 TEST_START(4, "nn_create > nn_predict > nn_fit")
 {
-    NN_TYPE in_arr[12] = {8.5, 0.65, 1.2, 9.5, 0.8, 1.3, 9.9, 0.8, 0.5, 9.9, 0.9, 1.0};
+    NN_TYPE in_arr[12] = {8.5, 0.65, 1.2, 9.5, 0.8, 1.3, 9.9, 0.8, 0.5, 9.0, 0.9, 1.0};
     mx_t in = {.arr = in_arr, .x = 3, .y = 4};
 
     nn_array_t *n = nn_create(3, 4, 2, 
@@ -138,10 +138,16 @@ TEST_START(4, "nn_create > nn_predict > nn_fit")
     NN_TYPE exp_val0[9] = { 0.118847, 0.201724, -0.0977926, 
                             -0.190674, 0.0930147, 0.886871, 
                             0.093963, 0.399449, 0.0994944};
+
     for(uint32_t i = 0; i < 9; ++i)
-    {
         TEST_ERR(n->layers[0]->val->arr[i], exp_val0[i], 0.0001)
-    }
+
+    NN_TYPE exp_val1[9] = { 0.29901, 1.09916, -0.301627, 
+                            0.123058, 0.205844, 0.0328309, 
+                            -0.0096053, 1.29716, 0.0863697};
+                            
+    for(uint32_t i = 0; i < 9; ++i)
+        TEST_ERR(n->layers[1]->val->arr[i], exp_val1[i], 0.0001)
 
     nn_destroy(n);
 }
