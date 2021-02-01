@@ -1,7 +1,6 @@
 #ifndef _NN_H_
 #define _NN_H_
 #include "mx.h"
-#include <stdarg.h>
 
 //------------------------------------------------MACROS------------------------------------------
 
@@ -10,6 +9,14 @@
 #define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
 
 //------------------------------------------------STRUCTURES---------------------------------------
+
+//TODO DOCS
+typedef enum 
+{
+    NEURAL = 0,
+    DROP = 1
+} 
+layer_type;
 
 typedef struct
 {
@@ -21,12 +28,13 @@ act_func_t;
 /** @brief struct used to configure neural layers.
  * 
  *  Structure have cells with every information which we need to build full, neural network
- *  layer. The Structure was built to be as fast and small as possible. Heavily depeend on matrix.h.
+ *  layer. The Structure was built to covers configuration of every layer type. Heavily depeend on matrix.h.
  * 
  *  @see nn_create
  */
 typedef struct
 {
+    layer_type  type;
     act_func_t  activ_func;
     uint8_t     drop_rate;
     uint32_t    size;
@@ -35,23 +43,30 @@ typedef struct
 } 
 nn_params_t;
 
-/** @struct nn_layer_t
- *  @brief Structure with single neural network layer.
- * 
- *  I designed this struct as small and fast as possible.
- *  It depend matrix.h file for matrix structs and functions.
- * 
- *  @see mx_t 
- */
+//TODO DOCS
 typedef struct 
 {
-    mx_t *out;           /**< matrix with layer output */
-    mx_t *val;           /**< values of neurons in current layer */
-    mx_t *delta;         /**< delta, used in backpropagation */
-    mx_t *drop;          /**< dropout mask */
-    uint8_t drop_rate;  /**< percentage amount of turned off neurons in dropout */
-    act_func_t activ_func;  /**< activation function pointer */
+    mx_t*   drop;
+    uint8_t drop_rate;
+}
+drop_data_t;
+
+//TODO DOCS
+typedef struct 
+{
+    mx_t*       val;
+    act_func_t  act_func;
 } 
+neural_data_t;
+
+//TODO DOCS
+typedef struct
+{
+    mx_t* out;
+    mx_t* delta;
+    void* data;
+    layer_type type;
+}
 nn_layer_t;
 
 /** @brief Main neural network struct.
@@ -65,7 +80,7 @@ nn_layer_t;
  */
 typedef struct 
 {
-    nn_layer_t**    layers; /**< all neurons layers in this network */
+    nn_layer_t*     layers; /**< all neurons layers in current network */
     mx_t*           vdelta; /**< vdelta matrix shared between other layers */
     uint16_t        size;   /**< number of layers */
 }
@@ -77,15 +92,17 @@ nn_array_t;
  * 
  *  Function check input data, after that it alloc memory for whole structure.
  *  It gives us neural network with <nn_size> layers, every one of them configured
- *  with nn_params_t structures given in place of <...>.
+ *  with nn_params_t structures given by <params>.
  * 
  *  On success, pointer to structure is returned. If errors occurs, function return NULL.
  * 
  *  @param [in] in_size input size (width of input matrix)
  *  @param [in] b_size  batch size (heigh of input matrix)
  *  @param [in] nn_size number of layers
+ *  @param [in] params  config data for every layer
  */
-nn_array_t* nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...);
+nn_array_t* 
+nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* params);
 
 /** @brief Free memory allocated for neural network struct.
  * 
@@ -95,10 +112,6 @@ nn_array_t* nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, ...);
  *  @param [in] nn network which we free
  */
 void nn_destroy(nn_array_t *nn);
-
-void nn_predict(nn_array_t *nn, const mx_t* input, uint8_t flags);
-
-void nn_fit(nn_array_t *nn, const mx_t* in, const mx_t* out, NN_TYPE alpha);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
 
