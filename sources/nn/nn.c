@@ -1,65 +1,70 @@
 #include <nn.h>
 
 //--------------------------------STATIC FUNCTIONS---------------------------------
+//TODO: all of this func have to get new file
 
-static uint8_t
-neural_create(nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t params)
+typedef enum {
+    CREATE,
+    DELETE
+}setup_params;
+
+static int32_t
+dense_setup(nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
 {
-    layer->out    = mx_create(params.size, batch);
-    layer->delta  = mx_create(params.size, batch);
+    if(purpose == DELETE)
+    {
+        neural_data_t* data = (neural_data_t *)layer->data;
+        if(data != NULL)
+        {
+            mx_destroy(data->val);
+            free(data);
+        }
+        return 0;
+    }
+    layer->out    = mx_create(params->size, batch);
+    layer->delta  = mx_create(params->size, batch);
     if(layer->out == NULL || layer->delta == NULL) return 1;
 
     neural_data_t* data = (neural_data_t *)calloc(1, sizeof(neural_data_t));
     if(data == NULL) return 1;
 
-    data->val   = mx_create(in, params.size);
+    data->val   = mx_create(in, params->size);
     if(data->val == NULL) return 1;
 
-    data->act_func = params.activ_func;
+    data->act_func = params->activ_func;
     layer->data = (void *) data;
-    layer->type = NEURAL;
-    return 0;
+    layer->type = DENSE;
+    return (int32_t) (in * params->size);
 }
 
-static void
-neural_destroy(nn_layer_t* layer)
+static int32_t
+drop_setup(nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
 {
-    neural_data_t* data = (neural_data_t *)layer->data;
-    if(data != NULL)
+    if(purpose == DELETE)
     {
-        mx_destroy(data->val);
-        free(data);
+        drop_data_t* data = (drop_data_t *)layer->data;
+        if(data != NULL)
+        {
+            mx_destroy(data->drop);
+            free(data);
+        }
+        return 0;
     }
-}
-
-static uint8_t
-drop_create(nn_layer_t* layer, uint32_t batch, nn_params_t params)
-{
-    layer->out = mx_create(params.size, batch);
-    layer->delta = mx_create(params.size, batch);
-    if(layer->out == NULL || layer->delta == NULL) return 1;
+    params->size = (params - 1)->size;
+    layer->out = mx_create(params->size, batch);
+    layer->delta = mx_create(params->size, batch);
+    if(layer->out == NULL || layer->delta == NULL || !in) return 1;
 
     drop_data_t* data = (drop_data_t *)calloc(1, sizeof(drop_data_t));
     if(data == NULL) return 1;
 
-    data->drop = mx_create(params.size, batch);
+    data->drop = mx_create(params->size, batch);
     if(data->drop == NULL) return 1;
 
-    data->drop_rate = params.drop_rate;
+    data->drop_rate = params->drop_rate;
     layer->data = (void *)data;
     layer->type = DROP;
     return 0;
-}
-
-static void
-drop_destroy(nn_layer_t *layer)
-{
-    drop_data_t* data = (drop_data_t *)layer->data;
-    if(data != NULL)
-    {
-        mx_destroy(data->drop);
-        free(data);
-    }
 }
 
 //-----------------------------------USER FUNCTIONS---------------------------------
@@ -74,12 +79,12 @@ nn_destroy(nn_array_t* nn)
         mx_destroy(nn->layers[i].out);
         switch(nn->layers[i].type)
         {
-            case NEURAL:
-                neural_destroy(nn->layers + i);
+            case LAYER_0_NAME:
+                LAYER_0_SETUP(nn->layers + i, 0, 0, NULL, DELETE);
                 break;
 
-            case DROP:
-                drop_destroy(nn->layers + i);
+            case LAYER_1_NAME:
+                LAYER_1_SETUP(nn->layers + i, 0, 0, NULL, DELETE);
                 break;
         }
     }
@@ -98,43 +103,43 @@ nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* para
     ret->layers = (nn_layer_t *)calloc(nn_size, sizeof(nn_layer_t));
     if(ret->layers == NULL) {free(ret); return NULL;}
 
-    uint8_t err;
+    uint32_t max_delta_size = -1, max_delta_x = 0, max_delta_y = 0;
+    int32_t err = -1;
     uint32_t layer_in = in_size;    
-    uint32_t max_in = 0, max_out = 0, max_size = 0; //used to build shared vdelta matrix
     for(uint16_t i = 0; i < nn_size; ++i)
     {
         switch(params[i].type)
         {
-            case NEURAL:
-                err = neural_create((ret->layers + i), layer_in, b_size, params[i]);
-                if((layer_in * params[i].size) > max_size)
-                {    
-                    max_in = layer_in;
-                    max_out = params[i].size;
-                    max_size = max_in * max_out;
-                }
+            case LAYER_0_NAME:
+                err = LAYER_0_SETUP((ret->layers + i), layer_in, b_size, (params + i), CREATE);
                 break;
-            case DROP:
-                if(i) params[i].size = params[i-1].size;    //size setup for drop layer
-                err = drop_create((ret->layers + i), b_size, params[i]);
+            case LAYER_1_NAME:
+                err = LAYER_1_SETUP((ret->layers + i), layer_in, b_size, (params + i), CREATE);
                 break;
         }
-        if(err)
+        if(err == -1)
         {
             nn_destroy(ret);
             return NULL;
+        }
+        if((int32_t) max_delta_size < err)
+        {
+            max_delta_size = err;
+            max_delta_x = layer_in;
+            max_delta_y = params[i].size;
         }
         layer_in = params[i].size; // layer input size = previous layer output size
     }
 
     ret->size = nn_size;
-    ret->vdelta = mx_create(max_in, max_out);
+    ret->vdelta = mx_create(max_delta_x, max_delta_y);
     if(ret->vdelta == NULL) nn_destroy(ret);
 
     return ret;
 }
 
 //---------------------------------ACTIVATION FUNCS------------------------------------------
+//TODO: split activation funcs to other files or even folder
 
 void relu_mx(mx_t *a)
 {

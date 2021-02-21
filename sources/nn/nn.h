@@ -4,6 +4,13 @@
 
 //------------------------------------------------MACROS------------------------------------------
 
+#define LAYER_0_NAME DENSE
+#define LAYER_0_SETUP dense_setup
+
+#define LAYER_1_NAME DROP
+#define LAYER_1_SETUP drop_setup
+
+
 #define MAX(a, b)	((a) < (b) ? (b) : (a))
 #define NO_FUNC ((act_func_t) {.func_cell =NULL, .func_mx =NULL})
 #define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
@@ -13,8 +20,8 @@
 //TODO DOCS
 typedef enum 
 {
-    NEURAL = 0,
-    DROP = 1
+    LAYER_0_NAME,
+    LAYER_1_NAME
 } 
 layer_type;
 
@@ -28,7 +35,7 @@ act_func_t;
 /** @brief struct used to configure neural layers.
  * 
  *  Structure have cells with every information which we need to build full, neural network
- *  layer. The Structure was built to covers configuration of every layer type. Heavily depeend on matrix.h.
+ *  layer. The Structure was built to covers configuration of every layer type. Heavily depend on matrix.h.
  * 
  *  @see nn_create
  */
@@ -65,7 +72,7 @@ typedef struct
     mx_t* out;
     mx_t* delta;
     void* data;
-    layer_type type;
+    layer_type type;    //TODO: I'm not sure do I need that struct cell.
 }
 nn_layer_t;
 
