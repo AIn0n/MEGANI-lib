@@ -8,12 +8,24 @@ typedef enum {
     DELETE
 }setup_params;
 
+void
+dense_forward(struct nn_layer_t* self, const mx_t * input)
+{
+    //output = input * values ^T
+    dense_data_t* data = self->data;
+    mx_mp(*input, *data->val, self->out, B);  
+
+    //layer output = activation function ( layer output )
+    if(*data->act_func.func_mx != NULL)
+        (*data->act_func.func_mx)(self->out);  
+}
+
 static int32_t
-dense_setup(nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
+dense_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
 {
     if(purpose == DELETE)
     {
-        neural_data_t* data = (neural_data_t *)layer->data;
+        dense_data_t* data = (dense_data_t *)layer->data;
         if(data != NULL)
         {
             mx_destroy(data->val);
@@ -25,7 +37,7 @@ dense_setup(nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params,
     layer->delta  = mx_create(params->size, batch);
     if(layer->out == NULL || layer->delta == NULL) return 1;
 
-    neural_data_t* data = (neural_data_t *)calloc(1, sizeof(neural_data_t));
+    dense_data_t* data = (dense_data_t *)calloc(1, sizeof(dense_data_t));
     if(data == NULL) return 1;
 
     data->val   = mx_create(in, params->size);
@@ -34,11 +46,12 @@ dense_setup(nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params,
     data->act_func = params->activ_func;
     layer->data = (void *) data;
     layer->type = DENSE;
+    layer->forward = (&dense_forward);
     return (int32_t) (in * params->size);
 }
 
 static int32_t
-drop_setup(nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
+drop_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
 {
     if(purpose == DELETE)
     {
@@ -100,7 +113,7 @@ nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* para
     nn_array_t* ret = (nn_array_t*)calloc(1, sizeof(nn_array_t));
     if(ret == NULL) return NULL;
 
-    ret->layers = (nn_layer_t *)calloc(nn_size, sizeof(nn_layer_t));
+    ret->layers = (struct nn_layer_t *)calloc(nn_size, sizeof(struct nn_layer_t));
     if(ret->layers == NULL) {free(ret); return NULL;}
 
     uint32_t max_delta_size = -1, max_delta_x = 0, max_delta_y = 0;
@@ -136,6 +149,17 @@ nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* para
     if(ret->vdelta == NULL) nn_destroy(ret);
 
     return ret;
+}
+
+void
+nn_predict(nn_array_t* nn, const mx_t* input)
+{
+    const mx_t* prev_out = input;
+    for(uint16_t i = 0; i < nn->size; ++i)
+    {
+        nn->layers[i].forward ((nn->layers + i), prev_out);
+        prev_out = nn->layers[i].out;
+    }
 }
 
 //---------------------------------ACTIVATION FUNCS------------------------------------------

@@ -1,5 +1,5 @@
 #include "mx.h"
-#include "ut_macros.h"
+#include "macros_ut.h"
 
 TEST_START(1, "mx_create")
 {
@@ -53,8 +53,7 @@ TEST_START(5, "mx_mp")
     NN_TYPE expected_arr[] = {12.0, 62.0, 26.0,
                             31.0, 72.0, 71.0,
                             15.0, 20.0, 35.0};
-    for(int i = 0; i < 9; ++i)
-        TEST_IF(expected_arr[i] != out.arr[i])
+    MX_CMP(out, expected_arr)
 }
 TEST_END
 
@@ -81,8 +80,7 @@ TEST_START(6, "mx_mp")
     NN_TYPE expected_arr[] = {12.0, 62.0, 26.0,
                             31.0, 72.0, 71.0,
                             15.0, 20.0, 35.0};
-    for(int i = 0; i < 9; ++i)
-        TEST_IF(expected_arr[i] != out.arr[i])
+    MX_CMP(out, expected_arr)
 }
 TEST_END
 
@@ -108,9 +106,7 @@ TEST_START(7, "mx_mp")
                                 22, 16, 25,
                                 22, 24, 32,
                                 23, 12, 22};
-
-    for(int i = 0; i < 12; ++i)
-        TEST_IF(expected_arr[i] != out.arr[i])
+    MX_CMP(out, expected_arr)
 }
 TEST_END
 
@@ -137,9 +133,7 @@ TEST_START(8, "mx_mp")
                                 17, 61, 38,
                                 20, 42, 46,
                                 16, 75, 35};
-
-    for(int i = 0; i < 12; ++i)
-        TEST_IF(expected_arr[i] != out.arr[i])
+    MX_CMP(out, expected_arr)
 }
 TEST_END
 
@@ -164,8 +158,7 @@ TEST_START(9, "mx_mp")
     NN_TYPE expected_arr[] ={   16,
                                 44};
 
-    for(int i = 0; i < 2; ++i)
-        TEST_IF(expected_arr[i] != out.arr[i])
+    MX_CMP(out, expected_arr)
 }
 TEST_END
 
@@ -189,8 +182,7 @@ TEST_START(10, "mx_hadamard")
 
     NN_TYPE expected_arr[] ={3, 30, 21, 0, 18, 72};
 
-    for(int i = 0; i < 6; ++i)
-        TEST_IF(expected_arr[i] != out.arr[i])
+    MX_CMP(out, expected_arr)
 }
 TEST_END
 
@@ -210,8 +202,7 @@ TEST_START(11, "mx_hadamard")
 
     NN_TYPE expected_arr[] ={3, 30, 36, 0};
 
-    for(int i = 0; i < 4; ++i)
-        TEST_IF(expected_arr[i] != a.arr[i])
+    MX_CMP(a, expected_arr)
 }
 TEST_END
 
@@ -234,9 +225,7 @@ TEST_START(12, "mx_sub")
     mx_sub(a, b, &out);
 
     NN_TYPE expected_arr[] ={0, 1, 4, 11, 4, 1};
-
-    for(int i = 0; i < 6; ++i)
-        TEST_IF(expected_arr[i] != out.arr[i])
+    MX_CMP(out, expected_arr)
 }
 TEST_END
 
@@ -248,9 +237,7 @@ TEST_START(13, "mx_mp_num")
 
     mx_mp_num(&a, 3);
     NN_TYPE expected_arr[] ={9, 30, 18, 36, 21, 15};
-
-    for(int i = 0; i < 6; ++i)
-        TEST_IF(expected_arr[i] != a.arr[i])
+    MX_CMP(a, expected_arr)
 }
 TEST_END
 
@@ -266,11 +253,8 @@ TEST_START(14, "mx_hadam_lambda")
 
     mx_hadam_lambda(&a, b, (&foo));
 
-    NN_TYPE expected_out[4] = {0, 4, 0, 12};
-    for(uint32_t i = 0; i < 4; ++i)
-    {
-        TEST_IF(a.arr[i] != expected_out[i])
-    }
+    NN_TYPE expected_arr[4] = {0, 4, 0, 12};
+    MX_CMP(a, expected_arr)
 }
 TEST_END
 

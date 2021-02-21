@@ -64,17 +64,18 @@ typedef struct
     mx_t*       val;
     act_func_t  act_func;
 } 
-neural_data_t;
+dense_data_t;
 
 //TODO DOCS
-typedef struct
+struct nn_layer_t
 {
     mx_t* out;
     mx_t* delta;
     void* data;
     layer_type type;    //TODO: I'm not sure do I need that struct cell.
-}
-nn_layer_t;
+    void (*forward) (struct nn_layer_t*, const mx_t*);
+    void (*backward) (struct nn_layer_t*, mx_t*);
+};
 
 /** @brief Main neural network struct.
  * 
@@ -87,9 +88,9 @@ nn_layer_t;
  */
 typedef struct 
 {
-    nn_layer_t*     layers; /**< all neurons layers in current network */
-    mx_t*           vdelta; /**< vdelta matrix shared between other layers */
-    uint16_t        size;   /**< number of layers */
+    struct nn_layer_t*  layers; /**< all neurons layers in current network */
+    mx_t*               vdelta; /**< vdelta matrix shared between other layers */
+    uint16_t            size;   /**< number of layers */
 }
 nn_array_t;
 
@@ -119,6 +120,8 @@ nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* para
  *  @param [in] nn network which we free
  */
 void nn_destroy(nn_array_t *nn);
+
+void nn_predict(nn_array_t* nn, const mx_t* input);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
 
