@@ -11,6 +11,7 @@ typedef struct
 dense_data_t;
 
 void dense_forward(struct nn_layer_t* self, const mx_t * input);
+void dense_backward(struct nn_layer_t* self, const mx_t* prev_out, nn_array_t *n);
 int32_t dense_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose);
 
 #endif

@@ -24,7 +24,7 @@ TEST_START(1, "nn_create")
     TEST_SIZE(n->layers[1].out,    10, 15)
     
     drop_data_t* ptr2 = n->layers[1].data;
-    TEST_SIZE(ptr2->drop, 10, 15)
+    TEST_SIZE(ptr2->mask, 10, 15)
     TEST_IF(ptr2->drop_rate != 40)
     TEST_IF(n->layers[1].type != DROP)
     

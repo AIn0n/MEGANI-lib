@@ -19,8 +19,8 @@
 //TODO DOCS
 typedef enum 
 {
-    LAYER_0_NAME,
-    LAYER_1_NAME
+    LAYER_0_NAME = 0,
+    LAYER_1_NAME = 1
 } 
 layer_type;
 
@@ -54,17 +54,6 @@ typedef struct
 } 
 nn_params_t;
 
-//TODO DOCS
-struct nn_layer_t
-{
-    mx_t* out;
-    mx_t* delta;
-    void* data;
-    layer_type type;    //TODO: I'm not sure do I need that struct cell.
-    void (*forward) (struct nn_layer_t*, const mx_t*);
-    void (*backward) (struct nn_layer_t*, mx_t*);
-};
-
 /** @brief Main neural network struct.
  * 
  *  This struct is main element of neural network in this library.
@@ -78,9 +67,21 @@ typedef struct
 {
     struct nn_layer_t*  layers; /**< all neurons layers in current network */
     mx_t*               vdelta; /**< vdelta matrix shared between other layers */
+    NN_TYPE             alpha;  /**< alpha indicates learning speed */
     uint16_t            size;   /**< number of layers */
 }
 nn_array_t;
+
+//TODO DOCS
+struct nn_layer_t
+{
+    mx_t* out;
+    mx_t* delta;
+    void* data;
+    layer_type type;    //TODO: I'm not sure do I need that struct cell.
+    void (*forward) (struct nn_layer_t*, const mx_t*);
+    void (*backward) (struct nn_layer_t*, const mx_t*, nn_array_t*);
+};
 
 //------------------------------------------FUNCTIONS--------------------------------------------
 
