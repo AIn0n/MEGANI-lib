@@ -1,80 +1,6 @@
-#include <nn.h>
-
-//--------------------------------STATIC FUNCTIONS---------------------------------
-//TODO: all of this func have to get new file
-
-
-void
-dense_forward(struct nn_layer_t* self, const mx_t * input)
-{
-    //output = input * values ^T
-    dense_data_t* data = self->data;
-    mx_mp(*input, *data->val, self->out, B);  
-
-    //layer output = activation function ( layer output )
-    if(*data->act_func.func_mx != NULL)
-        (*data->act_func.func_mx)(self->out);  
-}
-
-static int32_t
-dense_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
-{
-    if(purpose == DELETE)
-    {
-        dense_data_t* data = (dense_data_t *)layer->data;
-        if(data != NULL)
-        {
-            mx_destroy(data->val);
-            free(data);
-        }
-        return 0;
-    }
-    layer->out    = mx_create(params->size, batch);
-    layer->delta  = mx_create(params->size, batch);
-    if(layer->out == NULL || layer->delta == NULL) return -1;
-
-    dense_data_t* data = (dense_data_t *)calloc(1, sizeof(dense_data_t));
-    if(data == NULL) return -1;
-
-    data->act_func  = params->activ_func;
-    data->val       = mx_create(in, params->size);
-    if(data->val == NULL) return -1;
-
-    layer->data     = (void *) data;
-    layer->type     = DENSE;
-    layer->forward  = (&dense_forward);
-    return (int32_t) (in * params->size);
-}
-
-static int32_t
-drop_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
-{
-    if(purpose == DELETE)
-    {
-        drop_data_t* data = (drop_data_t *)layer->data;
-        if(data != NULL)
-        {
-            mx_destroy(data->drop);
-            free(data);
-        }
-        return 0;
-    }
-    params->size = (params - 1)->size;
-    layer->out = mx_create(params->size, batch);
-    layer->delta = mx_create(params->size, batch);
-    if(layer->out == NULL || layer->delta == NULL || !in) return -1;
-
-    drop_data_t* data = (drop_data_t *)calloc(1, sizeof(drop_data_t));
-    if(data == NULL) return -1;
-
-    data->drop = mx_create(params->size, batch);
-    if(data->drop == NULL) return -1;
-
-    data->drop_rate = params->drop_rate;
-    layer->data = (void *)data;
-    layer->type = DROP;
-    return 0;
-}
+#include "nn.h"
+#include "dense.h"
+#include "drop.h"
 
 //-----------------------------------USER FUNCTIONS---------------------------------
 
@@ -100,18 +26,17 @@ nn_destroy(nn_array_t* nn)
 }
 
 nn_array_t* 
-nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* params)
+nn_create(uint32_t input_size, uint32_t b_size, uint16_t nn_size, nn_params_t* params)
 {
-    if(!in_size || !b_size || !nn_size) return NULL;
+    if(!input_size || !b_size || !nn_size) return NULL;
     nn_array_t* ret = (nn_array_t*)calloc(1, sizeof(nn_array_t));
     if(ret == NULL) return NULL;
 
     ret->layers = (struct nn_layer_t *)calloc(nn_size, sizeof(struct nn_layer_t));
     if(ret->layers == NULL) {free(ret); return NULL;}
 
-    uint32_t max_delta_size = -1, max_delta_x = 0, max_delta_y = 0;
+    uint32_t max_delta_size = -1, max_delta_x = 0, max_delta_y = 0, layer_in = input_size;
     int32_t err = -1;
-    uint32_t layer_in = in_size;    
     for(uint16_t i = 0; i < nn_size; ++i)
     {
         err = (*setup_list[params[i].type])((ret->layers + i), layer_in, b_size, (params + i), CREATE);

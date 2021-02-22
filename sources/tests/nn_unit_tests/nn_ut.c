@@ -1,5 +1,7 @@
 #include "nn.h"
 #include "macros_ut.h"
+#include "dense.h"
+#include "drop.h"
 
 TEST_START(1, "nn_create")
 {

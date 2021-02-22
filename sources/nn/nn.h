@@ -55,22 +55,6 @@ typedef struct
 nn_params_t;
 
 //TODO DOCS
-typedef struct 
-{
-    mx_t*   drop;
-    uint8_t drop_rate;
-}
-drop_data_t;
-
-//TODO DOCS
-typedef struct 
-{
-    mx_t*       val;
-    act_func_t  act_func;
-} 
-dense_data_t;
-
-//TODO DOCS
 struct nn_layer_t
 {
     mx_t* out;
