@@ -10,7 +10,6 @@
 #define LAYER_1_NAME DROP
 #define LAYER_1_SETUP drop_setup
 
-
 #define MAX(a, b)	((a) < (b) ? (b) : (a))
 #define NO_FUNC ((act_func_t) {.func_cell =NULL, .func_mx =NULL})
 #define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
@@ -24,6 +23,11 @@ typedef enum
     LAYER_1_NAME
 } 
 layer_type;
+
+typedef enum {
+    CREATE,
+    DELETE
+}setup_params;
 
 typedef struct
 {

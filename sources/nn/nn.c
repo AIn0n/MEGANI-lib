@@ -3,10 +3,6 @@
 //--------------------------------STATIC FUNCTIONS---------------------------------
 //TODO: all of this func have to get new file
 
-typedef enum {
-    CREATE,
-    DELETE
-}setup_params;
 
 void
 dense_forward(struct nn_layer_t* self, const mx_t * input)
@@ -35,18 +31,18 @@ dense_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* 
     }
     layer->out    = mx_create(params->size, batch);
     layer->delta  = mx_create(params->size, batch);
-    if(layer->out == NULL || layer->delta == NULL) return 1;
+    if(layer->out == NULL || layer->delta == NULL) return -1;
 
     dense_data_t* data = (dense_data_t *)calloc(1, sizeof(dense_data_t));
-    if(data == NULL) return 1;
+    if(data == NULL) return -1;
 
-    data->val   = mx_create(in, params->size);
-    if(data->val == NULL) return 1;
+    data->act_func  = params->activ_func;
+    data->val       = mx_create(in, params->size);
+    if(data->val == NULL) return -1;
 
-    data->act_func = params->activ_func;
-    layer->data = (void *) data;
-    layer->type = DENSE;
-    layer->forward = (&dense_forward);
+    layer->data     = (void *) data;
+    layer->type     = DENSE;
+    layer->forward  = (&dense_forward);
     return (int32_t) (in * params->size);
 }
 
@@ -66,13 +62,13 @@ drop_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* p
     params->size = (params - 1)->size;
     layer->out = mx_create(params->size, batch);
     layer->delta = mx_create(params->size, batch);
-    if(layer->out == NULL || layer->delta == NULL || !in) return 1;
+    if(layer->out == NULL || layer->delta == NULL || !in) return -1;
 
     drop_data_t* data = (drop_data_t *)calloc(1, sizeof(drop_data_t));
-    if(data == NULL) return 1;
+    if(data == NULL) return -1;
 
     data->drop = mx_create(params->size, batch);
-    if(data->drop == NULL) return 1;
+    if(data->drop == NULL) return -1;
 
     data->drop_rate = params->drop_rate;
     layer->data = (void *)data;
@@ -82,6 +78,12 @@ drop_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* p
 
 //-----------------------------------USER FUNCTIONS---------------------------------
 
+int32_t (*setup_list[])(struct nn_layer_t*, uint32_t, uint32_t, nn_params_t*, setup_params) =
+{
+    LAYER_0_SETUP,
+    LAYER_1_SETUP
+};
+
 void
 nn_destroy(nn_array_t* nn)
 {
@@ -90,16 +92,7 @@ nn_destroy(nn_array_t* nn)
     {
         mx_destroy(nn->layers[i].delta);
         mx_destroy(nn->layers[i].out);
-        switch(nn->layers[i].type)
-        {
-            case LAYER_0_NAME:
-                LAYER_0_SETUP(nn->layers + i, 0, 0, NULL, DELETE);
-                break;
-
-            case LAYER_1_NAME:
-                LAYER_1_SETUP(nn->layers + i, 0, 0, NULL, DELETE);
-                break;
-        }
+        (*setup_list[nn->layers[i].type])(nn->layers + i, 0, 0, NULL, DELETE);
     }
     free(nn->layers);
     mx_destroy(nn->vdelta);
@@ -121,15 +114,7 @@ nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* para
     uint32_t layer_in = in_size;    
     for(uint16_t i = 0; i < nn_size; ++i)
     {
-        switch(params[i].type)
-        {
-            case LAYER_0_NAME:
-                err = LAYER_0_SETUP((ret->layers + i), layer_in, b_size, (params + i), CREATE);
-                break;
-            case LAYER_1_NAME:
-                err = LAYER_1_SETUP((ret->layers + i), layer_in, b_size, (params + i), CREATE);
-                break;
-        }
+        err = (*setup_list[params[i].type])((ret->layers + i), layer_in, b_size, (params + i), CREATE);
         if(err == -1)
         {
             nn_destroy(ret);
