@@ -1,5 +1,37 @@
 #include "drop.h"
 
+//--------------------------------------STATIC FUNCTIONS-----------------------------------------------------
+
+void
+drop_reroll(drop_data_t *data)
+{
+    uint32_t size = data->mask->x * data->mask->y;
+    for(uint32_t i = 0; i < size; ++i)
+    {
+        data->mask->arr[i] = ((rand() % 100) >= data->drop_rate);
+    }
+}
+
+//--------------------------------------PUBLIC FUNCTIONS------------------------------------------------------
+
+void
+drop_forward(struct nn_layer_t* self, const mx_t * input)
+{
+    drop_data_t* data = (drop_data_t*) self->data;
+    drop_reroll(data);  //randomize dropout mask values
+    mx_hadamard(*input, *data->mask, self->out);    //output = dropout mask ( output )
+    mx_mp_num(self->out, (data->drop_rate/100));
+    
+}
+
+void
+drop_backward(struct nn_layer_t* self, nn_array_t* n, const mx_t* prev_out, mx_t* prev_delta)
+{
+    if(n == NULL || prev_out == NULL) return;
+    drop_data_t* data = (drop_data_t *) self->data;
+    mx_hadamard(*self->delta, *data->mask, prev_delta);
+}
+
 int32_t
 drop_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
 {
@@ -27,25 +59,7 @@ drop_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* p
 
     layer->data = (void *)data;
     layer->type = DROP;
+    layer->forward = (&drop_forward);
+    layer->backward = (&drop_backward);
     return 0;
-}
-
-void
-drop_reroll(drop_data_t *data)
-{
-    uint32_t size = data->mask->x * data->mask->y;
-    for(uint32_t i = 0; i < size; ++i)
-    {
-        data->mask->arr[i] = ((rand() % 100) >= data->drop_rate);
-    }
-}
-
-void
-drop_forward(struct nn_layer_t* self, const mx_t * input)
-{
-    drop_data_t* data = (drop_data_t*) self->data;
-    drop_reroll(data);
-    mx_hadamard(*input, *data->mask, self->out);
-    mx_mp_num(self->out, (data->drop_rate/100));
-    
 }
