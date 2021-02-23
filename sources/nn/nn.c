@@ -72,6 +72,23 @@ nn_predict(nn_array_t* nn, const mx_t* input)
     }
 }
 
+void
+nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output, NN_TYPE alpha)
+{
+    nn_predict(nn, input);
+    nn->alpha = alpha;
+
+    //delta = output - expected output (last layer case)
+    mx_sub(*nn->layers[nn->size - 1].out, *output, nn->layers[nn->size - 1].delta);
+    
+    for(uint16_t i = nn->size - 1; i > 0; --i)
+    {
+        nn->layers[i].backward((nn->layers + i), nn, nn->layers[i - 1].out, nn->layers[i - 1].delta);
+    }
+    //vdelta = delta^T * input
+    nn->layers->backward(nn->layers, nn, input, NULL);
+}
+
 //---------------------------------ACTIVATION FUNCS------------------------------------------
 //TODO: split activation funcs to other files or even folder
 

@@ -80,7 +80,7 @@ struct nn_layer_t
     void* data;
     layer_type type;    //TODO: I'm not sure do I need that struct cell.
     void (*forward) (struct nn_layer_t*, const mx_t*);
-    void (*backward) (struct nn_layer_t*, const mx_t*, nn_array_t*);
+    void (*backward) (struct nn_layer_t*, nn_array_t*, const mx_t*, mx_t*);
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------
@@ -111,6 +111,7 @@ nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* para
 void nn_destroy(nn_array_t *nn);
 
 void nn_predict(nn_array_t* nn, const mx_t* input);
+void nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output, NN_TYPE alpha);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
 
