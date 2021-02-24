@@ -1,7 +1,6 @@
 #include "nn.h"
 #include "dense.h"
 #include "drop.h"
-#include <stdio.h> //FOR DEBUD ONLY
 
 //-----------------------------------USER FUNCTIONS---------------------------------
 

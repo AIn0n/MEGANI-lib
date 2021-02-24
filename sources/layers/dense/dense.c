@@ -39,11 +39,12 @@ dense_backward(struct nn_layer_t* self, nn_array_t* n, const mx_t* prev_out, mx_
     n->vdelta->x = data->val->x;   //vdelta is shared between layers so we had to change the size
     n->vdelta->y = data->val->y;
 
+    if(prev_delta != NULL)                          //prev delta = curr delta * curr values
+        mx_mp(*self->delta, *data->val, prev_delta, DEF);
+
     mx_mp(*self->delta, *prev_out, n->vdelta, A);   //value delta = delta^T * previous output
     mx_mp_num(n->vdelta, n->alpha);                 //value delta = value delta * alpha
     mx_sub(*data->val, *n->vdelta, data->val);      //values = values - vdelta
-    if(prev_delta != NULL)                          //prev delta = curr delta * curr values
-        mx_mp(*self->delta, *data->val, prev_delta, DEF);
 }
 
 int32_t

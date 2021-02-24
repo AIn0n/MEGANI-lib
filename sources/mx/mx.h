@@ -124,6 +124,8 @@ void mx_mp_num(mx_t* a, NN_TYPE num);
  */
 void mx_hadam_lambda(mx_t* a, const mx_t b, NN_TYPE (*lambda)(NN_TYPE));
 
+void mx_print(const mx_t* a, char * name);
+
 #endif
 
 /**

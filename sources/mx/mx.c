@@ -1,4 +1,5 @@
 #include "mx.h"
+#include <stdio.h>  //FOR DEBUG ONLY
 
 mx_t* 
 mx_create(uint32_t x, uint32_t y)
@@ -99,4 +100,23 @@ mx_hadam_lambda(mx_t* a, const mx_t b, NN_TYPE (*lambda)(NN_TYPE))
     {
         a->arr[i] *= (*lambda)(b.arr[i]);
     }
+}
+
+//---------------------------------DEBUG ONLY----------------------------------------
+
+void
+mx_print(const mx_t* a, char * name)
+{
+    printf("%s\n", name);
+    if(a == NULL)
+    {
+        puts("NULL");
+        return;
+    }
+    for(uint32_t i = 0; i < a->x * a->y; ++i)
+    {
+        if(i && !(i % a->x)) puts("");
+        printf("%lf ", a->arr[i]);
+    }
+    puts("");
 }
