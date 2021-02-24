@@ -16,7 +16,14 @@
 
 //------------------------------------------------STRUCTURES---------------------------------------
 
-//TODO DOCS
+/** @brief enum with all types of layers which we can use in our networks.
+ * 
+ *  In this typedef we have predefined before names of layers which we can use
+ *  in neural networks. I made this structure to make whole library as much both
+ *  extenisble and shrinkable as possible. If you want to insert some other, non default layers
+ *  here, please remember also about layer_n_setup macros!
+ * 
+ */
 typedef enum 
 {
     LAYER_0_NAME = 0,
@@ -24,15 +31,30 @@ typedef enum
 } 
 layer_type;
 
+
+/** @brief Simple enum with function purpose.
+ * 
+ *  I created this enum to make functions which destroy and create new layer to make it easier.
+ *  It is used internally and you don't have to play with it by yourself.
+ */
 typedef enum {
     CREATE,
     DELETE
 }setup_params;
 
+/** @brief Structure with all activations functions subroutines used in single layer.
+ * 
+ *  Structure consist of two function pointers - one of them is used in forwarding
+ *  on whole matrix, second one is used in backpropagation as function derivative 
+ *  with single matrix cell (function mx_hadam_lambda). I do this in that way to 
+ *  do as small amount of operations on matrices as possible.
+ * 
+ *  @see mx_hadam_lambda
+ */
 typedef struct
 {
-    NN_TYPE (*func_cell)(NN_TYPE);
-    void (*func_mx)(mx_t *);
+    NN_TYPE (*func_cell)(NN_TYPE);  /**< function used in forwarding */
+    void (*func_mx)(mx_t *);        /**< function used in backpropagation */
 }
 act_func_t;
 
@@ -72,15 +94,22 @@ typedef struct
 }
 nn_array_t;
 
-//TODO DOCS
+/** @brief struct containing all data from single layer.
+ * 
+ *  This structure have every learnable and constant data from single layer.
+ *  Cells like out, delta, data are universal for every layer, more focused structures,
+ *  functions etc, based on layer purpose you can find in data field which is pointer
+ *  to other structure (example: dense_data_t). Functions forward and backward are used
+ *  in backpropagation.
+ */
 struct nn_layer_t
 {
-    mx_t* out;
-    mx_t* delta;
-    void* data;
-    layer_type type;    //TODO: I'm not sure do I need that struct cell.
-    void (*forward) (struct nn_layer_t*, const mx_t*);
-    void (*backward) (struct nn_layer_t*, nn_array_t*, const mx_t*, mx_t*);
+    mx_t* out;          /**< layer output */
+    mx_t* delta;        /**< layer delta */
+    void* data;         /**< layer specialized data, like activation functions in dense */
+    layer_type type;    /**< layer type (used in nn_destroy()) */
+    void (*forward) (struct nn_layer_t*, const mx_t*);                      /**< function used in nn_predict() */
+    void (*backward) (struct nn_layer_t*, nn_array_t*, const mx_t*, mx_t*); /**< function use in nn_fit() */
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------
@@ -110,10 +139,12 @@ nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* para
  */
 void nn_destroy(nn_array_t *nn);
 
+//TODO docs
 void nn_predict(nn_array_t* nn, const mx_t* input);
 void nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output, NN_TYPE alpha);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
+//TODO: Im not sure, but maybe activations funcs will get new file only for them
 
 void relu_mx(mx_t *a);
 NN_TYPE relu_deriv_cell(NN_TYPE a);
