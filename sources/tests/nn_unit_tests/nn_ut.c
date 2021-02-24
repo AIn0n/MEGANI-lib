@@ -127,7 +127,7 @@ TEST_START(4, "nn_create > nn_predict > nn_fit")
     dense_data_t* data_ptr = nn->layers->data;
     MX_CPY(val0, data_ptr->val)
 
-    data_ptr = nn->layers[0].data;
+    data_ptr = nn->layers[1].data;
     MX_CPY(val1, data_ptr->val)
 
     NN_TYPE out_arr[12] = {0.1, 1.0, 0.1, 0.0, 1.0, 0.0, 0.0, 0.0, 0.1, 0.1, 1.0, 0.2};

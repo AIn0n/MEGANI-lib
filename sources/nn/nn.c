@@ -81,17 +81,7 @@ nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output, NN_TYPE alpha)
 
     //delta = output - expected output (last layer case)
     mx_sub(*nn->layers[nn->size - 1].out, *output, nn->layers[nn->size - 1].delta);
-//SOMEWHERE HERE IS A BUD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //gdzie tu jest blad, delta jest wlasciwie rowna oczekiwanym wartoscia na wejsciu
-    
-    //DEBUG
-    for(uint16_t i = 0; i < 12; ++i)
-    {
-        printf("%lf ", nn->layers[nn->size - 1].delta->arr[i]);
-    }
-    printf("\n");
- 
-    
+
     for(uint16_t i = nn->size - 1; i > 0; --i)
     {
         nn->layers[i].backward((nn->layers + i), nn, nn->layers[i - 1].out, nn->layers[i - 1].delta);
