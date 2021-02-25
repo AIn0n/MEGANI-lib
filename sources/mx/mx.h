@@ -16,6 +16,14 @@
  */
 #define NN_ZERO ((NN_TYPE)0)
 
+/** @def MX_SIZE
+ *  @brief Type of variables which contain matrix size, x, y. 
+ * 
+ *  By default it is uint32_t. I made this macro 'cause many times I used many 
+ *  diffrent types for same tasks like iteration over matrix etc.
+ */
+#define MX_SIZE uint32_t
+
 /** @struct mx_t 
 *   @brief  Structure with matrix data and size.
 *
@@ -26,8 +34,9 @@
 typedef struct 
 {
     NN_TYPE* arr;   /**< Array with matrix data */
-    uint32_t x;     /**< matrix width */
-    uint32_t y;     /**< matrix height*/
+    MX_SIZE x;     /**< matrix width */
+    MX_SIZE y;     /**< matrix height*/
+    MX_SIZE size;   /**< matrix height multiplied by width. Nothing particular special but very often used */
 }
 mx_t;
 

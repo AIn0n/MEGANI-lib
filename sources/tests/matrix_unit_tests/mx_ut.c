@@ -164,7 +164,7 @@ TEST_END
 
 TEST_START(10, "mx_hadamard")
 {
-    mx_t a = {.x = 3, .y = 2};
+    mx_t a = {.x = 3, .y = 2, .size = 3 * 2};
     NN_TYPE a_arr[] = { 3, 5, 7,
                         4, 9, 8};
     a.arr = a_arr;
@@ -174,7 +174,7 @@ TEST_START(10, "mx_hadamard")
                         0, 2, 9};
     b.arr = b_arr;
 
-    mx_t out = {.x = 3, .y = 2};
+    mx_t out = {.x = 3, .y = 2, .size = 3 * 2};
     NN_TYPE out_arr[6];
     out.arr = out_arr;
 
@@ -188,12 +188,12 @@ TEST_END
 
 TEST_START(11, "mx_hadamard")
 {
-    mx_t a = {.x = 2, .y = 2};
+    mx_t a = {.x = 2, .y = 2, .size = 2 * 2};
     NN_TYPE a_arr[] = { 3, 5,
                         4, 9};
     a.arr = a_arr;
 
-    mx_t b = {.x = 2, .y = 2};
+    mx_t b = {.x = 2, .y = 2, .size = 2 * 2};
     NN_TYPE b_arr[] = { 1, 6,
                         9, 0};
     b.arr = b_arr;
@@ -208,17 +208,17 @@ TEST_END
 
 TEST_START(12, "mx_sub")
 {
-    mx_t a = {.x = 3, .y = 2};
+    mx_t a = {.x = 3, .y = 2, .size = 3 * 2};
     NN_TYPE a_arr[] = { 3, 10, 6,
                         12, 7, 5};
     a.arr = a_arr;
 
-    mx_t b = {.x = 3, .y = 2};
+    mx_t b = {.x = 3, .y = 2, .size = 3 * 2};
     NN_TYPE b_arr[] = { 3, 9, 2,
                         1, 3, 4};
     b.arr = b_arr;
 
-    mx_t out = {.x = 3, .y = 2};
+    mx_t out = {.x = 3, .y = 2, .size = 3 * 2};
     NN_TYPE out_arr[6];
     out.arr = out_arr;
 
@@ -231,7 +231,7 @@ TEST_END
 
 TEST_START(13, "mx_mp_num")
 {
-    mx_t a = {.x = 3, .y = 2};
+    mx_t a = {.x = 3, .y = 2, .size = 3 * 2};
     NN_TYPE a_arr[] = { 3, 10, 6, 12, 7, 5};
     a.arr = a_arr;
 
@@ -246,10 +246,10 @@ NN_TYPE foo(NN_TYPE a) {return (a > 4) ? 0 : a;}
 TEST_START(14, "mx_hadam_lambda")
 {
     NN_TYPE a_arr[4] = {0, 1, 1, 6};
-    mx_t a = {.arr = a_arr, .x = 4, .y = 1};
+    mx_t a = {.arr = a_arr, .x = 4, .y = 1, .size = 4 * 1};
 
     NN_TYPE b_arr[4] = {3, 4, 8, 2};
-    mx_t b = {.arr = b_arr, .x = 4, .y = 1};
+    mx_t b = {.arr = b_arr, .x = 4, .y = 1, .size = 4 * 1};
 
     mx_hadam_lambda(&a, b, (&foo));
 

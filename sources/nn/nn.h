@@ -70,7 +70,7 @@ typedef struct
     layer_type  type;
     act_func_t  activ_func;
     uint8_t     drop_rate;
-    uint32_t    size;
+    MX_SIZE    size;
     NN_TYPE     min;
     NN_TYPE     max;
 } 
@@ -128,7 +128,7 @@ struct nn_layer_t
  *  @param [in] params  config data for every layer
  */
 nn_array_t* 
-nn_create(uint32_t in_size, uint32_t b_size, uint16_t nn_size, nn_params_t* params);
+nn_create(MX_SIZE in_size, MX_SIZE b_size, uint16_t nn_size, nn_params_t* params);
 
 /** @brief Free memory allocated for neural network struct.
  * 

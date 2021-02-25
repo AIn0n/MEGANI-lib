@@ -4,7 +4,7 @@
 
 //-----------------------------------USER FUNCTIONS---------------------------------
 
-int32_t (*setup_list[])(struct nn_layer_t*, uint32_t, uint32_t, nn_params_t*, setup_params) =
+MX_SIZE (*setup_list[])(struct nn_layer_t*, MX_SIZE, MX_SIZE, nn_params_t*, setup_params) =
 {
     LAYER_0_SETUP,
     LAYER_1_SETUP
@@ -26,7 +26,7 @@ nn_destroy(nn_array_t* nn)
 }
 
 nn_array_t* 
-nn_create(uint32_t input_size, uint32_t b_size, uint16_t nn_size, nn_params_t* params)
+nn_create(MX_SIZE input_size, MX_SIZE b_size, uint16_t nn_size, nn_params_t* params)
 {
     if(!input_size || !b_size || !nn_size) return NULL;
     nn_array_t* ret = (nn_array_t*)calloc(1, sizeof(nn_array_t));
@@ -35,17 +35,16 @@ nn_create(uint32_t input_size, uint32_t b_size, uint16_t nn_size, nn_params_t* p
     ret->layers = (struct nn_layer_t *)calloc(nn_size, sizeof(struct nn_layer_t));
     if(ret->layers == NULL) {free(ret); return NULL;}
 
-    uint32_t max_delta_size = -1, max_delta_x = 0, max_delta_y = 0, layer_in = input_size;
-    int32_t err = -1;
+    MX_SIZE max_delta_size = 0, max_delta_x = 0, max_delta_y = 0, layer_in = input_size, err = 0;
     for(uint16_t i = 0; i < nn_size; ++i)
     {
         err = (*setup_list[params[i].type])((ret->layers + i), layer_in, b_size, (params + i), CREATE);
-        if(err == -1)
+        if(!err)
         {
             nn_destroy(ret);
             return NULL;
         }
-        if((int32_t) max_delta_size < err)
+        if(max_delta_size < err)
         {
             max_delta_size = err;
             max_delta_x = layer_in;
@@ -94,8 +93,7 @@ nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output, NN_TYPE alpha)
 
 void relu_mx(mx_t *a)
 {
-    uint32_t size = a->x * a->y;
-    for(uint32_t i = 0; i < size; ++i)
+    for(MX_SIZE i = 0; i < a->size; ++i)
         a->arr[i] = MAX(a->arr[i],NN_ZERO);
 }
 

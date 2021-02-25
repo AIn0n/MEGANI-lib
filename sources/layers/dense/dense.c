@@ -5,9 +5,8 @@
 static void
 dense_fill_rng(mx_t* values, nn_params_t* params)
 {
-    uint16_t size = 0;
     NN_TYPE rand_val, diff = (params->max - params->min);
-    for(uint16_t i = 0; i < size; ++i)
+    for(MX_SIZE i = 0; i < values->size; ++i)
     {
         rand_val = (NN_TYPE) rand() / RAND_MAX;
         values->arr[i] = params->min + rand_val * diff;
@@ -47,8 +46,8 @@ dense_backward(struct nn_layer_t* self, nn_array_t* n, const mx_t* prev_out, mx_
     mx_sub(*data->val, *n->vdelta, data->val);      //values = values - vdelta
 }
 
-int32_t
-dense_setup(struct nn_layer_t* self, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
+MX_SIZE
+dense_setup(struct nn_layer_t* self, MX_SIZE in, MX_SIZE batch, nn_params_t* params, setup_params purpose)
 {
     if(purpose == DELETE)
     {
@@ -62,19 +61,19 @@ dense_setup(struct nn_layer_t* self, uint32_t in, uint32_t batch, nn_params_t* p
     }
     self->out    = mx_create(params->size, batch);
     self->delta  = mx_create(params->size, batch);
-    if(self->out == NULL || self->delta == NULL) return -1;
+    if(self->out == NULL || self->delta == NULL) return 0;
 
     dense_data_t* data = (dense_data_t *)calloc(1, sizeof(dense_data_t));
-    if(data == NULL) return -1;
+    if(data == NULL) return 0;
 
     data->act_func  = params->activ_func;
     data->val       = mx_create(in, params->size);
-    if(data->val == NULL) return -1;
+    if(data->val == NULL) return 0;
     if(params->min && params->max) dense_fill_rng(data->val, params);
 
     self->data     = (void *) data;
     self->type     = DENSE;
     self->forward  = (&dense_forward);
     self->backward = (&dense_backward);
-    return (int32_t) (in * params->size);
+    return (in * params->size);
 }

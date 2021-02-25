@@ -5,11 +5,8 @@
 void
 drop_reroll(drop_data_t *data)
 {
-    uint32_t size = data->mask->x * data->mask->y;
-    for(uint32_t i = 0; i < size; ++i)
-    {
+    for(MX_SIZE i = 0; i < data->mask->size; ++i)
         data->mask->arr[i] = ((rand() % 100) >= data->drop_rate);
-    }
 }
 
 //--------------------------------------PUBLIC FUNCTIONS------------------------------------------------------
@@ -32,8 +29,8 @@ drop_backward(struct nn_layer_t* self, nn_array_t* n, const mx_t* prev_out, mx_t
     mx_hadamard(*self->delta, *data->mask, prev_delta);
 }
 
-int32_t
-drop_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* params, setup_params purpose)
+MX_SIZE
+drop_setup(struct nn_layer_t* layer, MX_SIZE in, MX_SIZE batch, nn_params_t* params, setup_params purpose)
 {
     if(purpose == DELETE)
     {
@@ -48,18 +45,18 @@ drop_setup(struct nn_layer_t* layer, uint32_t in, uint32_t batch, nn_params_t* p
     params->size = (params - 1)->size;
     layer->out = mx_create(params->size, batch);
     layer->delta = mx_create(params->size, batch);
-    if(layer->out == NULL || layer->delta == NULL || !in) return -1;
+    if(layer->out == NULL || layer->delta == NULL || !in) return 0;
 
     drop_data_t* data = (drop_data_t *)calloc(1, sizeof(drop_data_t));
-    if(data == NULL) return -1;
+    if(data == NULL) return 0;
 
     data->drop_rate = params->drop_rate;
     data->mask = mx_create(params->size, batch);
-    if(data->mask == NULL) return -1;
+    if(data->mask == NULL) return 0;
 
     layer->data = (void *)data;
     layer->type = DROP;
     layer->forward = (&drop_forward);
     layer->backward = (&drop_backward);
-    return 0;
+    return 1;
 }
