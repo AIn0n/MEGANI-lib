@@ -11,7 +11,7 @@ TEST_START(1, "nn_create")
         {.type = DROP, .drop_rate = 40},
         {.type = DENSE, .activ_func = NO_FUNC, .max = 0.2, .min=01, .size = 20}
     };
-    nn_array_t* n = nn_create(100, 15, 3, initializer);
+    nn_array_t* n = nn_create(100, 15, 3, 0.01, initializer);
 
     TEST_SIZE(n->layers[0].delta,   10, 15)
     TEST_SIZE(n->layers[0].out,     10, 15)
@@ -31,11 +31,12 @@ TEST_START(1, "nn_create")
     TEST_SIZE(n->layers[2].delta,   20, 15)
     TEST_SIZE(n->layers[2].out,     20, 15)
     TEST_IF(n->layers[2].type != DENSE)
+    TEST_IF(n->alpha != 0.01)
 
     ptr1 =(dense_data_t *) n->layers[2].data;
     TEST_SIZE(ptr1->val,    10, 20)
 
-    TEST_SIZE(n->vdelta, 100,10)
+    TEST_SIZE(n->temp, 100,10)
 
     nn_destroy(n);
 }
@@ -52,7 +53,7 @@ TEST_START(2, "nn_predict")
     NN_TYPE input[3] = {8.5, 0.65, 1.2};
     mx_t mx_input = {.arr = input, .x = 3, .y = 1};
 
-    nn_array_t* n = nn_create(3, 1, 2, initializer);
+    nn_array_t* n = nn_create(3, 1, 2, 0.01, initializer);
 
     dense_data_t* dense_ptr = (n->layers->data);
     NN_TYPE val0[9] = { 0.1,    0.2,   -0.1,
@@ -86,7 +87,7 @@ TEST_START(3, "nn_predict")
         {.type = DENSE, .activ_func = NO_FUNC, .size = 1}
     };
 
-    nn_array_t* nn = nn_create(1, 1, 2, initializer);
+    nn_array_t* nn = nn_create(1, 1, 2, 0.01, initializer);
 
     NN_TYPE val0[3] = { 0.1, -0.1, 0.1};
     NN_TYPE val1[3] = { 0.3, 1.1, -0.3};
@@ -119,7 +120,7 @@ TEST_START(4, "nn_create > nn_predict > nn_fit")
         {.type = DENSE, .activ_func = RELU, .size = 3},
         {.type = DENSE, .activ_func = NO_FUNC, .size = 3}
     };
-    nn_array_t* nn = nn_create(3, 4, 2, initializer);
+    nn_array_t* nn = nn_create(3, 4, 2, 0.01, initializer);
 
     NN_TYPE val0[9] = {0.1, 0.2, -0.1, -0.1, 0.1, 0.9, 0.1, 0.4, 0.1};
     NN_TYPE val1[9] = {0.3, 1.1, -0.3, 0.1, 0.2, 0.0, 0.0, 1.3, 0.1};
@@ -133,7 +134,7 @@ TEST_START(4, "nn_create > nn_predict > nn_fit")
     NN_TYPE out_arr[12] = {0.1, 1.0, 0.1, 0.0, 1.0, 0.0, 0.0, 0.0, 0.1, 0.1, 1.0, 0.2};
     mx_t out = {.arr = out_arr, .x = 3, .y = 4};
 
-    nn_fit(nn, &in, &out, 0.01);
+    nn_fit(nn, &in, &out);
 
     NN_TYPE exp_val0[9] = { 0.118847, 0.201724, -0.0977926, 
                             -0.190674, 0.0930147, 0.886871, 

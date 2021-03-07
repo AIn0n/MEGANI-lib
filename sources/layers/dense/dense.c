@@ -35,15 +35,15 @@ dense_backward(struct nn_layer_t* self, nn_array_t* n, const mx_t* prev_out, mx_
     {
         mx_hadam_lambda(self->delta, *self->out, data->act_func.func_cell);
     }
-    n->vdelta->x = data->val->x;   //vdelta is shared between layers so we had to change the size
-    n->vdelta->y = data->val->y;
+    n->temp->x = data->val->x;   //vdelta is shared between layers so we had to change the size
+    n->temp->y = data->val->y;
 
     if(prev_delta != NULL)                          //prev delta = curr delta * curr values
         mx_mp(*self->delta, *data->val, prev_delta, DEF);
 
-    mx_mp(*self->delta, *prev_out, n->vdelta, A);   //value delta = delta^T * previous output
-    mx_mp_num(n->vdelta, n->alpha);                 //value delta = value delta * alpha
-    mx_sub(*data->val, *n->vdelta, data->val);      //values = values - vdelta
+    mx_mp(*self->delta, *prev_out, n->temp, A);   //value delta = delta^T * previous output
+    mx_mp_num(n->temp, n->alpha);                 //value delta = value delta * alpha
+    mx_sub(*data->val, *n->temp, data->val);      //values = values - vdelta
 }
 
 MX_SIZE

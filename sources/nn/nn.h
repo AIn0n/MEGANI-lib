@@ -14,6 +14,11 @@
 #define NO_FUNC ((act_func_t) {.func_cell =NULL, .func_mx =NULL})
 #define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
 
+/** @def NN_SIZE
+ *  @brief Type for number of layer in neural network. By default it is uint16_t.
+ */
+#define NN_SIZE uint16_t
+
 //------------------------------------------------STRUCTURES---------------------------------------
 
 /** @brief enum with all types of layers which we can use in our networks.
@@ -80,7 +85,7 @@ nn_params_t;
  * 
  *  This struct is main element of neural network in this library.
  *  It consist of all layers with data, values, outupt, etc (for more info see nn_layer_t),
- *  number of them <size> and additional vdelta matrix used in backpropagation, same for every
+ *  number of them <size> and additional temporary matrix used in backpropagation and cnn, same for every
  *  layer for memory optimalization.
  * 
  *  @see nn_layer_t
@@ -88,9 +93,9 @@ nn_params_t;
 typedef struct 
 {
     struct nn_layer_t*  layers; /**< all neurons layers in current network */
-    mx_t*               vdelta; /**< vdelta matrix shared between other layers */
+    mx_t*               temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
     NN_TYPE             alpha;  /**< alpha indicates learning speed */
-    uint16_t            size;   /**< number of layers */
+    NN_SIZE             size;   /**< number of layers */
 }
 nn_array_t;
 
@@ -122,13 +127,14 @@ struct nn_layer_t
  * 
  *  On success, pointer to structure is returned. If errors occurs, function return NULL.
  * 
- *  @param [in] in_size input size (width of input matrix)
+ *  @param [in] input_size input size (width of input matrix)
+ *  @param [in] alpha   alpha learning rate
  *  @param [in] b_size  batch size (heigh of input matrix)
  *  @param [in] nn_size number of layers
  *  @param [in] params  config data for every layer
  */
 nn_array_t* 
-nn_create(MX_SIZE in_size, MX_SIZE b_size, uint16_t nn_size, nn_params_t* params);
+nn_create(MX_SIZE input_size, MX_SIZE b_size, uint16_t nn_size, NN_TYPE alpha, nn_params_t* params);
 
 /** @brief Free memory allocated for neural network struct.
  * 
@@ -141,7 +147,7 @@ void nn_destroy(nn_array_t *nn);
 
 //TODO docs
 void nn_predict(nn_array_t* nn, const mx_t* input);
-void nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output, NN_TYPE alpha);
+void nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
 //TODO: Im not sure, but maybe activations funcs will get new file only for them
