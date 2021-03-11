@@ -1,6 +1,6 @@
 #include "dense.h"
 
-//----------------------STATIC FUNCTIONS---------------------------------------------------
+//----------------------STATIC FUNCTIONS----------------------------------------
 
 static void
 dense_fill_rng(mx_t* values, nn_params_t* params)
@@ -13,7 +13,7 @@ dense_fill_rng(mx_t* values, nn_params_t* params)
     }
 }
 
-//----------------------------PUBLIC FUNCTIONS----------------------------------------------
+//----------------------------PUBLIC FUNCTIONS----------------------------------
 
 void
 dense_forward(struct nn_layer_t* self, const mx_t * input)
@@ -28,7 +28,11 @@ dense_forward(struct nn_layer_t* self, const mx_t * input)
 }
 
 void 
-dense_backward(struct nn_layer_t* self, nn_array_t* n, const mx_t* prev_out, mx_t* prev_delta)
+dense_backward(
+    struct nn_layer_t*  self, 
+    nn_array_t*         n, 
+    const mx_t*         prev_out, 
+    mx_t*               prev_delta)
 {
     dense_data_t* data = (dense_data_t *) self->data;    
     if(data->act_func.func_cell != NULL) //delta = delta o activation function ( output )
@@ -38,7 +42,7 @@ dense_backward(struct nn_layer_t* self, nn_array_t* n, const mx_t* prev_out, mx_
     n->temp->x = data->val->x;   //vdelta is shared between layers so we had to change the size
     n->temp->y = data->val->y;
 
-    if(prev_delta != NULL)                          //prev delta = curr delta * curr values
+    if(prev_delta != NULL)  //prev delta = curr delta * curr values
         mx_mp(*self->delta, *data->val, prev_delta, DEF);
 
     mx_mp(*self->delta, *prev_out, n->temp, A);   //value delta = delta^T * previous output
@@ -47,7 +51,12 @@ dense_backward(struct nn_layer_t* self, nn_array_t* n, const mx_t* prev_out, mx_
 }
 
 MX_SIZE
-dense_setup(struct nn_layer_t* self, MX_SIZE in, MX_SIZE batch, nn_params_t* params, setup_params purpose)
+dense_setup(
+    struct nn_layer_t*  self, 
+    MX_SIZE             in, 
+    MX_SIZE             batch, 
+    nn_params_t*        params, 
+    setup_params        purpose)
 {
     if(purpose == DELETE)
     {

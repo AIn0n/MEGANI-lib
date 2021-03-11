@@ -1,6 +1,6 @@
 #include "drop.h"
 
-//--------------------------------------STATIC FUNCTIONS-----------------------------------------------------
+//--------------------------------------STATIC FUNCTIONS------------------------
 
 void
 drop_reroll(drop_data_t *data)
@@ -9,7 +9,7 @@ drop_reroll(drop_data_t *data)
         data->mask->arr[i] = ((rand() % 100) >= data->drop_rate);
 }
 
-//--------------------------------------PUBLIC FUNCTIONS------------------------------------------------------
+//--------------------------------------PUBLIC FUNCTIONS------------------------
 
 void
 drop_forward(struct nn_layer_t* self, const mx_t * input)
@@ -22,15 +22,26 @@ drop_forward(struct nn_layer_t* self, const mx_t * input)
 }
 
 void
-drop_backward(struct nn_layer_t* self, nn_array_t* n, const mx_t* prev_out, mx_t* prev_delta)
+drop_backward(
+    struct nn_layer_t*  self, 
+    nn_array_t*         n, 
+    const mx_t*         prev_out, 
+    mx_t*               prev_delta)
 {
-    if(n == NULL || prev_out == NULL) return;
+    //I checking this only to make Wflags happy
+    //in final release I'm going to delete this if
+    if(n == NULL || prev_out == NULL) return;   
     drop_data_t* data = (drop_data_t *) self->data;
     mx_hadamard(*self->delta, *data->mask, prev_delta);
 }
 
 MX_SIZE
-drop_setup(struct nn_layer_t* layer, MX_SIZE in, MX_SIZE batch, nn_params_t* params, setup_params purpose)
+drop_setup(
+    struct nn_layer_t*  layer, 
+    MX_SIZE             in, 
+    MX_SIZE             batch, 
+    nn_params_t*        params, 
+    setup_params        purpose)
 {
     if(purpose == DELETE)
     {

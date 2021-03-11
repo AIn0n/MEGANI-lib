@@ -27,16 +27,17 @@
 /** @struct mx_t 
 *   @brief  Structure with matrix data and size.
 *
-*   I designed this struct as interpreted 1 dimensional array to make it as fast and small
-*   as possible. To change the data type in matrices, change NN_TYPE.
+*   I designed this struct as interpreted 1 dimensional array to make it as fast
+*   and small as possible. To change the data type in matrices, change NN_TYPE.
 *   @see NN_TYPE
 */
 typedef struct 
 {
-    NN_TYPE* arr;   /**< Array with matrix data */
-    MX_SIZE x;     /**< matrix width */
-    MX_SIZE y;     /**< matrix height*/
-    MX_SIZE size;   /**< matrix height multiplied by width. Nothing particular special but very often used */
+    NN_TYPE* arr;   /**<    Array with matrix data */
+    MX_SIZE x;      /**<    matrix width */
+    MX_SIZE y;      /**<    matrix height*/
+    MX_SIZE size;   /**<    matrix height multiplied by width. 
+                            Nothing particular special but very often used */
 }
 mx_t;
 
@@ -54,8 +55,8 @@ typedef enum
 /** @brief Function creates a new matrix and returns a pointer to it. 
 * 
 *   Function get size of the output matrix <x, y>, checks the input, allocates memory 
-*   (with calloc) for it and returns the pointer. Size of output matrix in memory depend on
-*   NN_TYPE. If you use thread-safe calloc this function is thread-safe.
+*   (with calloc) for it and returns the pointer. Size of output matrix in memory 
+*   depend on NN_TYPE. If you use thread-safe calloc this function is thread-safe.
 * 
 *   On success, pointer to matrix is returned. If errors occurs, function return NULL;
 * 
@@ -127,9 +128,10 @@ void mx_sub(const mx_t a, const mx_t b, mx_t* out);
  */
 void mx_mp_num(mx_t* a, NN_TYPE num);
 
-/** @brief function uses lambda on every cell of second matrix and return to first matrix hadamard product.
+/** @brief matrix A = matrix A o lambda on cell( matrix B )
  * 
- * 
+ * function uses lambda on every cell of second matrix and 
+ * return to first matrix hadamard product.
  */
 void mx_hadam_lambda(mx_t* a, const mx_t b, NN_TYPE (*lambda)(NN_TYPE));
 

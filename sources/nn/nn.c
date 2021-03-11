@@ -2,9 +2,10 @@
 #include "dense.h"
 #include "drop.h"
 
-//-----------------------------------USER FUNCTIONS---------------------------------
+//-----------------------------------USER FUNCTIONS-----------------------------
 
-MX_SIZE (*setup_list[])(struct nn_layer_t*, MX_SIZE, MX_SIZE, nn_params_t*, setup_params) =
+MX_SIZE (*setup_list[])
+(struct nn_layer_t*, MX_SIZE, MX_SIZE, nn_params_t*, setup_params) =
 {
     LAYER_0_SETUP,
     LAYER_1_SETUP
@@ -26,19 +27,33 @@ nn_destroy(nn_array_t* nn)
 }
 
 nn_array_t* 
-nn_create(MX_SIZE input_size, MX_SIZE b_size, uint16_t nn_size, NN_TYPE alpha, nn_params_t* params)
+nn_create(
+    MX_SIZE         input_size, 
+    MX_SIZE         b_size,
+    uint16_t        nn_size, 
+    NN_TYPE         alpha, 
+    nn_params_t*    params)
 {
     if(!input_size || !b_size || !nn_size) return NULL;
     nn_array_t* ret = (nn_array_t*)calloc(1, sizeof(nn_array_t));
     if(ret == NULL) return NULL;
 
-    ret->layers = (struct nn_layer_t *)calloc(nn_size, sizeof(struct nn_layer_t));
+    ret->layers = (struct nn_layer_t *)calloc
+        (nn_size, sizeof(struct nn_layer_t));
+
     if(ret->layers == NULL) {free(ret); return NULL;}
 
-    MX_SIZE max_delta_size = 0, max_delta_x = 0, max_delta_y = 0, layer_in = input_size, err = 0;
+    MX_SIZE max_delta_size = 0, max_delta_x = 0, max_delta_y = 0;
+    MX_SIZE layer_in = input_size, err = 0;
     for(NN_SIZE i = 0; i < nn_size; ++i)
     {
-        err = (*setup_list[params[i].type])((ret->layers + i), layer_in, b_size, (params + i), CREATE);
+        err = (*setup_list[params[i].type])(
+            (ret->layers + i), 
+            layer_in, 
+            b_size, 
+            (params + i), 
+            CREATE);
+
         if(!err)
         {
             nn_destroy(ret);
@@ -83,13 +98,16 @@ nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output)
 
     for(NN_SIZE i = end; i > 0; --i)
     {
-        nn->layers[i].backward((nn->layers + i), nn, nn->layers[i - 1].out, nn->layers[i - 1].delta);
+        nn->layers[i].backward(
+            (nn->layers + i), 
+            nn, nn->layers[i - 1].out, 
+            nn->layers[i - 1].delta);
     }
     //vdelta = delta^T * input
     nn->layers->backward(nn->layers, nn, input, NULL);
 }
 
-//---------------------------------ACTIVATION FUNCS------------------------------------------
+//---------------------------------ACTIVATION FUNCS-----------------------------
 //TODO: split activation funcs to other files or even folder
 
 void relu_mx(mx_t *a)
