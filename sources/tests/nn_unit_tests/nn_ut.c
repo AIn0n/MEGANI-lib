@@ -36,7 +36,7 @@ TEST_START(1, "nn_create")
     ptr1 =(dense_data_t *) n->layers[2].data;
     TEST_SIZE(ptr1->val,    10, 20)
 
-    TEST_SIZE(n->temp, 100,10)
+    TEST_IF(n->temp->size != 1000)
 
     nn_destroy(n);
 }

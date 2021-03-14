@@ -43,8 +43,7 @@ nn_create(
 
     if(ret->layers == NULL) {free(ret); return NULL;}
 
-    MX_SIZE max_delta_size = 0, max_delta_x = 0, max_delta_y = 0;
-    MX_SIZE layer_in = input_size, err = 0;
+    MX_SIZE temp_size = 0, layer_in = input_size, err = 0;
     for(NN_SIZE i = 0; i < nn_size; ++i)
     {
         err = (*setup_list[params[i].type])(
@@ -59,18 +58,13 @@ nn_create(
             nn_destroy(ret);
             return NULL;
         }
-        if(max_delta_size < err)
-        {
-            max_delta_size = err;
-            max_delta_x = layer_in;
-            max_delta_y = params[i].size;
-        }
+        temp_size = MAX(temp_size, err);
         layer_in = params[i].size; // layer input size = previous layer output size
     }
 
     ret->alpha  = alpha;
     ret->size   = nn_size;
-    ret->temp   = mx_create(max_delta_x, max_delta_y);
+    ret->temp   = mx_create(temp_size, 1);
     if(ret->temp == NULL) nn_destroy(ret);
 
     return ret;
