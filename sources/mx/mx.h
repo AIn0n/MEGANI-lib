@@ -4,17 +4,17 @@
 #include <stdint.h> //for uintN_t - better portability
 #include <stdlib.h>
 
-/** @def    NN_TYPE
+/** @def    MX_TYPE
 *   @brief  Type of variables which contain neural values.
 *
 *   By default it is "double".
 */
-#define NN_TYPE double 
+#define MX_TYPE double 
 
 /** @def    NN_ZERO
- *  @brief  zero cast on NN_TYPE.
+ *  @brief  zero cast on MX_TYPE.
  */
-#define NN_ZERO ((NN_TYPE)0)
+#define NN_ZERO ((MX_TYPE)0)
 
 /** @def MX_SIZE
  *  @brief Type of variables which contain matrix size, x, y. 
@@ -28,12 +28,12 @@
 *   @brief  Structure with matrix data and size.
 *
 *   I designed this struct as interpreted 1 dimensional array to make it as fast
-*   and small as possible. To change the data type in matrices, change NN_TYPE.
-*   @see NN_TYPE
+*   and small as possible. To change the data type in matrices, change MX_TYPE.
+*   @see MX_TYPE
 */
 typedef struct 
 {
-    NN_TYPE* arr;   /**<    Array with matrix data */
+    MX_TYPE* arr;   /**<    Array with matrix data */
     MX_SIZE x;      /**<    matrix width */
     MX_SIZE y;      /**<    matrix height*/
     MX_SIZE size;   /**<    matrix height multiplied by width. 
@@ -56,14 +56,14 @@ typedef enum
 * 
 *   Function get size of the output matrix <x, y>, checks the input, allocates memory 
 *   (with calloc) for it and returns the pointer. Size of output matrix in memory 
-*   depend on NN_TYPE. If you use thread-safe calloc this function is thread-safe.
+*   depend on MX_TYPE. If you use thread-safe calloc this function is thread-safe.
 * 
 *   On success, pointer to matrix is returned. If errors occurs, function return NULL;
 * 
 *   @param [in] x output matrix width.
 *   @param [in] y output matrix height
 *
-*   @see NN_TYPE
+*   @see MX_TYPE
  */
 mx_t* mx_create(uint32_t x, uint32_t y);
 
@@ -71,7 +71,7 @@ mx_t* mx_create(uint32_t x, uint32_t y);
 /**
 *   @brief Function free memory allocated for matrix.
 *
-*   Function get pointer to mx_t and frees both structure and NN_TYPE array.
+*   Function get pointer to mx_t and frees both structure and MX_TYPE array.
 *   This is not thread-safe.
 *
 *   @param [in] mx pointer to matrix allocated by matrix_create function.
@@ -126,14 +126,14 @@ void mx_sub(const mx_t a, const mx_t b, mx_t* out);
  *  @param [in] a input matrix
  *  @param [in] num every cell multiplier
  */
-void mx_mp_num(mx_t* a, NN_TYPE num);
+void mx_mp_num(mx_t* a, MX_TYPE num);
 
 /** @brief matrix A = matrix A o lambda on cell( matrix B )
  * 
  * function uses lambda on every cell of second matrix and 
  * return to first matrix hadamard product.
  */
-void mx_hadam_lambda(mx_t* a, const mx_t b, NN_TYPE (*lambda)(NN_TYPE));
+void mx_hadam_lambda(mx_t* a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE));
 
 void mx_print(const mx_t* a, char * name);
 

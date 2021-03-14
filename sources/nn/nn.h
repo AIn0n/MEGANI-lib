@@ -58,7 +58,7 @@ typedef enum {
  */
 typedef struct
 {
-    NN_TYPE (*func_cell)(NN_TYPE);  /**< function used in forwarding */
+    MX_TYPE (*func_cell)(MX_TYPE);  /**< function used in forwarding */
     void (*func_mx)(mx_t *);        /**< function used in backpropagation */
 }
 act_func_t;
@@ -76,8 +76,8 @@ typedef struct
     act_func_t  activ_func;
     uint8_t     drop_rate;
     MX_SIZE    size;
-    NN_TYPE     min;
-    NN_TYPE     max;
+    MX_TYPE     min;
+    MX_TYPE     max;
 } 
 nn_params_t;
 
@@ -94,7 +94,7 @@ typedef struct
 {
     struct nn_layer_t*  layers; /**< all neurons layers in current network */
     mx_t*               temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
-    NN_TYPE             alpha;  /**< alpha indicates learning speed */
+    MX_TYPE             alpha;  /**< alpha indicates learning speed */
     NN_SIZE             size;   /**< number of layers */
 }
 nn_array_t;
@@ -134,7 +134,7 @@ struct nn_layer_t
  *  @param [in] params  config data for every layer
  */
 nn_array_t* 
-nn_create(MX_SIZE input_size, MX_SIZE b_size, uint16_t nn_size, NN_TYPE alpha, nn_params_t* params);
+nn_create(MX_SIZE input_size, MX_SIZE b_size, NN_SIZE nn_size, MX_TYPE alpha, nn_params_t* params);
 
 /** @brief Free memory allocated for neural network struct.
  * 
@@ -153,7 +153,7 @@ void nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output);
 //TODO: Im not sure, but maybe activations funcs will get new file only for them
 
 void relu_mx(mx_t *a);
-NN_TYPE relu_deriv_cell(NN_TYPE a);
+MX_TYPE relu_deriv_cell(MX_TYPE a);
 
 #endif
 

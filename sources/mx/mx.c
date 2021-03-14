@@ -10,7 +10,7 @@ mx_create(uint32_t x, uint32_t y)
     if(output == NULL) return NULL;
 
     output->size = x * y;
-    output->arr = (NN_TYPE *)calloc(output->size, sizeof(NN_TYPE));
+    output->arr = (MX_TYPE *)calloc(output->size, sizeof(MX_TYPE));
     if(output->arr == NULL) 
     { 
         free(output); 
@@ -48,12 +48,11 @@ mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params)
         trb_i = 1;
     }
 
-    NN_TYPE val;
     for(MX_SIZE y = 0; y < out->y; ++y)
     {
         for(MX_SIZE x = 0; x < out->x; ++x)
         {
-            val = 0;
+            MX_TYPE val = 0;
             for(MX_SIZE i = 0; i < limit; ++i)
             {
                 val += a.arr[i*tra_i + y*tra_y] * b.arr[x*trb_x + i*trb_i];
@@ -82,7 +81,7 @@ mx_sub(const mx_t a, const mx_t b, mx_t* out)
 }
 
 void 
-mx_mp_num(mx_t* a, NN_TYPE num)
+mx_mp_num(mx_t* a, MX_TYPE num)
 {
     for(MX_SIZE i = 0; i < a->size; ++i)
     {
@@ -91,7 +90,7 @@ mx_mp_num(mx_t* a, NN_TYPE num)
 }
 
 void 
-mx_hadam_lambda(mx_t* a, const mx_t b, NN_TYPE (*lambda)(NN_TYPE))
+mx_hadam_lambda(mx_t* a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE))
 {
     for(MX_SIZE i = 0; i < a->size; ++i)
     {

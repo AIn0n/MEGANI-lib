@@ -30,8 +30,8 @@ nn_array_t*
 nn_create(
     MX_SIZE         input_size, 
     MX_SIZE         b_size,
-    uint16_t        nn_size, 
-    NN_TYPE         alpha, 
+    NN_SIZE         nn_size, 
+    MX_TYPE         alpha, 
     nn_params_t*    params)
 {
     if(!input_size || !b_size || !nn_size) return NULL;
@@ -43,12 +43,12 @@ nn_create(
 
     if(ret->layers == NULL) {free(ret); return NULL;}
 
-    MX_SIZE temp_size = 0, layer_in = input_size, err = 0;
+    MX_SIZE temp_size = 0;
     for(NN_SIZE i = 0; i < nn_size; ++i)
     {
-        err = (*setup_list[params[i].type])(
+        MX_SIZE err = (*setup_list[params[i].type])(
             (ret->layers + i), 
-            layer_in, 
+            input_size, 
             b_size, 
             (params + i), 
             CREATE);
@@ -59,7 +59,7 @@ nn_create(
             return NULL;
         }
         temp_size = MAX(temp_size, err);
-        layer_in = params[i].size; // layer input size = previous layer output size
+        input_size = params[i].size; // layer input size = previous layer output size
     }
 
     ret->alpha  = alpha;
@@ -110,5 +110,5 @@ void relu_mx(mx_t *a)
         a->arr[i] = MAX(a->arr[i],NN_ZERO);
 }
 
-NN_TYPE 
-relu_deriv_cell(NN_TYPE a) {return (NN_TYPE)((a > NN_ZERO) ? 1 : 0);}
+MX_TYPE 
+relu_deriv_cell(MX_TYPE a) {return (MX_TYPE)((a > NN_ZERO) ? 1 : 0);}

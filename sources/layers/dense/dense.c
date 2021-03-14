@@ -5,10 +5,10 @@
 static void
 dense_fill_rng(mx_t* values, nn_params_t* params)
 {
-    NN_TYPE rand_val, diff = (params->max - params->min);
+    MX_TYPE diff = (params->max - params->min);
     for(MX_SIZE i = 0; i < values->size; ++i)
     {
-        rand_val = (NN_TYPE) rand() / RAND_MAX;
+        MX_TYPE rand_val = (MX_TYPE) rand() / RAND_MAX;
         values->arr[i] = params->min + rand_val * diff;
     }
 }
