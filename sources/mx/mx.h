@@ -143,18 +143,3 @@ void mx_print(const mx_t* a, char * name);
 *   @file  mx.h
 *   @brief Header file for matrix math.
 */
-
-/** @mainpage Caffeine-library documentation
- *  @section Introduction
- *  @subsection Goals
- * 
- *  In the end I would like to have as small and fast as possible library for basic 
- *  neural networks capable of generating images.The library is almost depedency-free and 
- *  platform independent for easy porting to other architectures, systems etc.
- * 
- *  @section naming convention
- * 
- *  First word in every function is always a short name of thing which 
- *  we use (example mx -> matrix). Next one is operation, after that we can 
- *  have things like _nostdlib to mark that this func works without standard C lib.
- */
