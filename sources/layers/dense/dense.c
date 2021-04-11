@@ -1,6 +1,6 @@
 #include "dense.h"
 
-//----------------------STATIC FUNCTIONS----------------------------------------
+//STATIC FUNCTIONS
 
 static void
 dense_fill_rng(mx_t* values, nn_params_t* params)
@@ -13,33 +13,36 @@ dense_fill_rng(mx_t* values, nn_params_t* params)
     }
 }
 
-//----------------------------PUBLIC FUNCTIONS----------------------------------
+//PUBLIC FUNCTIONS
 
 void
-dense_forward(struct nn_layer_t* self, const mx_t * input)
+dense_forwarding(struct nn_layer_t* self, const mx_t * input)
 {
     //output = input * values ^T
     dense_data_t* data = self->data;
     mx_mp(*input, *data->val, self->out, B);  
 
     //layer output = activation function ( layer output )
-    if(*data->act_func.func_mx != NULL)
-        (*data->act_func.func_mx)(self->out);  
+    if(*data->act_func.func_mx != NULL) (*data->act_func.func_mx)(self->out);  
 }
 
 void 
-dense_backward(
+dense_backwarding(
     struct nn_layer_t*  self, 
     nn_array_t*         n, 
     const mx_t*         prev_out, 
     mx_t*               prev_delta)
 {
-    dense_data_t* data = (dense_data_t *) self->data;    
-    if(data->act_func.func_cell != NULL) //delta = delta o activation function ( output )
+    dense_data_t* data = (dense_data_t *) self->data;
+
+    //delta = delta o activation function ( output )
+    if(data->act_func.func_cell != NULL)
     {
         mx_hadam_lambda(self->delta, *self->out, data->act_func.func_cell);
     }
-    n->temp->x = data->val->x;   //vdelta is shared between layers so we had to change the size
+
+    //temporary matrix is shared between layers so we had to change the size
+    n->temp->x = data->val->x;   
     n->temp->y = data->val->y;
 
     if(prev_delta != NULL)  //prev delta = curr delta * curr values
@@ -82,7 +85,7 @@ dense_setup(
 
     self->data     = (void *) data;
     self->type     = DENSE;
-    self->forward  = (&dense_forward);
-    self->backward = (&dense_backward);
+    self->forwarding    = (&dense_forwarding);
+    self->backwarding   = (&dense_backwarding);
     return (in * params->size);
 }

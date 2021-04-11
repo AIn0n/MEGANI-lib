@@ -1,2 +1,2 @@
-# caffeine-library
-Neural network, depedency free library
+# MEGANI-lib
+Minimal Extensible GAN implementation library for C language.

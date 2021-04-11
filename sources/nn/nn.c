@@ -2,7 +2,7 @@
 #include "dense.h"
 #include "drop.h"
 
-//-----------------------------------USER FUNCTIONS-----------------------------
+//USER FUNCTIONS
 
 MX_SIZE (*setup_list[])
 (struct nn_layer_t*, MX_SIZE, MX_SIZE, nn_params_t*, setup_params) =
@@ -76,7 +76,7 @@ nn_predict(nn_array_t* nn, const mx_t* input)
     const mx_t* prev_out = input;
     for(NN_SIZE i = 0; i < nn->size; ++i)
     {
-        nn->layers[i].forward ((nn->layers + i), prev_out);
+        nn->layers[i].forwarding((nn->layers + i), prev_out);
         prev_out = nn->layers[i].out;
     }
 }
@@ -92,16 +92,16 @@ nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output)
 
     for(NN_SIZE i = end; i > 0; --i)
     {
-        nn->layers[i].backward(
+        nn->layers[i].backwarding(
             (nn->layers + i), 
             nn, nn->layers[i - 1].out, 
             nn->layers[i - 1].delta);
     }
     //vdelta = delta^T * input
-    nn->layers->backward(nn->layers, nn, input, NULL);
+    nn->layers->backwarding(nn->layers, nn, input, NULL);
 }
 
-//---------------------------------ACTIVATION FUNCS-----------------------------
+//ACTIVATION FUNCS
 //TODO: split activation funcs to other files or even folder
 
 void relu_mx(mx_t *a)

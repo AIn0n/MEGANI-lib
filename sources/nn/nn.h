@@ -113,8 +113,8 @@ struct nn_layer_t
     mx_t* delta;        /**< layer delta */
     void* data;         /**< layer specialized data, like activation functions in dense */
     layer_type type;    /**< layer type (used in nn_destroy()) */
-    void (*forward) (struct nn_layer_t*, const mx_t*);                      /**< function used in nn_predict() */
-    void (*backward) (struct nn_layer_t*, nn_array_t*, const mx_t*, mx_t*); /**< function use in nn_fit() */
+    void (*forwarding) (struct nn_layer_t*, const mx_t*);                      /**< function used in nn_predict() */
+    void (*backwarding) (struct nn_layer_t*, nn_array_t*, const mx_t*, mx_t*); /**< function use in nn_fit() */
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------
@@ -150,7 +150,6 @@ void nn_predict(nn_array_t* nn, const mx_t* input);
 void nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
-//TODO: Im not sure, but maybe activations funcs will get new file only for them
 
 void relu_mx(mx_t *a);
 MX_TYPE relu_deriv_cell(MX_TYPE a);
