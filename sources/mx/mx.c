@@ -65,37 +65,25 @@ mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params)
 void 
 mx_hadamard(const mx_t a, const mx_t b, mx_t* out)
 {
-    for(MX_SIZE i = 0; i < out->size; ++i)
-    {
-        out->arr[i] = a.arr[i] * b.arr[i];
-    }
+    for(MX_SIZE i = 0; i < out->size; ++i) out->arr[i] = a.arr[i] * b.arr[i];
 }
 
 void
 mx_sub(const mx_t a, const mx_t b, mx_t* out)
 {
-    for(MX_SIZE i = 0; i < out->size; ++i)
-    {
-        out->arr[i] = a.arr[i] - b.arr[i];
-    }
+    for(MX_SIZE i = 0; i < out->size; ++i) out->arr[i] = a.arr[i] - b.arr[i];
 }
 
 void 
 mx_mp_num(mx_t* a, MX_TYPE num)
 {
-    for(MX_SIZE i = 0; i < a->size; ++i)
-    {
-        a->arr[i] *= num;
-    }
+    for(MX_SIZE i = 0; i < a->size; ++i) a->arr[i] *= num;
 }
 
 void 
 mx_hadam_lambda(mx_t* a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE))
 {
-    for(MX_SIZE i = 0; i < a->size; ++i)
-    {
-        a->arr[i] *= (*lambda)(b.arr[i]);
-    }
+    for(MX_SIZE i = 0; i < a->size; ++i) a->arr[i] *= (*lambda)(b.arr[i]);
 }
 
 //---------------------------------DEBUG ONLY-----------------------------------

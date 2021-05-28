@@ -46,11 +46,13 @@ mx_t;
  *  Set this to choose which matrix is transposed in mulitplication.
  */
 typedef enum 
-{  DEF = 0,    /**< default option */
+{  
+    DEF = 0,    /**< default option */
     A = 1,      /**< first matrix is transposed */
     B = 2,      /**< second matrix is transposed */
     BOTH = 3    /**< both matrix are transposed */
-} mx_mp_params;
+} 
+mx_mp_params;
 
 /** @brief Function creates a new matrix and returns a pointer to it. 
 * 

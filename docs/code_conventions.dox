@@ -1,0 +1,46 @@
+/** @page code conventions
+*
+*   @section Goals
+*
+*   Desired code features in order:
+*   -# Minimalistic
+*   -# Dependency free
+*   -# Maintainable
+*   -# Fast
+*   -# Small memory footprint
+*
+*   Always try to add as minimum features as possible, but whenever something
+*   is often executed do whatever you can to make it as fast as possible.
+*   This code have one simple goal: give programmer enough tools to build GAN
+*   without additional dependencies.
+*
+*   @section Brackets   
+*   Use brackets which really intend blocks of code but if you can make code shorter
+*   use both brackets in same line
+*
+*   permitted:
+*   @code
+*   int function(void)
+*   {   
+*       return 0;         
+*   }
+*
+*   int function(void) {return 0; }
+*   @endcode
+*
+*   Non-permitted:
+*   @code
+*   int function(void){   
+*       return 0;         
+*   }
+*   @endcode
+*
+*
+*   @section Naming
+*   First word in every function is always a short name of thing which 
+*   we use (example mx -> matrix). Next one is operation, after that we can 
+*   have things like _nostdlib to mark that this func works without standard C lib.
+*    
+*  
+*  
+*/

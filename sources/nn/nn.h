@@ -42,7 +42,8 @@ layer_type;
  *  I created this enum to make functions which destroy and create new layer to make it easier.
  *  It is used internally and you don't have to play with it by yourself.
  */
-typedef enum {
+typedef enum 
+{
     CREATE,
     DELETE
 }setup_params;
@@ -168,9 +169,5 @@ MX_TYPE relu_deriv_cell(MX_TYPE a);
  *  neural networks capable of generating images.The library is almost depedency-free and 
  *  platform independent for easy porting to other architectures, systems etc.
  * 
- *  @section naming convention
- * 
- *  First word in every function is always a short name of thing which 
- *  we use (example mx -> matrix). Next one is operation, after that we can 
- *  have things like _nostdlib to mark that this func works without standard C lib.
+ *  @ref code conventions
  */

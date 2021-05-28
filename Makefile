@@ -22,7 +22,6 @@ TARGET_EXEC ?= a.out
 all:$(BUILD_DIRS)/$(TARGET_EXEC)
 
 $(BUILD_DIRS)/$(TARGET_EXEC): $(OBJS)
-	echo $(INC_FLAGS)
 	$(CC) $(CFLAGS) $(OBJS) -o $@
 
 #C99 lang
