@@ -5,7 +5,7 @@
 static void
 dense_fill_rng(mx_t* values, nn_params_t* params)
 {
-    MX_TYPE diff = (params->max - params->min);
+    const MX_TYPE diff = (params->max - params->min);
     for(MX_SIZE i = 0; i < values->size; ++i)
     {
         MX_TYPE rand_val = (MX_TYPE) rand() / RAND_MAX;
@@ -19,7 +19,7 @@ void
 dense_forwarding(struct nn_layer_t* self, const mx_t * input)
 {
     //output = input * values ^T
-    dense_data_t* data = self->data;
+    const dense_data_t* data = self->data;
     mx_mp(*input, *data->val, self->out, B);  
 
     //layer output = activation function ( layer output )
@@ -33,7 +33,7 @@ dense_backwarding(
     const mx_t*         prev_out, 
     mx_t*               prev_delta)
 {
-    dense_data_t* data = (dense_data_t *) self->data;
+    const dense_data_t* data = (dense_data_t *) self->data;
 
     //delta = delta o activation function ( output )
     if(data->act_func.func_cell != NULL)

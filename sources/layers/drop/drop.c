@@ -31,7 +31,7 @@ drop_backwarding(
     //I checking this only to make Wflags happy
     //in final release I'm going to delete this if statment
     if(n == NULL || prev_out == NULL) return;   
-    drop_data_t* data = (drop_data_t *) self->data;
+    const drop_data_t* data = (drop_data_t *) self->data;
     mx_hadamard(*self->delta, *data->mask, prev_delta);
 }
 
