@@ -5,100 +5,99 @@
 //USER FUNCTIONS
 
 MX_SIZE (*setup_list[])
-(struct nn_layer_t*, MX_SIZE, MX_SIZE, nn_params_t*, setup_params) =
-{
-    LAYER_0_SETUP,
-    LAYER_1_SETUP
+(struct nn_layer_t*, MX_SIZE, MX_SIZE, nn_params_t*, setup_params) = {
+	LAYER_0_SETUP,
+	LAYER_1_SETUP
 };
 
 void
 nn_destroy(nn_array_t* nn)
 {
-    if(nn == NULL) return;
-    for(NN_SIZE i = 0; i < nn->size; ++i)
-    {
-        mx_destroy(nn->layers[i].delta);
-        mx_destroy(nn->layers[i].out);
-        (*setup_list[nn->layers[i].type])(nn->layers + i, 0, 0, NULL, DELETE);
-    }
-    free(nn->layers);
-    mx_destroy(nn->temp);
-    free(nn);
+	if (nn == NULL)
+		return;
+	for (NN_SIZE i = 0; i < nn->size; ++i) {
+		mx_destroy(nn->layers[i].delta);
+		mx_destroy(nn->layers[i].out);
+		(*setup_list[nn->layers[i].type])
+			(nn->layers + i, 0, 0, NULL, DELETE);
+	}
+	free(nn->layers);
+	mx_destroy(nn->temp);
+	free(nn);
 }
 
 nn_array_t* 
 nn_create(
-    MX_SIZE         input_size, 
-    MX_SIZE         b_size,
-    NN_SIZE         nn_size, 
-    MX_TYPE         alpha, 
-    nn_params_t*    params)
+	MX_SIZE         input_size, 
+	MX_SIZE         b_size,
+	NN_SIZE         nn_size, 
+	MX_TYPE         alpha, 
+	nn_params_t*    params)
 {
-    if(!input_size || !b_size || !nn_size) return NULL;
-    nn_array_t* ret = (nn_array_t*)calloc(1, sizeof(nn_array_t));
-    if(ret == NULL) return NULL;
+	if (!input_size || !b_size || !nn_size) 
+		return NULL;
 
-    ret->layers = (struct nn_layer_t *)calloc
-        (nn_size, sizeof(struct nn_layer_t));
+	nn_array_t* ret = (nn_array_t*)calloc(1, sizeof(nn_array_t));
+	if (ret == NULL) 
+		return NULL;
 
-    if(ret->layers == NULL) {free(ret); return NULL;}
+	ret->layers = (struct nn_layer_t *)calloc
+		(nn_size, sizeof(struct nn_layer_t));
 
-    MX_SIZE temp_size = 0;
-    for(NN_SIZE i = 0; i < nn_size; ++i)
-    {
-        MX_SIZE err = (*setup_list[params[i].type])(
-            (ret->layers + i), 
-            input_size, 
-            b_size, 
-            (params + i), 
-            CREATE);
-
-        if(!err)
-        {
-            nn_destroy(ret);
-            return NULL;
-        }
-        temp_size = MAX(temp_size, err);
-        input_size = params[i].size; // layer input size = previous layer output size
-    }
-
-    ret->alpha  = alpha;
-    ret->size   = nn_size;
-    ret->temp   = mx_create(temp_size, 1);
-    if(ret->temp == NULL) nn_destroy(ret);
-
-    return ret;
+	if (ret->layers == NULL) {
+		free(ret); 
+		return NULL;
+	}
+	MX_SIZE temp_size = 0;
+	for (NN_SIZE i = 0; i < nn_size; ++i) {
+		MX_SIZE err = (*setup_list[params[i].type])(
+			(ret->layers + i), 
+			input_size, 
+			b_size, 
+			(params + i), 
+			CREATE);
+		if (!err) {
+			nn_destroy(ret);
+			return NULL;
+		}
+		temp_size = MAX(temp_size, err);
+		input_size = params[i].size; // layer input size = previous layer output size
+	}
+	ret->alpha  = alpha;
+	ret->size   = nn_size;
+	ret->temp   = mx_create(temp_size, 1);
+	if (ret->temp == NULL) 
+		nn_destroy(ret);
+	return ret;
 }
 
 void
 nn_predict(nn_array_t* nn, const mx_t* input)
 {
-    const mx_t* prev_out = input;
-    for(NN_SIZE i = 0; i < nn->size; ++i)
-    {
-        nn->layers[i].forwarding((nn->layers + i), prev_out);
-        prev_out = nn->layers[i].out;
-    }
+	const mx_t* prev_out = input;
+	for (NN_SIZE i = 0; i < nn->size; ++i) {
+		nn->layers[i].forwarding((nn->layers + i), prev_out);
+		prev_out = nn->layers[i].out;
+	}
 }
 
 void
 nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output)
 {
-    nn_predict(nn, input);
+	nn_predict(nn, input);
+	const NN_SIZE end = nn->size - 1;
+	//delta = output - expected output (last layer case)
+	mx_sub(*nn->layers[end].out, *output, nn->layers[end].delta);
 
-    const NN_SIZE end = nn->size - 1;
-    //delta = output - expected output (last layer case)
-    mx_sub(*nn->layers[end].out, *output, nn->layers[end].delta);
-
-    for(NN_SIZE i = end; i > 0; --i)
-    {
-        nn->layers[i].backwarding(
-            (nn->layers + i), 
-            nn, nn->layers[i - 1].out, 
-            nn->layers[i - 1].delta);
-    }
-    //vdelta = delta^T * input
-    nn->layers->backwarding(nn->layers, nn, input, NULL);
+	for (NN_SIZE i = end; i > 0; --i) {
+		nn->layers[i].backwarding(
+			(nn->layers + i), 
+			nn, 
+			nn->layers[i - 1].out, 
+			nn->layers[i - 1].delta);
+	}
+	//vdelta = delta^T * input
+	nn->layers->backwarding(nn->layers, nn, input, NULL);
 }
 
 //ACTIVATION FUNCS
@@ -106,9 +105,12 @@ nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output)
 
 void relu_mx(mx_t *a)
 {
-    for(MX_SIZE i = 0; i < a->size; ++i)
-        a->arr[i] = MAX(a->arr[i],NN_ZERO);
+	for (MX_SIZE i = 0; i < a->size; ++i)
+		a->arr[i] = MAX(a->arr[i],NN_ZERO);
 }
 
 MX_TYPE 
-relu_deriv_cell(MX_TYPE a) {return (MX_TYPE)((a > NN_ZERO) ? 1 : 0);}
+relu_deriv_cell(MX_TYPE a) 
+{
+	return (MX_TYPE)((a > NN_ZERO) ? 1 : 0);
+}

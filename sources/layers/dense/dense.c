@@ -5,12 +5,11 @@
 static void
 dense_fill_rng(mx_t* values, nn_params_t* params)
 {
-    const MX_TYPE diff = (params->max - params->min);
-    for(MX_SIZE i = 0; i < values->size; ++i)
-    {
-        MX_TYPE rand_val = (MX_TYPE) rand() / RAND_MAX;
-        values->arr[i] = params->min + rand_val * diff;
-    }
+	const MX_TYPE diff = (params->max - params->min);
+	for (MX_SIZE i = 0; i < values->size; ++i){
+		MX_TYPE rand_val = (MX_TYPE) rand() / RAND_MAX;
+		values->arr[i] = params->min + rand_val * diff;
+	}
 }
 
 //PUBLIC FUNCTIONS
@@ -18,74 +17,74 @@ dense_fill_rng(mx_t* values, nn_params_t* params)
 void
 dense_forwarding(struct nn_layer_t* self, const mx_t * input)
 {
-    //output = input * values ^T
-    const dense_data_t* data = self->data;
-    mx_mp(*input, *data->val, self->out, B);  
-
-    //layer output = activation function ( layer output )
-    if(*data->act_func.func_mx != NULL) (*data->act_func.func_mx)(self->out);  
+	//output = input * values ^T
+    	const dense_data_t* data = self->data;
+    	mx_mp(*input, *data->val, self->out, B);  
+	//layer output = activation function ( layer output )
+	if (*data->act_func.func_mx != NULL) 
+		(*data->act_func.func_mx)(self->out);  
 }
 
 void 
 dense_backwarding(
-    struct nn_layer_t*  self, 
-    nn_array_t*         n, 
-    const mx_t*         prev_out, 
-    mx_t*               prev_delta)
+	struct nn_layer_t*  self, 
+	nn_array_t*         n, 
+	const mx_t*         prev_out, 
+	mx_t*               prev_delta)
 {
-    const dense_data_t* data = (dense_data_t *) self->data;
+	const dense_data_t* data = (dense_data_t *) self->data;
 
-    //delta = delta o activation function ( output )
-    if(data->act_func.func_cell != NULL)
-    {
-        mx_hadam_lambda(self->delta, *self->out, data->act_func.func_cell);
-    }
+	//delta = delta o activation function ( output )
+	if (data->act_func.func_cell != NULL)
+		mx_hadam_lambda(self->delta, *self->out, data->act_func.func_cell);
+	//temporary matrix is shared between layers so we had to change the size
+	n->temp->x = data->val->x;   
+	n->temp->y = data->val->y;
 
-    //temporary matrix is shared between layers so we had to change the size
-    n->temp->x = data->val->x;   
-    n->temp->y = data->val->y;
+	if (prev_delta != NULL)  //prev delta = curr delta * curr values
+		mx_mp(*self->delta, *data->val, prev_delta, DEF);
 
-    if(prev_delta != NULL)  //prev delta = curr delta * curr values
-        mx_mp(*self->delta, *data->val, prev_delta, DEF);
-
-    mx_mp(*self->delta, *prev_out, n->temp, A);   //value delta = delta^T * previous output
-    mx_mp_num(n->temp, n->alpha);                 //value delta = value delta * alpha
-    mx_sub(*data->val, *n->temp, data->val);      //values = values - vdelta
+	mx_mp(*self->delta, *prev_out, n->temp, A);   //value delta = delta^T * previous output
+	mx_mp_num(n->temp, n->alpha);                 //value delta = value delta * alpha
+	mx_sub(*data->val, *n->temp, data->val);      //values = values - vdelta
 }
 
 MX_SIZE
 dense_setup(
-    struct nn_layer_t*  self, 
-    MX_SIZE             in, 
-    MX_SIZE             batch, 
-    nn_params_t*        params, 
-    setup_params        purpose)
+	struct nn_layer_t*  self, 
+	MX_SIZE             in, 
+	MX_SIZE             batch, 
+	nn_params_t*        params, 
+	setup_params        purpose)
 {
-    if(purpose == DELETE)
-    {
-        dense_data_t* data = (dense_data_t *)self->data;
-        if(data != NULL)
-        {
-            mx_destroy(data->val);
-            free(data);
-        }
-        return 0;
-    }
-    self->out    = mx_create(params->size, batch);
-    self->delta  = mx_create(params->size, batch);
-    if(self->out == NULL || self->delta == NULL) return 0;
+	if (purpose == DELETE) {
+		const dense_data_t* data = (dense_data_t *)self->data;
+		if (data != NULL) {
+			mx_destroy(data->val);
+			free(data);
+		}
+		return 0;
+	}
+	self->out = mx_create(params->size, batch);
+	self->delta = mx_create(params->size, batch);
+	if (self->out == NULL || self->delta == NULL) 
+		return 0;
 
-    dense_data_t* data = (dense_data_t *)calloc(1, sizeof(dense_data_t));
-    if(data == NULL) return 0;
+	dense_data_t* data = (dense_data_t *)calloc(1, sizeof(dense_data_t));
+	if (data == NULL) 
+		return 0;
 
-    data->act_func  = params->activ_func;
-    data->val       = mx_create(in, params->size);
-    if(data->val == NULL) return 0;
-    if(params->min && params->max) dense_fill_rng(data->val, params);
+	data->act_func = params->activ_func;
+	data->val = mx_create(in, params->size);
+	if (data->val == NULL) 
+		return 0;
+		
+	if (params->min && params->max) 
+		dense_fill_rng(data->val, params);
 
-    self->data     = (void *) data;
-    self->type     = DENSE;
-    self->forwarding    = (&dense_forwarding);
-    self->backwarding   = (&dense_backwarding);
-    return (in * params->size);
+	self->data = (void *) data;
+	self->type = DENSE;
+	self->forwarding = (&dense_forwarding);
+	self->backwarding= (&dense_backwarding);
+	return in * params->size;
 }

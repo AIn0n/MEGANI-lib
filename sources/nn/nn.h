@@ -29,10 +29,9 @@
  *  here, please remember also about layer_n_setup macros!
  * 
  */
-typedef enum 
-{
-    LAYER_0_NAME = 0,
-    LAYER_1_NAME = 1
+typedef enum {
+	LAYER_0_NAME = 0,
+	LAYER_1_NAME = 1
 } 
 layer_type;
 
@@ -42,11 +41,11 @@ layer_type;
  *  I created this enum to make functions which destroy and create new layer to make it easier.
  *  It is used internally and you don't have to play with it by yourself.
  */
-typedef enum 
-{
-    CREATE,
-    DELETE
-}setup_params;
+typedef enum {
+	CREATE,
+	DELETE
+}
+setup_params;
 
 /** @brief Structure with all activations functions subroutines used in single layer.
  * 
@@ -57,10 +56,9 @@ typedef enum
  * 
  *  @see mx_hadam_lambda
  */
-typedef struct
-{
-    MX_TYPE (*func_cell)(MX_TYPE);  /**< function used in forwarding */
-    void (*func_mx)(mx_t *);        /**< function used in backpropagation */
+typedef struct {
+	MX_TYPE (*func_cell)(MX_TYPE);  /**< function used in forwarding */
+	void (*func_mx)(mx_t *);        /**< function used in backpropagation */
 }
 act_func_t;
 
@@ -71,14 +69,13 @@ act_func_t;
  * 
  *  @see nn_create
  */
-typedef struct
-{
-    layer_type  type;
-    act_func_t  activ_func;
-    uint8_t     drop_rate;
-    MX_SIZE    size;
-    MX_TYPE     min;
-    MX_TYPE     max;
+typedef struct {
+	layer_type  type;
+	act_func_t  activ_func;
+	uint8_t     drop_rate;
+	MX_SIZE    size;
+	MX_TYPE     min;
+	MX_TYPE     max;
 } 
 nn_params_t;
 
@@ -91,12 +88,11 @@ nn_params_t;
  * 
  *  @see nn_layer_t
  */
-typedef struct 
-{
-    struct nn_layer_t*  layers; /**< all neurons layers in current network */
-    mx_t*               temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
-    MX_TYPE             alpha;  /**< alpha indicates learning speed */
-    NN_SIZE             size;   /**< number of layers */
+typedef struct {
+	struct nn_layer_t*  layers; /**< all neurons layers in current network */
+	mx_t*               temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
+	MX_TYPE             alpha;  /**< alpha indicates learning speed */
+	NN_SIZE             size;   /**< number of layers */
 }
 nn_array_t;
 
@@ -108,14 +104,13 @@ nn_array_t;
  *  to other structure (example: dense_data_t). Functions forward and backward are used
  *  in backpropagation.
  */
-struct nn_layer_t
-{
-    mx_t* out;          /**< layer output */
-    mx_t* delta;        /**< layer delta */
-    void* data;         /**< layer specialized data, like activation functions in dense */
-    layer_type type;    /**< layer type (used in nn_destroy()) */
-    void (*forwarding) (struct nn_layer_t*, const mx_t*);                      /**< function used in nn_predict() */
-    void (*backwarding) (struct nn_layer_t*, nn_array_t*, const mx_t*, mx_t*); /**< function use in nn_fit() */
+struct nn_layer_t {
+	mx_t* out;          /**< layer output */
+	mx_t* delta;        /**< layer delta */
+	void* data;         /**< layer specialized data, like activation functions in dense */
+	layer_type type;    /**< layer type (used in nn_destroy()) */
+	void (*forwarding) (struct nn_layer_t*, const mx_t*);                      /**< function used in nn_predict() */
+	void (*backwarding) (struct nn_layer_t*, nn_array_t*, const mx_t*, mx_t*); /**< function use in nn_fit() */
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------
@@ -164,9 +159,8 @@ MX_TYPE relu_deriv_cell(MX_TYPE a);
 /** @mainpage MEGANI library documentation
  *  @section Introduction
  *  @subsection Goals
- * 
- *  In the end I would like to have as small and fast as possible library for basic 
- *  neural networks capable of generating images.The library is almost depedency-free and 
+ *  This code have one simple goal: give programmer enough tools to build GAN
+ *  without additional dependencies. The library is almost depedency-free and 
  *  platform independent for easy porting to other architectures, systems etc.
  * 
  *  @ref code conventions
