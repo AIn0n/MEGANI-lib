@@ -3,10 +3,9 @@
 #include "nn.h"
 
 //TODO DOCS
-typedef struct 
-{
-    mx_t*   mask;
-    uint8_t drop_rate;
+typedef struct {
+	mx_t*   mask;
+	uint8_t drop_rate;
 }
 drop_data_t;
 

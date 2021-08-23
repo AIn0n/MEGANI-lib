@@ -3,11 +3,10 @@
 #include "nn.h"
 
 //TODO DOCS
-typedef struct 
-{
-    mx_t*       val;
-    act_func_t  act_func;
-} 
+typedef struct {
+	mx_t*       val;
+	act_func_t  act_func;
+}
 dense_data_t;
 
 void dense_forwarding(struct nn_layer_t* self, const mx_t * input);

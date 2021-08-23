@@ -4,13 +4,15 @@
 
 int main (void)
 {
-    int failed = 0;
-    failed += mx_ut();
-    failed += nn_ut();
+	int failed = 0;
+	failed += mx_ut();
+	failed += nn_ut();
 
-    puts("\nSUMMARY\n");
-    if(failed)  printf("%i ERRORS!\n", failed);
-    else        puts("NO ERRORS OCCURED!");
+	puts("\nSUMMARY\n");
+	if(failed)
+		printf("%i ERRORS!\n", failed);
+	else
+		puts("NO ERRORS OCCURED!");
 
-    return 0;
+	return 0;
 }

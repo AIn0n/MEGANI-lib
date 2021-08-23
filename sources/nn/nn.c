@@ -37,11 +37,11 @@ nn_create(
 	if (!input_size || !b_size || !nn_size) 
 		return NULL;
 
-	nn_array_t* ret = (nn_array_t*)calloc(1, sizeof(nn_array_t));
+	nn_array_t* ret = (nn_array_t*) calloc(1, sizeof(nn_array_t));
 	if (ret == NULL) 
 		return NULL;
 
-	ret->layers = (struct nn_layer_t *)calloc
+	ret->layers = (struct nn_layer_t *) calloc
 		(nn_size, sizeof(struct nn_layer_t));
 
 	if (ret->layers == NULL) {
@@ -106,7 +106,7 @@ nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output)
 void relu_mx(mx_t *a)
 {
 	for (MX_SIZE i = 0; i < a->size; ++i)
-		a->arr[i] = MAX(a->arr[i],NN_ZERO);
+		a->arr[i] = MAX(a->arr[i], NN_ZERO);
 }
 
 MX_TYPE 

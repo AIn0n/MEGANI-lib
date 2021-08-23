@@ -31,13 +31,12 @@
 *   and small as possible. To change the data type in matrices, change MX_TYPE.
 *   @see MX_TYPE
 */
-typedef struct 
-{
-    MX_TYPE* arr;   /**<    Array with matrix data */
-    MX_SIZE x;      /**<    matrix width */
-    MX_SIZE y;      /**<    matrix height*/
-    MX_SIZE size;   /**<    matrix height multiplied by width. 
-                            Nothing particular special but very often used */
+typedef struct {
+	MX_TYPE* arr;   /**<    Array with matrix data */
+	MX_SIZE x;      /**<    matrix width */
+	MX_SIZE y;      /**<    matrix height*/
+	MX_SIZE size;   /**<    matrix height multiplied by width. 
+				Nothing particular special but very often used */
 }
 mx_t;
 
@@ -45,12 +44,11 @@ mx_t;
  *  
  *  Set this to choose which matrix is transposed in mulitplication.
  */
-typedef enum 
-{  
-    DEF = 0,    /**< default option */
-    A = 1,      /**< first matrix is transposed */
-    B = 2,      /**< second matrix is transposed */
-    BOTH = 3    /**< both matrix are transposed */
+typedef enum {  
+	DEF = 0,    /**< default option */
+	A = 1,      /**< first matrix is transposed */
+	B = 2,      /**< second matrix is transposed */
+	BOTH = 3    /**< both matrix are transposed */
 } 
 mx_mp_params;
 
