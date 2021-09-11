@@ -58,7 +58,7 @@ dense_setup(
 	setup_params        purpose)
 {
 	if (purpose == DELETE) {
-		const dense_data_t* data = (dense_data_t *)self->data;
+		dense_data_t* data = (dense_data_t *)self->data;
 		if (data != NULL) {
 			mx_destroy(data->val);
 			free(data);
