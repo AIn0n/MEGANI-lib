@@ -38,6 +38,33 @@ _END_MAIN ='''	}};
 	return failed;
 }}'''
 
+def genStaticMxDec(mx, mxName :str) -> str:
+	return \
+f'''	mx_t {mxName} = {{.x = {mx.shape[1]}, .y = {mx.shape[0]}, .size = {mx.size}}};
+	MX_TYPE {mxName}_arr[] = {{\n''' +\
+	''.join('\t\t' + ''.join(str(x) + ', ' for x in y) + '\n' for y in mx) +\
+	f'\n\t}};\n\t{mxName}.arr = {mxName}_arr;\n\n'
+
+def genStaticEmptyMxDec(shape, mxName :str) -> str:
+	size = shape[0] * shape[1]
+	return \
+f'''	mx_t {mxName} = {{.x = {shape[1]}, .y = {shape[0]}, .size = {size}}};
+	MX_TYPE {mxName}_arr[{size}];''' +\
+	f'\n\t{mxName}.arr = {mxName}_arr;\n\n'
+
+def genMxComp(mxName :str, l :str) -> str:
+	return \
+f'''	for (MX_SIZE n = 0; n < {mxName}.size; ++n)
+		if ({mxName}.arr[n] != {l}[n]) {{
+			print("---- ERROR! (line %i)\\n, expected -> %i, got -> %i", __LINE__, {l}[n], {mxName}.arr[n]);
+			return 1;
+		}}
+'''
+
+def genStaticListDec(l, lName :str) -> str:
+	return \
+	f'\tMX_TYPE *{lName} = {{' + ''.join(str(n) + ', ' for n in l) + '};\n\n'
+
 def genAssert(code :str) -> str:
 	return _TEST_ASSERT.format(code)
 
