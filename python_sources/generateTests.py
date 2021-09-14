@@ -1,4 +1,3 @@
-from numpy.random.mtrand import rand, randint
 from testsGenerator import *
 import numpy as np
 import random

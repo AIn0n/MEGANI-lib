@@ -34,7 +34,7 @@ nn_create(
 	MX_TYPE         alpha, 
 	nn_params_t*    params)
 {
-	if (!input_size || !b_size || !nn_size) 
+	if (!input_size || !b_size || !nn_size || params == NULL) 
 		return NULL;
 
 	nn_array_t* ret = (nn_array_t*) calloc(1, sizeof(nn_array_t));
