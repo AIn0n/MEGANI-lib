@@ -41,8 +41,7 @@ for t in ('0', 'A', 'B', 'BOTH'):
 			genStaticEmptyMxDec((y3, x3), 'res') +
 			genStaticListDec(expected, 'exp') +
 			f'\tmx_mp(a, b, &res, {t});\n\n' +
-			genMxComp('res', 'exp')
-		)
+			genMxComp('res', 'exp'))
 
 #	matrix hadamard product tests
 
@@ -57,8 +56,7 @@ for n in range(5):
 		genStaticEmptyMxDec((y, x), 'res') +
 		genStaticListDec(expected, 'exp') +
 		f'\tmx_hadamard(a, b, &res);\n' +
-		genMxComp('res', 'exp')
-	)
+		genMxComp('res', 'exp'))
 
 #	matrix substraction
 
@@ -73,8 +71,7 @@ for n in range(5):
 		genStaticEmptyMxDec((y, x), 'res') +
 		genStaticListDec(expected, 'exp') +
 		f'\tmx_sub(a, b, &res);\n' +
-		genMxComp('res', 'exp')
-	)
+		genMxComp('res', 'exp'))
 
 #	matrix multiply by number
 
@@ -87,8 +84,7 @@ for n in range(5):
 		genStaticMxDec(a, 'a') +
 		genStaticListDec(expected, 'exp') +
 		f'\tmx_mp_num(&a, {num});\n' +
-		genMxComp('a', 'exp')
-	)
+		genMxComp('a', 'exp'))
 
 #	matrix hadamard product with lambda
 
@@ -105,6 +101,40 @@ gen.genTest('mx_hadam_lambda',
 	genStaticMxDec(b, 'b') +
 	f'\tmx_hadam_lambda(&a, b, (&foo));\n' +
 	genStaticListDec(expected, 'exp') +
-	genMxComp('a', 'exp')
-)
+	genMxComp('a', 'exp'))
+
+#	neural network create
+
+for n in range(5):
+	inputSize = random.randint(1, 16)
+	batchSize = random.randint(1, 16)
+	denseSize1 = random.randint(1, 16)
+	denseSize2 = random.randint(1, 16)
+	maxTmp = max([inputSize * denseSize1, denseSize1 * denseSize2])
+	gen.genTest('nn_create',
+
+	#initializer of neural network
+	f'''	nn_params_t initializer[] = {{
+			{{.type = DENSE, .activ_func = RELU, .max = 0.2, .min=0.1, .size = {denseSize1}}},
+			{{.type = DENSE, .activ_func = NO_FUNC, .max = 0.2, .min=01, .size = {denseSize2}}}
+		}};
+		nn_array_t *n = nn_create({inputSize}, {batchSize}, 2, 0.01, initializer);\n''' +
+
+	# check size of first layer
+		genAssert('n->layers[0].delta == NULL || n->layers[0].out == NULL') +
+		genAssert(f'n->layers[0].delta->x != {denseSize1} || n->layers[0].delta->y != {batchSize}') +
+		genAssert(f'n->layers[0].out->x != {denseSize1} || n->layers[0].out->y != {batchSize}') +
+		'''\n\tdense_data_t *ptr = n->layers[0].data;\n''' +
+		genAssert(f'ptr->val->x != {inputSize} || ptr->val->y != {denseSize1}') +
+
+	# check size of second layer
+		genAssert('n->layers[1].delta == NULL || n->layers[1].out == NULL') +
+		genAssert(f'n->layers[1].delta->x != {denseSize2} || n->layers[1].delta->y != {batchSize}') +
+		genAssert(f'n->layers[1].out->x != {denseSize2} || n->layers[1].out->y != {batchSize}') +
+		'''\n\tptr = (dense_data_t *) n->layers[1].data;''' +
+		genAssert(f'ptr->val->x != {denseSize1} || ptr->val->y != {denseSize2}') +
+
+	# check size of temporary matrix stored in neural network struct
+		genAssert(f'n->temp->size != {maxTmp}'))
+
 gen.save('sources/tests/main.c')

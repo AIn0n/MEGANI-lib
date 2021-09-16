@@ -1,8 +1,14 @@
 _TEST_ASSERT	= '''\tif ({}) {{\n\t\tprintf("---- ERROR! (line %i)\\n", __LINE__);\n\t\treturn 1;\n\t}}\n'''
-_INCLUDE	= '''#include <stdio.h>\n#include "mx.h"\n'''
 _TEST_START 	= '''\nstatic int\ntest{number}(void)\n{{\n\tputs("-- TEST {number} -- {name}");\n\n'''
 _TEST_END	= '''\tputs("---- OK!");\n\treturn 0;\n}\n'''
 _START_MAIN	= '''\nint\nmain(void) {\n\tint (* test_funcs[]) (void) = {'''
+
+_INCLUDE = '''#include <stdio.h>
+#include "mx.h"
+#include "nn.h"
+#include "dense.h"
+#include "drop.h"
+'''
 
 _END_MAIN ='''}};
 	const int test_size = {numOfTests};
