@@ -7,9 +7,6 @@
 #define LAYER_0_NAME DENSE
 #define LAYER_0_SETUP dense_setup
 
-#define LAYER_1_NAME DROP
-#define LAYER_1_SETUP drop_setup
-
 #define MAX(a, b)	((a) < (b) ? (b) : (a))
 #define NO_FUNC ((act_func_t) {.func_cell =NULL, .func_mx =NULL})
 #define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
@@ -31,7 +28,6 @@
  */
 typedef enum {
 	LAYER_0_NAME = 0,
-	LAYER_1_NAME = 1
 } 
 layer_type;
 
@@ -89,10 +85,12 @@ nn_params_t;
  *  @see nn_layer_t
  */
 typedef struct {
-	struct nn_layer_t*  layers; /**< all neurons layers in current network */
-	mx_t*               temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
-	MX_TYPE             alpha;  /**< alpha indicates learning speed */
-	NN_SIZE             size;   /**< number of layers */
+	struct nn_layer_t*  	layers; /**< all neurons layers in current network */
+	mx_t*               	temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
+	MX_TYPE             	alpha;  /**< alpha indicates learning speed */
+	NN_SIZE             	size;   /**< number of layers */
+	MX_SIZE			in_len;
+	MX_SIZE			batch_len;
 }
 nn_array_t;
 
@@ -108,9 +106,9 @@ struct nn_layer_t {
 	mx_t* out;          /**< layer output */
 	mx_t* delta;        /**< layer delta */
 	void* data;         /**< layer specialized data, like activation functions in dense */
-	layer_type type;    /**< layer type (used in nn_destroy()) */
-	void (*forwarding) (struct nn_layer_t*, const mx_t*);                      /**< function used in nn_predict() */
-	void (*backwarding) (struct nn_layer_t*, nn_array_t*, const mx_t*, mx_t*); /**< function use in nn_fit() */
+	void (* free_data)	(void * data);
+	void (* forwarding)	(struct nn_layer_t*, const mx_t*);	/**< function used in nn_predict() */
+	void (* backwarding)	(struct nn_layer_t*, nn_array_t*, const mx_t*, mx_t*); /**< function use in nn_fit() */
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------
@@ -129,8 +127,14 @@ struct nn_layer_t {
  *  @param [in] nn_size number of layers
  *  @param [in] params  config data for every layer
  */
-nn_array_t* 
-nn_create(MX_SIZE input_size, MX_SIZE b_size, NN_SIZE nn_size, MX_TYPE alpha, nn_params_t* params);
+//nn_array_t* 
+//nn_create(MX_SIZE input_size, MX_SIZE b_size, NN_SIZE nn_size, MX_TYPE alpha, nn_params_t* params);
+
+nn_array_t*
+nn_create(
+	const MX_SIZE in_len,
+	const MX_SIZE batch_len,
+	const MX_TYPE alpha);
 
 /** @brief Free memory allocated for neural network struct.
  * 

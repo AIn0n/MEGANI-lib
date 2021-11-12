@@ -3,12 +3,12 @@
 //STATIC FUNCTIONS
 
 static void
-dense_fill_rng(mx_t* values, nn_params_t* params)
+dense_fill_rng(mx_t* values, const MX_TYPE min, const MX_TYPE max)
 {
-	const MX_TYPE diff = (params->max - params->min);
+	const MX_TYPE diff = (max - min);
 	for (MX_SIZE i = 0; i < values->size; ++i){
 		MX_TYPE rand_val = (MX_TYPE) rand() / RAND_MAX;
-		values->arr[i] = params->min + rand_val * diff;
+		values->arr[i] = min + rand_val * diff;
 	}
 }
 
@@ -48,6 +48,61 @@ dense_backwarding(
 	mx_sub(*data->val, *n->temp, data->val);      //values = values - vdelta
 }
 
+void
+dense_free_data(void* data)
+{
+	dense_data_t *d = (dense_data_t *) data;
+	if (data != NULL) {
+		mx_destroy(d->val);
+		free(d);
+	}
+}
+
+MX_SIZE
+LAYER_DENSE(
+	nn_array_t* nn,
+	const MX_SIZE neurons,
+	const act_func_t act_func,
+	const MX_TYPE min,
+	const MX_TYPE max)
+{
+	if (neurons < 1)
+		return 1;
+	const MX_SIZE in = (nn->size) ? nn->layers[nn->size - 1].out->x : nn->in_len;
+	const MX_SIZE batch = nn->batch_len;
+	struct nn_layer_t *layers = (struct nn_layer_t *) 
+		realloc(nn->layers,sizeof(struct nn_layer_t) * (nn->size + 1));
+	if (layers == NULL)
+		return 2;
+	nn->layers = layers;
+	struct nn_layer_t* curr = &nn->layers[nn->size];
+	nn->size++;
+	curr->out = mx_create(neurons, batch);
+	curr->delta = mx_create(neurons, batch);
+	dense_data_t *data = (dense_data_t *) calloc(1, sizeof(dense_data_t));
+	if (curr->out == NULL || curr->delta == NULL || data == NULL)
+		return 2;
+	data->act_func = act_func;
+	data->val = mx_create(in, neurons);
+	if (data->val == NULL)
+		return 2;
+	if (min && max)
+		dense_fill_rng(data->val, min, max);
+	if (nn->temp->size < in * neurons) {
+		MX_TYPE* new_temp = (MX_TYPE *) 
+			realloc(nn->temp->arr, in * neurons * sizeof(MX_TYPE));
+		if (new_temp == NULL)
+			return 2;
+		nn->temp->arr = new_temp;
+		mx_set_size(nn->temp, in, neurons);
+	}
+	curr->data		= (void *) data;
+	curr->forwarding	= (& dense_forwarding);
+	curr->backwarding	= (& dense_backwarding);
+	curr->free_data		= (& dense_free_data);
+	return 0;
+}
+/*
 MX_SIZE
 dense_setup(
 	struct nn_layer_t* 	self, 
@@ -82,8 +137,7 @@ dense_setup(
 		dense_fill_rng(data->val, params);
 
 	self->data = (void *) data;
-	self->type = DENSE;
 	self->forwarding = (&dense_forwarding);
 	self->backwarding= (&dense_backwarding);
 	return in * params->size;
-}
+}*/

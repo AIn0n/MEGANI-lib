@@ -18,14 +18,12 @@ mx_create(const MX_SIZE x, const MX_SIZE y)
 	mx_t* output = (mx_t *) calloc(1, sizeof(mx_t));
 	if (output == NULL)
 		return NULL;
-
-	output->size = x * y;
+	mx_set_size(output, x, y);
 	output->arr = (MX_TYPE *)calloc(output->size, sizeof(MX_TYPE));
 	if (output->arr == NULL) { 
 		free(output);
 		return NULL;
 	}
-	mx_set_size(output, x, y);
 	return output;
 }
 

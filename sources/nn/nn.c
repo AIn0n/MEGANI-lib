@@ -1,14 +1,5 @@
 #include "nn.h"
 #include "dense.h"
-#include "drop.h"
-
-//USER FUNCTIONS
-
-MX_SIZE (*setup_list[])
-(struct nn_layer_t*, MX_SIZE, MX_SIZE, nn_params_t*, setup_params) = {
-	LAYER_0_SETUP,
-	LAYER_1_SETUP
-};
 
 void
 nn_destroy(nn_array_t* nn)
@@ -18,14 +9,42 @@ nn_destroy(nn_array_t* nn)
 	for (NN_SIZE i = 0; i < nn->size; ++i) {
 		mx_destroy(nn->layers[i].delta);
 		mx_destroy(nn->layers[i].out);
-		(*setup_list[nn->layers[i].type])
-			(nn->layers + i, 0, 0, NULL, DELETE);
+		nn->layers[i].free_data(nn->layers[i].data);
 	}
 	free(nn->layers);
 	mx_destroy(nn->temp);
 	free(nn);
 }
 
+nn_array_t*
+nn_create(
+	const MX_SIZE in_len,
+	const MX_SIZE batch_len,
+	const MX_TYPE alpha)
+{
+	nn_array_t* result = (nn_array_t *) calloc(1, sizeof(nn_array_t));
+	if (in_len < 1 || batch_len < 1 || result == NULL)
+		return NULL;
+	result->alpha		= alpha;
+	result->in_len		= in_len;
+	result->batch_len	= batch_len;
+	result->size		= 0;
+
+	result->layers = (struct nn_layer_t *) calloc(0, sizeof(struct nn_layer_t));
+	if (result->layers == NULL) {
+		free(result);
+		return NULL;
+	}
+
+	result->temp = mx_create(1, 1);
+	if (result->temp == NULL) {
+		free(result);
+		free(result->layers);
+	}
+	return result;
+}
+
+/*
 nn_array_t* 
 nn_create(
 	MX_SIZE         input_size, 
@@ -70,6 +89,7 @@ nn_create(
 		nn_destroy(ret);
 	return ret;
 }
+*/
 
 void
 nn_predict(nn_array_t* nn, const mx_t* input)
