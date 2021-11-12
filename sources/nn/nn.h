@@ -34,7 +34,7 @@ act_func_t;
  * 
  *  This struct is main element of neural network in this library.
  *  It consist of all layers with data, values, outupt, etc (for more info see nl_t),
- *  number of them <size> and additional temporary matrix used in backpropagation and cnn, same for every
+ *  number of them <len> and additional temporary matrix used in backpropagation and cnn, same for every
  *  layer for memory optimalization.
  * 
  *  @see nl_t
@@ -43,7 +43,7 @@ typedef struct {
 	struct nl_t*  	layers; /**< all neurons layers in current network */
 	mx_t*               	temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
 	MX_TYPE             	alpha;  /**< alpha indicates learning speed */
-	NN_SIZE             	size;   /**< number of layers */
+	NN_SIZE             	len;   /**< number of layers */
 	MX_SIZE			in_len;
 	MX_SIZE			batch_len;
 }

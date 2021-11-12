@@ -6,7 +6,7 @@ nn_destroy(nn_t* nn)
 {
 	if (nn == NULL)
 		return;
-	for (NN_SIZE i = 0; i < nn->size; ++i) {
+	for (NN_SIZE i = 0; i < nn->len; ++i) {
 		mx_destroy(nn->layers[i].delta);
 		mx_destroy(nn->layers[i].out);
 		nn->layers[i].free_data(nn->layers[i].data);
@@ -28,7 +28,7 @@ nn_create(
 	result->alpha		= alpha;
 	result->in_len		= in_len;
 	result->batch_len	= batch_len;
-	result->size		= 0;
+	result->len		= 0;
 
 	result->layers = (struct nl_t *) calloc(0, sizeof(struct nl_t));
 	if (result->layers == NULL) {
@@ -48,7 +48,7 @@ void
 nn_predict(nn_t* nn, const mx_t* input)
 {
 	const mx_t* prev_out = input;
-	for (NN_SIZE i = 0; i < nn->size; ++i) {
+	for (NN_SIZE i = 0; i < nn->len; ++i) {
 		nn->layers[i].forwarding((nn->layers + i), prev_out);
 		prev_out = nn->layers[i].out;
 	}
@@ -58,7 +58,7 @@ void
 nn_fit(nn_t* nn, const mx_t *input, const mx_t* output)
 {
 	nn_predict(nn, input);
-	const NN_SIZE end = nn->size - 1;
+	const NN_SIZE end = nn->len - 1;
 	//delta = output - expected output (last layer case)
 	mx_sub(*nn->layers[end].out, *output, nn->layers[end].delta);
 

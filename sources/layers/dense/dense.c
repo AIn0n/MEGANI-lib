@@ -73,7 +73,7 @@ bool
 append_layers(nn_t *nn)
 {
 	struct nl_t *l = (struct nl_t *) 
-		realloc(nn->layers, sizeof(struct nl_t) * (nn->size + 1));
+		realloc(nn->layers, sizeof(struct nl_t) * (nn->len + 1));
 	nn->layers = (l == NULL) ? nn->layers : l;
 	return (l == NULL);
 }
@@ -86,26 +86,25 @@ LAYER_DENSE(
 	const MX_TYPE min,
 	const MX_TYPE max)
 {
-	if (neurons < 1)
-		return false;
-	
-	const MX_SIZE in = (nn->size) ? nn->layers[nn->size - 1].out->x : nn->in_len;
+	const MX_SIZE in = (nn->len) ? nn->layers[nn->len - 1].out->x : nn->in_len;
 	const MX_SIZE batch = nn->batch_len;
-
-	if (append_layers(nn))
+	if (neurons < 1 || append_layers(nn))
 		return false;
-	struct nl_t* curr = &nn->layers[nn->size++];
+
+	struct nl_t* curr = &nn->layers[nn->len++];
 	curr->out = mx_create(neurons, batch);
 	curr->delta = mx_create(neurons, batch);
-
+	
 	dense_data_t *data = (dense_data_t *) calloc(1, sizeof(dense_data_t));
 	if (curr->out == NULL || curr->delta == NULL || data == NULL)
 		return false;
+
 	data->act_func = act_func;
 	data->val = mx_create(in, neurons);
 	if (data->val == NULL  ||
 	   (nn->temp->size < in * neurons && mx_recreate(nn->temp, in, neurons)))
 		return false;
+
 	if (min && max)
 		dense_fill_rng(data->val, min, max);
 	curr->data		= (void *) data;
