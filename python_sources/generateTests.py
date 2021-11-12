@@ -117,7 +117,7 @@ for n in range(5):
 
 	#initializer of neural network
 	f'''
-		nn_array_t *nn = nn_create({inputSize}, {batchSize}, 0.01);
+		nn_t *nn = nn_create({inputSize}, {batchSize}, 0.01);
 		LAYER_DENSE(nn, {denseSize1}, RELU, 0.1, 0.2);
 		LAYER_DENSE(nn, {denseSize2}, NO_FUNC, 0.1, 0.2);\n''' +
 
@@ -143,7 +143,7 @@ for n in range(5):
 
 gen.genTest('nn_predict',
 	genStaticMxDec(np.array([[8.5, 0.65, 1.2]]), 'input') + '''
-	nn_array_t *n = nn_create(3, 1, 0.01);
+	nn_t *n = nn_create(3, 1, 0.01);
 	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);
 	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);
 	dense_data_t *ptr = (n->layers[0].data);\n''' +	
@@ -158,7 +158,7 @@ gen.genTest('nn_predict',
 	'\tnn_destroy(n);\n')
 
 gen.genTest('nn_predict',
-'''	nn_array_t *nn = nn_create(1, 1, 0.01);
+'''	nn_t *nn = nn_create(1, 1, 0.01);
 	LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
 	LAYER_DENSE(nn, 1, NO_FUNC, 0.0, 0.0);\n''' +
 	genStaticListDec([.1, -.1, .1], 'val0') +
@@ -175,7 +175,7 @@ gen.genTest('nn_predict',
 ##	neural network predict
 
 gen.genTest('nn_fit',
-'''   	nn_array_t* nn = nn_create(3, 4, 0.01);
+'''   	nn_t* nn = nn_create(3, 4, 0.01);
 	LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
 	LAYER_DENSE(nn, 3, NO_FUNC, 0.0, 0.0);\n''' +
 	genStaticMxDec(np.array([

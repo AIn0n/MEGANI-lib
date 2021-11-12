@@ -3,13 +3,14 @@
 
 #include <stdint.h> //for uintN_t - better portability
 #include <stdlib.h>
+#include <stdbool.h>
 
 /** @def    MX_TYPE
 *   @brief  Type of variables which contain neural values.
 *
 *   By default it is "double".
 */
-#define MX_TYPE double 
+typedef double MX_TYPE;
 
 /** @def    NN_ZERO
  *  @brief  zero cast on MX_TYPE.
@@ -22,7 +23,7 @@
  *  By default it is uint32_t. I made this macro 'cause many times I used many 
  *  diffrent types for same tasks like iteration over matrix etc.
  */
-#define MX_SIZE uint32_t
+typedef uint32_t MX_SIZE;
 
 /** @struct mx_t 
 *   @brief  Structure with matrix data and size.
