@@ -65,7 +65,7 @@ mx_mp_params;
 *
 *   @see MX_TYPE
  */
-mx_t* mx_create(uint32_t x, uint32_t y);
+mx_t* mx_create(const MX_SIZE x, const MX_SIZE y);
 
 
 /**
@@ -94,7 +94,7 @@ void mx_destroy(mx_t *mx);
  *
  *  @see mx_mp_params
  */
-void mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params);
+void mx_mp(const mx_t a, const mx_t b, mx_t* out, const mx_mp_params params);
 
 /** @brief Matrix hadamard product function.
  * 
@@ -126,7 +126,7 @@ void mx_sub(const mx_t a, const mx_t b, mx_t* out);
  *  @param [in] a input matrix
  *  @param [in] num every cell multiplier
  */
-void mx_mp_num(mx_t* a, MX_TYPE num);
+void mx_mp_num(mx_t* a, const MX_TYPE num);
 
 /** @brief matrix A = matrix A o lambda on cell( matrix B )
  * 
@@ -134,6 +134,8 @@ void mx_mp_num(mx_t* a, MX_TYPE num);
  * return to first matrix hadamard product.
  */
 void mx_hadam_lambda(mx_t* a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE));
+
+extern void mx_set_size(mx_t* mx, const MX_SIZE x, const MX_SIZE y);
 
 void mx_print(const mx_t* a, char * name);
 

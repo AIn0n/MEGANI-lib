@@ -38,8 +38,7 @@ dense_backwarding(
 	if (data->act_func.func_cell != NULL)
 		mx_hadam_lambda(self->delta, *self->out, data->act_func.func_cell);
 	//temporary matrix is shared between layers so we had to change the size
-	n->temp->x = data->val->x;   
-	n->temp->y = data->val->y;
+	mx_set_size(n->temp, data->val->x, data->val->y);
 
 	if (prev_delta != NULL)  //prev delta = curr delta * curr values
 		mx_mp(*self->delta, *data->val, prev_delta, DEF);
@@ -51,11 +50,11 @@ dense_backwarding(
 
 MX_SIZE
 dense_setup(
-	struct nn_layer_t*  self, 
-	MX_SIZE             in, 
-	MX_SIZE             batch, 
-	nn_params_t*        params, 
-	setup_params        purpose)
+	struct nn_layer_t* 	self, 
+	const MX_SIZE		in, 
+	const MX_SIZE		batch, 
+	nn_params_t*		params, 
+	const setup_params	purpose)
 {
 	if (purpose == DELETE) {
 		dense_data_t* data = (dense_data_t *)self->data;
