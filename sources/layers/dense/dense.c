@@ -3,19 +3,19 @@
 //STATIC FUNCTIONS
 
 static void
-dense_fill_rng(mx_t* values, nn_params_t* params)
+dense_fill_rng(mx_t* values, const MX_TYPE min, const MX_TYPE max)
 {
-	const MX_TYPE diff = (params->max - params->min);
-	for (MX_SIZE i = 0; i < values->size; ++i){
+	const MX_TYPE diff = (max - min);
+	for (MX_SIZE i = 0; i < values->size; ++i) {
 		MX_TYPE rand_val = (MX_TYPE) rand() / RAND_MAX;
-		values->arr[i] = params->min + rand_val * diff;
+		values->arr[i] = min + rand_val * diff;
 	}
 }
 
 //PUBLIC FUNCTIONS
 
 void
-dense_forwarding(struct nn_layer_t* self, const mx_t * input)
+dense_forwarding(struct nl_t* self, const mx_t * input)
 {
 	//output = input * values ^T
     	const dense_data_t* data = self->data;
@@ -27,8 +27,8 @@ dense_forwarding(struct nn_layer_t* self, const mx_t * input)
 
 void 
 dense_backwarding(
-	struct nn_layer_t*  self, 
-	nn_array_t*         n, 
+	struct nl_t*  self, 
+	nn_t*         n, 
 	const mx_t*         prev_out, 
 	mx_t*               prev_delta)
 {
@@ -38,8 +38,7 @@ dense_backwarding(
 	if (data->act_func.func_cell != NULL)
 		mx_hadam_lambda(self->delta, *self->out, data->act_func.func_cell);
 	//temporary matrix is shared between layers so we had to change the size
-	n->temp->x = data->val->x;   
-	n->temp->y = data->val->y;
+	mx_set_size(n->temp, data->val->x, data->val->y);
 
 	if (prev_delta != NULL)  //prev delta = curr delta * curr values
 		mx_mp(*self->delta, *data->val, prev_delta, DEF);
@@ -49,42 +48,68 @@ dense_backwarding(
 	mx_sub(*data->val, *n->temp, data->val);      //values = values - vdelta
 }
 
-MX_SIZE
-dense_setup(
-	struct nn_layer_t*  self, 
-	MX_SIZE             in, 
-	MX_SIZE             batch, 
-	nn_params_t*        params, 
-	setup_params        purpose)
+void
+dense_free_data(void* data)
 {
-	if (purpose == DELETE) {
-		dense_data_t* data = (dense_data_t *)self->data;
-		if (data != NULL) {
-			mx_destroy(data->val);
-			free(data);
-		}
-		return 0;
+	dense_data_t *d = (dense_data_t *) data;
+	if (data != NULL) {
+		mx_destroy(d->val);
+		free(d);
 	}
-	self->out = mx_create(params->size, batch);
-	self->delta = mx_create(params->size, batch);
-	if (self->out == NULL || self->delta == NULL) 
-		return 0;
+}
 
-	dense_data_t* data = (dense_data_t *)calloc(1, sizeof(dense_data_t));
-	if (data == NULL) 
-		return 0;
+bool
+mx_recreate(mx_t *mx, const MX_SIZE x, const MX_SIZE y)
+{
+	MX_TYPE *new_arr = (MX_TYPE *) realloc(mx->arr, x * y * sizeof(MX_TYPE));
+	if (new_arr == NULL)
+		return true;
+	mx->arr = new_arr;
+	mx_set_size(mx, x, y);
+	return false;
+}
 
-	data->act_func = params->activ_func;
-	data->val = mx_create(in, params->size);
-	if (data->val == NULL) 
-		return 0;
-		
-	if (params->min && params->max) 
-		dense_fill_rng(data->val, params);
+bool
+append_layers(nn_t *nn)
+{
+	struct nl_t *l = (struct nl_t *) 
+		realloc(nn->layers, sizeof(struct nl_t) * (nn->len + 1));
+	nn->layers = (l == NULL) ? nn->layers : l;
+	return (l == NULL);
+}
 
-	self->data = (void *) data;
-	self->type = DENSE;
-	self->forwarding = (&dense_forwarding);
-	self->backwarding= (&dense_backwarding);
-	return in * params->size;
+bool
+LAYER_DENSE(
+	nn_t* nn,
+	const MX_SIZE neurons,
+	const act_func_t act_func,
+	const MX_TYPE min,
+	const MX_TYPE max)
+{
+	const MX_SIZE in = (nn->len) ? nn->layers[nn->len - 1].out->x : nn->in_len;
+	const MX_SIZE batch = nn->batch_len;
+	if (neurons < 1 || append_layers(nn))
+		return false;
+
+	struct nl_t* curr = &nn->layers[nn->len++];
+	curr->out = mx_create(neurons, batch);
+	curr->delta = mx_create(neurons, batch);
+	
+	dense_data_t *data = (dense_data_t *) calloc(1, sizeof(dense_data_t));
+	if (curr->out == NULL || curr->delta == NULL || data == NULL)
+		return false;
+
+	data->act_func = act_func;
+	data->val = mx_create(in, neurons);
+	if (data->val == NULL  ||
+	   (nn->temp->size < in * neurons && mx_recreate(nn->temp, in, neurons)))
+		return false;
+
+	if (min && max)
+		dense_fill_rng(data->val, min, max);
+	curr->data		= (void *) data;
+	curr->forwarding	= (& dense_forwarding);
+	curr->backwarding	= (& dense_backwarding);
+	curr->free_data		= (& dense_free_data);
+	return true;
 }

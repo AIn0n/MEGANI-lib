@@ -117,11 +117,10 @@ for n in range(5):
 	gen.genTest('nn_create',
 
 	#initializer of neural network
-	f'''	nn_params_t initializer[] = {{
-		{{.type = DENSE, .activ_func = RELU, .max = 0.2, .min=0.1, .size = {denseSize1}}},
-		{{.type = DENSE, .activ_func = NO_FUNC, .max = 0.2, .min=01, .size = {denseSize2}}}
-	}};
-	nn_array_t *nn = nn_create({inputSize}, {batchSize}, 2, 0.01, initializer);\n''' +
+	f'''
+		nn_t *nn = nn_create({inputSize}, {batchSize}, 0.01);
+		LAYER_DENSE(nn, {denseSize1}, RELU, 0.1, 0.2);
+		LAYER_DENSE(nn, {denseSize2}, NO_FUNC, 0.1, 0.2);\n''' +
 
 	# check size of first layer
 		genAssert('nn->layers[0].delta == NULL || nn->layers[0].out == NULL') +
@@ -144,14 +143,10 @@ for n in range(5):
 #	neural network predict
 
 gen.genTest('nn_predict',
-'''
-	nn_params_t initializer[] = 
-	{
-        	{.type = DENSE, .activ_func = NO_FUNC, .size = 3},
-		{.type = DENSE, .activ_func = NO_FUNC, .size = 3}
-	};\n''' +
 	genStaticMxDec(np.array([[8.5, 0.65, 1.2]]), 'input') + '''
-	nn_array_t *n = nn_create(3, 1, 2, 0.01, initializer);
+	nn_t *n = nn_create(3, 1, 0.01);
+	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);
+	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);
 	dense_data_t *ptr = (n->layers[0].data);\n''' +	
 	genStaticListDec([.1, .2, -.1, -.1, .1, .9, .1, .4, .1], 'val0') +
 	genStaticListDec([.3, 1.1, -.3, .1, .2, .0, .0, 1.3, .1], 'val1') +
@@ -164,11 +159,9 @@ gen.genTest('nn_predict',
 	'\tnn_destroy(n);\n')
 
 gen.genTest('nn_predict',
-'''	nn_params_t initializer[] = {
-		{.type = DENSE, .activ_func = RELU, .size = 3},
-		{.type = DENSE, .activ_func = NO_FUNC, .size = 1}
-	};
-	nn_array_t *nn = nn_create(1, 1, 2, 0.01, initializer);\n''' +
+'''	nn_t *nn = nn_create(1, 1, 0.01);
+	LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
+	LAYER_DENSE(nn, 1, NO_FUNC, 0.0, 0.0);\n''' +
 	genStaticListDec([.1, -.1, .1], 'val0') +
 	genStaticListDec([.3, 1.1, -.3], 'val1') +
 	'\tdense_data_t *ptr = (dense_data_t *) nn->layers->data;\n' +
@@ -180,14 +173,12 @@ gen.genTest('nn_predict',
 	genAssert(f'nn->layers[1].out->arr[0] > {DELTA} || nn->layers[1].out->arr[0] < -{DELTA}') +
 	'\tnn_destroy(nn);\n')
 
-#	neural network predict
+##	neural network predict
 
 gen.genTest('nn_fit',
-'''   	nn_params_t initializer[] = {
-		{.type = DENSE, .activ_func = RELU, .size = 3},
-		{.type = DENSE, .activ_func = NO_FUNC, .size = 3}
-	};
-	nn_array_t* nn = nn_create(3, 4, 2, 0.01, initializer);\n''' +
+'''   	nn_t* nn = nn_create(3, 4, 0.01);
+	LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
+	LAYER_DENSE(nn, 3, NO_FUNC, 0.0, 0.0);\n''' +
 	genStaticMxDec(np.array([
 		[8.5, .65, 1.2], 
 		[9.5, .8, 1.3], 

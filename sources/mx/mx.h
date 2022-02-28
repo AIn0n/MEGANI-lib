@@ -3,13 +3,14 @@
 
 #include <stdint.h> //for uintN_t - better portability
 #include <stdlib.h>
+#include <stdbool.h>
 
 /** @def    MX_TYPE
 *   @brief  Type of variables which contain neural values.
 *
 *   By default it is "double".
 */
-#define MX_TYPE double 
+typedef double MX_TYPE;
 
 /** @def    NN_ZERO
  *  @brief  zero cast on MX_TYPE.
@@ -22,7 +23,7 @@
  *  By default it is uint32_t. I made this macro 'cause many times I used many 
  *  diffrent types for same tasks like iteration over matrix etc.
  */
-#define MX_SIZE uint32_t
+typedef uint32_t MX_SIZE;
 
 /** @struct mx_t 
 *   @brief  Structure with matrix data and size.
@@ -65,7 +66,7 @@ mx_mp_params;
 *
 *   @see MX_TYPE
  */
-mx_t* mx_create(uint32_t x, uint32_t y);
+mx_t* mx_create(const MX_SIZE x, const MX_SIZE y);
 
 
 /**
@@ -94,7 +95,7 @@ void mx_destroy(mx_t *mx);
  *
  *  @see mx_mp_params
  */
-void mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params);
+void mx_mp(const mx_t a, const mx_t b, mx_t* out, const mx_mp_params params);
 
 /** @brief Matrix hadamard product function.
  * 
@@ -126,7 +127,7 @@ void mx_sub(const mx_t a, const mx_t b, mx_t* out);
  *  @param [in] a input matrix
  *  @param [in] num every cell multiplier
  */
-void mx_mp_num(mx_t* a, MX_TYPE num);
+void mx_mp_num(mx_t* a, const MX_TYPE num);
 
 /** @brief matrix A = matrix A o lambda on cell( matrix B )
  * 
@@ -134,6 +135,8 @@ void mx_mp_num(mx_t* a, MX_TYPE num);
  * return to first matrix hadamard product.
  */
 void mx_hadam_lambda(mx_t* a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE));
+
+extern void mx_set_size(mx_t* mx, const MX_SIZE x, const MX_SIZE y);
 
 void mx_print(const mx_t* a, char * name);
 

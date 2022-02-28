@@ -1,8 +1,16 @@
 #include "mx.h"
 #include <stdio.h>  //FOR DEBUG ONLY
 
+inline void
+mx_set_size(mx_t* mx, const MX_SIZE x, const MX_SIZE y)
+{
+	mx->x = x;
+	mx->y = y;
+	mx->size = x * y;
+}
+
 mx_t* 
-mx_create(uint32_t x, uint32_t y)
+mx_create(const MX_SIZE x, const MX_SIZE y)
 {
 	if (!x || !y) 
 		return NULL;
@@ -10,16 +18,12 @@ mx_create(uint32_t x, uint32_t y)
 	mx_t* output = (mx_t *) calloc(1, sizeof(mx_t));
 	if (output == NULL)
 		return NULL;
-
-	output->size = x * y;
+	mx_set_size(output, x, y);
 	output->arr = (MX_TYPE *)calloc(output->size, sizeof(MX_TYPE));
 	if (output->arr == NULL) { 
 		free(output);
 		return NULL;
 	}
-
-	output->x = x;
-	output->y = y;
 	return output;
 }
 
@@ -34,7 +38,7 @@ mx_destroy(mx_t *mx)
 }
 
 void 
-mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params)
+mx_mp(const mx_t a, const mx_t b, mx_t* out, const mx_mp_params params)
 {
 	MX_SIZE tra_y = a.x, tra_i = 1, limit = a.x;
 	if (params & A) {
@@ -51,8 +55,8 @@ mx_mp(const mx_t a, const mx_t b, mx_t* out, mx_mp_params params)
 		for (MX_SIZE x = 0; x < out->x; ++x) {
 			MX_TYPE val = 0;
 			for (MX_SIZE i = 0; i < limit; ++i) {
-				val +=	a.arr[i*tra_i + y*tra_y] * 
-					b.arr[x*trb_x + i*trb_i];
+				val +=	a.arr[i * tra_i + y * tra_y] * 
+					b.arr[x * trb_x + i * trb_i];
 			}
 			out->arr[x + y * out->x] = val; 
 		}
@@ -74,7 +78,7 @@ mx_sub(const mx_t a, const mx_t b, mx_t* out)
 }
 
 void 
-mx_mp_num(mx_t* a, MX_TYPE num)
+mx_mp_num(mx_t* a, const MX_TYPE num)
 {
 	for (MX_SIZE i = 0; i < a->size; ++i)
 		a->arr[i] *= num;

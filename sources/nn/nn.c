@@ -1,91 +1,64 @@
 #include "nn.h"
 #include "dense.h"
-#include "drop.h"
-
-//USER FUNCTIONS
-
-MX_SIZE (*setup_list[])
-(struct nn_layer_t*, MX_SIZE, MX_SIZE, nn_params_t*, setup_params) = {
-	LAYER_0_SETUP,
-	LAYER_1_SETUP
-};
 
 void
-nn_destroy(nn_array_t* nn)
+nn_destroy(nn_t* nn)
 {
 	if (nn == NULL)
 		return;
-	for (NN_SIZE i = 0; i < nn->size; ++i) {
+	for (NN_SIZE i = 0; i < nn->len; ++i) {
 		mx_destroy(nn->layers[i].delta);
 		mx_destroy(nn->layers[i].out);
-		(*setup_list[nn->layers[i].type])
-			(nn->layers + i, 0, 0, NULL, DELETE);
+		nn->layers[i].free_data(nn->layers[i].data);
 	}
 	free(nn->layers);
 	mx_destroy(nn->temp);
 	free(nn);
 }
 
-nn_array_t* 
+nn_t*
 nn_create(
-	MX_SIZE         input_size, 
-	MX_SIZE         b_size,
-	NN_SIZE         nn_size, 
-	MX_TYPE         alpha, 
-	nn_params_t*    params)
+	const MX_SIZE in_len,
+	const MX_SIZE batch_len,
+	const MX_TYPE alpha)
 {
-	if (!input_size || !b_size || !nn_size || params == NULL) 
+	nn_t* result = (nn_t *) calloc(1, sizeof(nn_t));
+	if (in_len < 1 || batch_len < 1 || result == NULL)
 		return NULL;
+	result->alpha		= alpha;
+	result->in_len		= in_len;
+	result->batch_len	= batch_len;
+	result->len		= 0;
 
-	nn_array_t* ret = (nn_array_t*) calloc(1, sizeof(nn_array_t));
-	if (ret == NULL) 
-		return NULL;
-
-	ret->layers = (struct nn_layer_t *) calloc
-		(nn_size, sizeof(struct nn_layer_t));
-
-	if (ret->layers == NULL) {
-		free(ret); 
+	result->layers = (struct nl_t *) calloc(0, sizeof(struct nl_t));
+	if (result->layers == NULL) {
+		free(result);
 		return NULL;
 	}
-	MX_SIZE temp_size = 0;
-	for (NN_SIZE i = 0; i < nn_size; ++i) {
-		MX_SIZE err = (*setup_list[params[i].type])(
-			(ret->layers + i), 
-			input_size, 
-			b_size, 
-			(params + i), 
-			CREATE);
-		if (!err) {
-			nn_destroy(ret);
-			return NULL;
-		}
-		temp_size = MAX(temp_size, err);
-		input_size = params[i].size; // layer input size = previous layer output size
+
+	result->temp = mx_create(1, 1);
+	if (result->temp == NULL) {
+		free(result);
+		free(result->layers);
 	}
-	ret->alpha  = alpha;
-	ret->size   = nn_size;
-	ret->temp   = mx_create(temp_size, 1);
-	if (ret->temp == NULL) 
-		nn_destroy(ret);
-	return ret;
+	return result;
 }
 
 void
-nn_predict(nn_array_t* nn, const mx_t* input)
+nn_predict(nn_t* nn, const mx_t* input)
 {
 	const mx_t* prev_out = input;
-	for (NN_SIZE i = 0; i < nn->size; ++i) {
+	for (NN_SIZE i = 0; i < nn->len; ++i) {
 		nn->layers[i].forwarding((nn->layers + i), prev_out);
 		prev_out = nn->layers[i].out;
 	}
 }
 
 void
-nn_fit(nn_array_t* nn, const mx_t *input, const mx_t* output)
+nn_fit(nn_t* nn, const mx_t *input, const mx_t* output)
 {
 	nn_predict(nn, input);
-	const NN_SIZE end = nn->size - 1;
+	const NN_SIZE end = nn->len - 1;
 	//delta = output - expected output (last layer case)
 	mx_sub(*nn->layers[end].out, *output, nn->layers[end].delta);
 
