@@ -122,15 +122,14 @@ for n in range(5):
 		LAYER_DENSE(nn, {denseSize2}, NO_FUNC, 0.1, 0.2);\n''' +
 
 	# check size of first layer
-		genAssert('nn->layers[0].delta == NULL || nn->layers[0].out == NULL') +
-		genAssert(f'nn->layers[0].delta->x != {denseSize1} || nn->layers[0].delta->y != {batchSize}') +
+		genAssert('nn->delta == NULL || nn->layers[0].out == NULL') +
+		genAssert(f'nn->delta->x != {max(denseSize1, denseSize2)} || nn->delta->y != {batchSize}') +
 		genAssert(f'nn->layers[0].out->x != {denseSize1} || nn->layers[0].out->y != {batchSize}') +
 		'''\n\tdense_data_t *ptr = nn->layers[0].data;\n''' +
 		genAssert(f'ptr->val->x != {inputSize} || ptr->val->y != {denseSize1}') +
 
 	# check size of second layer
-		genAssert('nn->layers[1].delta == NULL || nn->layers[1].out == NULL') +
-		genAssert(f'nn->layers[1].delta->x != {denseSize2} || nn->layers[1].delta->y != {batchSize}') +
+		genAssert('nn->layers[1].out == NULL') +
 		genAssert(f'nn->layers[1].out->x != {denseSize2} || nn->layers[1].out->y != {batchSize}') +
 		'''\n\tptr = (dense_data_t *) nn->layers[1].data;\n''' +
 		genAssert(f'ptr->val->x != {denseSize1} || ptr->val->y != {denseSize2}') +

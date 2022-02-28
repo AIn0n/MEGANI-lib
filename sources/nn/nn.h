@@ -40,8 +40,9 @@ act_func_t;
  *  @see nl_t
  */
 typedef struct {
-	struct nl_t*  	layers; /**< all neurons layers in current network */
-	mx_t*               	temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
+	struct nl_t		*layers; /**< all neurons layers in current network */
+	mx_t			*temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
+	mx_t			*delta;
 	MX_TYPE             	alpha;  /**< alpha indicates learning speed */
 	NN_SIZE             	len;   /**< number of layers */
 	MX_SIZE			in_len;
@@ -59,11 +60,11 @@ nn_t;
  */
 struct nl_t {
 	mx_t* out;          /**< layer output */
-	mx_t* delta;        /**< layer delta */
 	void* data;         /**< layer specialized data, like activation functions in dense */
 	void (* free_data)	(void * data);
 	void (* forwarding)	(struct nl_t*, const mx_t*);	/**< function used in nn_predict() */
-	void (* backwarding)	(struct nl_t*, nn_t*, const mx_t*, mx_t*); /**< function use in nn_fit() */
+	void (* backwarding)	(struct nl_t *self, nn_t *n, struct nl_t *prev, const mx_t *prev_out);
+ /**< function use in nn_fit() */
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------

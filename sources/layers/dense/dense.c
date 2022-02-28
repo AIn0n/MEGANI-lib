@@ -28,24 +28,31 @@ dense_forwarding(struct nl_t* self, const mx_t * input)
 void 
 dense_backwarding(
 	struct nl_t*  self, 
-	nn_t*         n, 
-	const mx_t*         prev_out, 
-	mx_t*               prev_delta)
+	nn_t*         nn, 
+	struct nl_t* prev,
+	const mx_t*	prev_out)
 {
 	const dense_data_t* data = (dense_data_t *) self->data;
 
-	//delta = delta o activation function ( output )
-	if (data->act_func.func_cell != NULL)
-		mx_hadam_lambda(self->delta, *self->out, data->act_func.func_cell);
-	//temporary matrix is shared between layers so we had to change the size
-	mx_set_size(n->temp, data->val->x, data->val->y);
+	mx_set_size(nn->temp, data->val->x, data->val->y); 	//temporary matrix is shared between layers so we had to change the size
+	mx_mp(*nn->delta, *prev_out, nn->temp, A);		//value delta = delta^T * previous output
+	mx_print(nn->delta, "delta");
+	mx_print(prev_out, "prev output");
+	mx_print(nn->temp, "vdelta");
+	if(prev != NULL) {
+		mx_mp(*nn->delta, *data->val, nn->delta, DEF);
+		mx_print(data->val, "weights");
+		mx_set_size(nn->delta, data->val->x, nn->batch_len);
+		if (data->act_func.func_cell != NULL)	//delta = delta o activation function ( output )
+			mx_hadam_lambda(
+				nn->delta,
+				*self->out,
+				((dense_data_t *)prev->data)->act_func.func_cell);
+		
+	}
 
-	if (prev_delta != NULL)  //prev delta = curr delta * curr values
-		mx_mp(*self->delta, *data->val, prev_delta, DEF);
-
-	mx_mp(*self->delta, *prev_out, n->temp, A);   //value delta = delta^T * previous output
-	mx_mp_num(n->temp, n->alpha);                 //value delta = value delta * alpha
-	mx_sub(*data->val, *n->temp, data->val);      //values = values - vdelta
+	mx_mp_num(nn->temp, nn->alpha);                 //value delta = value delta * alpha
+	mx_sub(*data->val, *nn->temp, data->val);      //values = values - vdelta
 }
 
 void
@@ -93,10 +100,11 @@ LAYER_DENSE(
 
 	struct nl_t* curr = &nn->layers[nn->len++];
 	curr->out = mx_create(neurons, batch);
-	curr->delta = mx_create(neurons, batch);
-	
+	if (neurons * batch > nn->delta->size && mx_recreate(nn->delta, neurons, batch))
+		return false;
+
 	dense_data_t *data = (dense_data_t *) calloc(1, sizeof(dense_data_t));
-	if (curr->out == NULL || curr->delta == NULL || data == NULL)
+	if (curr->out == NULL || data == NULL)
 		return false;
 
 	data->act_func = act_func;
