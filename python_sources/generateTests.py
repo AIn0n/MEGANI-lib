@@ -122,8 +122,6 @@ for n in range(5):
 		LAYER_DENSE(nn, {denseSize2}, NO_FUNC, 0.1, 0.2);\n''' +
 
 	# check size of first layer
-		genAssert('nn->delta == NULL || nn->layers[0].out == NULL') +
-		genAssert(f'nn->delta->x != {max(denseSize1, denseSize2)} || nn->delta->y != {batchSize}') +
 		genAssert(f'nn->layers[0].out->x != {denseSize1} || nn->layers[0].out->y != {batchSize}') +
 		'''\n\tdense_data_t *ptr = nn->layers[0].data;\n''' +
 		genAssert(f'ptr->val->x != {inputSize} || ptr->val->y != {denseSize1}') +

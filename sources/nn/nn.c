@@ -12,7 +12,8 @@ nn_destroy(nn_t* nn)
 	}
 	free(nn->layers);
 	mx_destroy(nn->temp);
-	mx_destroy(nn->delta);
+	mx_destroy(nn->delta[0]);
+	mx_destroy(nn->delta[1]);
 	free(nn);
 }
 
@@ -42,8 +43,13 @@ nn_create(
 		free(result->layers);
 	}
 
-	result->delta= mx_create(1, 1);
-	if (result->delta == NULL) {
+	result->delta[0] = mx_create(1, 1);
+	if (result->delta[0] == NULL) {
+		nn_destroy(result);
+		return NULL;
+	}
+	result->delta[1] = mx_create(1, 1);
+	if (result->delta[1] == NULL) {
 		nn_destroy(result);
 		return NULL;
 	}
@@ -66,16 +72,16 @@ nn_fit(nn_t* nn, const mx_t *input, const mx_t* output)
 	nn_predict(nn, input);
 	const NN_SIZE end = nn->len - 1;
 	//delta = output - expected output (last layer case)
-	mx_sub(*nn->layers[end].out, *output, nn->delta);
+	mx_sub(*nn->layers[end].out, *output, nn->delta[end % 2]);
 	for (NN_SIZE i = end; i > 0; --i) {
 		nn->layers[i].backwarding(
 			(nn->layers + i), 
 			nn, 
-			(nn->layers + i - 1),
+			i,
 			nn->layers[i - 1].out);
 	}
 	//vdelta = delta^T * input
-	nn->layers->backwarding(nn->layers, nn, NULL, input);
+	nn->layers->backwarding(nn->layers, nn, 0, input);
 }
 
 //ACTIVATION FUNCS
