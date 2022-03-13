@@ -1,6 +1,7 @@
 from testsGenerator import *
 import numpy as np
 import random
+import subprocess
 
 DELTA = .0001
 
@@ -192,8 +193,14 @@ gen.genTest('nn_fit',
 		[0.0, 0.0, 0.1], 
 		[0.1, 1.0, 0.2]]),'out') +
 	'\tnn_fit(nn, &input, &out);\n' +
-	genStaticListDec([.118847, .201724, -.0977926, -.190674, .0930147, .886871, .093963, .399449, .0994944], 'exp_val0') +
-	genStaticListDec([.29901, 1.09916, -.301627, .123058, .205844, .0328309, -.0096053, 1.29716, .0863697], 'exp_val1') +
+	genStaticListDec(
+		[.118847, .201724, -.0977926,
+		-.190674, .0930147, .886871, 
+		.093963, .399449, .0994944], 'exp_val0') +
+	genStaticListDec(
+		[.29901, 1.09916, -.301627,
+		.123058, .205844, .0328309,
+		-.0096053, 1.29716, .0863697], 'exp_val1') +
 	genMxComp('(* ptr->val)', 'exp_val1', DELTA) +
 	'\tptr = (dense_data_t *) nn->layers[0].data;\n' +
 	genMxComp('(* ptr->val)', 'exp_val0', DELTA) +
