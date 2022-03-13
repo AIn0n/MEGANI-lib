@@ -28,24 +28,26 @@ dense_forwarding(struct nl_t* self, const mx_t * input)
 void 
 dense_backwarding(
 	struct nl_t*  self, 
-	nn_t*         n, 
-	const mx_t*         prev_out, 
-	mx_t*               prev_delta)
+	nn_t*         nn, 
+	const NN_SIZE idx,
+	const mx_t*	prev_out)
 {
 	const dense_data_t* data = (dense_data_t *) self->data;
+	const NN_SIZE even = idx % 2;
 
-	//delta = delta o activation function ( output )
-	if (data->act_func.func_cell != NULL)
-		mx_hadam_lambda(self->delta, *self->out, data->act_func.func_cell);
-	//temporary matrix is shared between layers so we had to change the size
-	mx_set_size(n->temp, data->val->x, data->val->y);
+	if (data->act_func.func_cell != NULL)	//delta = delta o activation function ( output )
+		mx_hadam_lambda(
+			nn->delta[even],
+			*self->out,
+			data->act_func.func_cell);
 
-	if (prev_delta != NULL)  //prev delta = curr delta * curr values
-		mx_mp(*self->delta, *data->val, prev_delta, DEF);
+	mx_set_size(nn->temp, data->val->x, data->val->y); 	//temporary matrix is shared between layers so we had to change the size
+	mx_mp(*nn->delta[even], *prev_out, nn->temp, A);		//value delta = delta^T * previous output
+	mx_set_size(nn->delta[!even], data->val->x, nn->batch_len);
+	mx_mp(*nn->delta[even], *data->val, nn->delta[!even], DEF);
 
-	mx_mp(*self->delta, *prev_out, n->temp, A);   //value delta = delta^T * previous output
-	mx_mp_num(n->temp, n->alpha);                 //value delta = value delta * alpha
-	mx_sub(*data->val, *n->temp, data->val);      //values = values - vdelta
+	mx_mp_num(nn->temp, nn->alpha);                 //value delta = value delta * alpha
+	mx_sub(*data->val, *nn->temp, data->val);      //values = values - vdelta
 }
 
 void
@@ -70,12 +72,12 @@ mx_recreate(mx_t *mx, const MX_SIZE x, const MX_SIZE y)
 }
 
 bool
-append_layers(nn_t *nn)
+try_append_layers(nn_t *nn)
 {
 	struct nl_t *l = (struct nl_t *) 
 		realloc(nn->layers, sizeof(struct nl_t) * (nn->len + 1));
 	nn->layers = (l == NULL) ? nn->layers : l;
-	return (l == NULL);
+	return (l != NULL);
 }
 
 bool
@@ -88,15 +90,17 @@ LAYER_DENSE(
 {
 	const MX_SIZE in = (nn->len) ? nn->layers[nn->len - 1].out->x : nn->in_len;
 	const MX_SIZE batch = nn->batch_len;
-	if (neurons < 1 || append_layers(nn))
+	if (neurons < 1 || !try_append_layers(nn))
 		return false;
 
 	struct nl_t* curr = &nn->layers[nn->len++];
 	curr->out = mx_create(neurons, batch);
-	curr->delta = mx_create(neurons, batch);
-	
+	const NN_SIZE even = (nn->len - 1) % 2;
+	if (neurons * batch > nn->delta[even]->size && mx_recreate(nn->delta[even], neurons, batch))
+		return false;
+
 	dense_data_t *data = (dense_data_t *) calloc(1, sizeof(dense_data_t));
-	if (curr->out == NULL || curr->delta == NULL || data == NULL)
+	if (curr->out == NULL || data == NULL)
 		return false;
 
 	data->act_func = act_func;
