@@ -3,7 +3,7 @@
 //STATIC FUNCTIONS
 
 static void
-dense_fill_rng(mx_t* values, const MX_TYPE min, const MX_TYPE max)
+dense_fill_rng(mx_t *values, const MX_TYPE min, const MX_TYPE max)
 {
 	const MX_TYPE diff = (max - min);
 	for (MX_SIZE i = 0; i < values->size; ++i) {
@@ -15,7 +15,7 @@ dense_fill_rng(mx_t* values, const MX_TYPE min, const MX_TYPE max)
 //PUBLIC FUNCTIONS
 
 void
-dense_forwarding(struct nl_t* self, const mx_t * input)
+dense_forwarding(struct nl_t *self, const mx_t *input)
 {
 	//output = input * values ^T
     	const dense_data_t* data = self->data;
@@ -27,27 +27,26 @@ dense_forwarding(struct nl_t* self, const mx_t * input)
 
 void 
 dense_backwarding(
-	struct nl_t*  self, 
-	nn_t*         nn, 
-	const NN_SIZE idx,
-	const mx_t*	prev_out)
+	struct nl_t	*self, 
+	nn_t		*nn, 
+	const NN_SIZE	even,
+	const mx_t	*prev_out)
 {
 	const dense_data_t* data = (dense_data_t *) self->data;
-	const NN_SIZE even = idx % 2;
 
-	if (data->act_func.func_cell != NULL)	//delta = delta o activation function ( output )
+	//delta = delta o activation function ( output )
+	if (data->act_func.func_cell != NULL)	
 		mx_hadam_lambda(
-			nn->delta[even],
-			*self->out,
-			data->act_func.func_cell);
-
-	mx_set_size(nn->temp, data->val->x, data->val->y); 	//temporary matrix is shared between layers so we had to change the size
-	mx_mp(*nn->delta[even], *prev_out, nn->temp, A);		//value delta = delta^T * previous output
+			nn->delta[even], *self->out, data->act_func.func_cell);
+	//temporary matrix is shared between layers so we had to change the size
+	mx_set_size(nn->temp, data->val->x, data->val->y);
+	//value delta = delta^T * previous output
+	mx_mp(*nn->delta[even], *prev_out, nn->temp, A);
 	mx_set_size(nn->delta[!even], data->val->x, nn->batch_len);
 	mx_mp(*nn->delta[even], *data->val, nn->delta[!even], DEF);
 
-	mx_mp_num(nn->temp, nn->alpha);                 //value delta = value delta * alpha
-	mx_sub(*data->val, *nn->temp, data->val);      //values = values - vdelta
+	mx_mp_num(nn->temp, nn->alpha);	//value delta = value delta * alpha
+	mx_sub(*data->val, *nn->temp, data->val); //values = values - vdelta
 }
 
 void
@@ -93,10 +92,11 @@ LAYER_DENSE(
 	if (neurons < 1 || !try_append_layers(nn))
 		return false;
 
+	const NN_SIZE even = nn->len % 2;
 	struct nl_t* curr = &nn->layers[nn->len++];
 	curr->out = mx_create(neurons, batch);
-	const NN_SIZE even = (nn->len - 1) % 2;
-	if (neurons * batch > nn->delta[even]->size && mx_recreate(nn->delta[even], neurons, batch))
+	if (neurons * batch > nn->delta[even]->size && 
+	    mx_recreate(nn->delta[even], neurons, batch))
 		return false;
 
 	dense_data_t *data = (dense_data_t *) calloc(1, sizeof(dense_data_t));
