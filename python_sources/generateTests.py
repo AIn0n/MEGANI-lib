@@ -3,7 +3,7 @@ import numpy as np
 import random
 import subprocess
 
-DELTA = 0.0001
+DELTA = 0.001
 
 # 	matrix create tests
 
@@ -251,5 +251,78 @@ gen.genTest(
     + genMxComp("(* ptr->val)", "exp_val0", DELTA)
     + "\tnn_destroy(nn);\n",
 )
+
+gen.genTest("nn_fit",
+'''
+    nn_t *nn = nn_create(3, 1, 0.01);
+    LAYER_DENSE(nn, 5, RELU, 0.0, 0.0);
+    LAYER_DENSE(nn, 3, NO_FUNC, 0.0, 0.0);
+'''
+
++ genStaticMxDec(np.array([[0.5, 0.75, 0.1]]#,
+#[0.1, 0.3, 0.7],
+#[0.6, 0.1, 0.2],
+#[0.2, 0.9, 0.8]]
+), "input")
++ genStaticListDec([0.1, 0.1, -0.3, 0.1, 0.2, 0.0, 0.0, 0.7, 0.1, 0.2, 0.4, 0.0, -0.3, 0.5, 0.1], "val0")
++ genStaticListDec([
+    0.7, 0.9, -0.4, 0.8, 0.1,
+    0.8, 0.5, 0.3, 0.1, 0.0,
+    -0.3, 0.9, 0.3, 0.1, -0.2
+], "val1")
++ "\tdense_data_t* ptr = nn->layers->data;\n"
++ genListCpy("val0", "ptr->val->arr", "ptr->val->size")
++ "\n\tptr = nn->layers[1].data;\n"
++ genListCpy("val1", "ptr->val->arr", "ptr->val->size")
++ genStaticMxDec(
+    np.array([[0.1, 1.0, 0.1]]), #, [-0.5, 0.2, 0.5], [0.2, 0.3, 0.1], [0.2, 0.6, 0.7]]),
+    "out"
+)
++ "\tnn_fit(nn, &input, &out);\n"
+    + genStaticListDec(
+        [
+            0.101224,
+            0.101836,
+            -0.299755,
+            0.0995962,
+            0.199394,
+            -0.0000081,
+            0.0007865,
+            0.70118,
+            0.100157,
+            0.199404,
+            0.399105,
+            -0.0001193,
+            -0.299955,
+            0.500067,
+            0.100009
+        ],
+        "exp_val0",
+    )
+
+    + genStaticListDec(
+        [
+            0.699825,
+            0.899632,
+            -0.400984,
+            0.799264,
+            0.0995676,
+            0.800395,
+            0.500831,
+            0.302224,
+            0.101663,
+            0.000976817,
+            -0.30013, 
+            0.899727, 
+            0.299269, 
+            0.0994533, 
+            -0.200321
+        ],
+        "exp_val1",
+    )
+    + genMxComp("(* ptr->val)", "exp_val1", DELTA)
+    + "\tptr = (dense_data_t *) nn->layers[0].data;\n"
+    + genMxComp("(* ptr->val)", "exp_val0", DELTA)
+    + "\tnn_destroy(nn);\n")
 
 gen.save("sources/main.c")
