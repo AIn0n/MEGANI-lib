@@ -59,12 +59,15 @@ nn_t;
  *  in backpropagation.
  */
 struct nl_t {
-	mx_t* out;          /**< layer output */
-	void* data;         /**< layer specialized data, like activation functions in dense */
+	mx_t* out;		/**< layer output */
+	mx_t* weights;		/**< layer weights */
+	void* data;		/**< layer specialized data */
 	void (* free_data)	(void * data);
-	void (* forwarding)	(struct nl_t*, const mx_t*);	/**< function used in nn_predict() */
+	/**< function used to free memory allocated for data */
+	void (* forwarding)	(struct nl_t*, const mx_t*);	
+	/**< function used in nn_predict() */
 	void (* backwarding)	(struct nl_t *self, nn_t *n, const NN_SIZE idx, const mx_t *prev_out);
- /**< function use in nn_fit() */
+	/**< function use in nn_fit() */		
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------

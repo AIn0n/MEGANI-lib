@@ -141,16 +141,14 @@ for n in range(5):
         genAssert(
             f"nn->layers[0].out->x != {denseSize1} || nn->layers[0].out->y != {batchSize}"
         )
-        + """\n\tdense_data_t *ptr = nn->layers[0].data;\n"""
-        + genAssert(f"ptr->val->x != {inputSize} || ptr->val->y != {denseSize1}")
+        + genAssert(f"nn->layers[0].weights->x != {inputSize} || nn->layers[0].weights->y != {denseSize1}")
         +
         # check size of second layer
         genAssert("nn->layers[1].out == NULL")
         + genAssert(
             f"nn->layers[1].out->x != {denseSize2} || nn->layers[1].out->y != {batchSize}"
         )
-        + """\n\tptr = (dense_data_t *) nn->layers[1].data;\n"""
-        + genAssert(f"ptr->val->x != {denseSize1} || ptr->val->y != {denseSize2}")
+        + genAssert(f"nn->layers[1].weights->x != {denseSize1} || nn->layers[1].weights->y != {denseSize2}")
         +
         # check size of temporary matrix stored in neural network struct
         genAssert(f"nn->temp->size != {maxTmp}") + "\tnn_destroy(nn);\n",
@@ -164,13 +162,11 @@ gen.genTest(
     + """
 	nn_t *n = nn_create(3, 1, 0.01);
 	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);
-	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);
-	dense_data_t *ptr = (n->layers[0].data);\n"""
+	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);\n"""
     + genStaticListDec([0.1, 0.2, -0.1, -0.1, 0.1, 0.9, 0.1, 0.4, 0.1], "val0")
     + genStaticListDec([0.3, 1.1, -0.3, 0.1, 0.2, 0.0, 0.0, 1.3, 0.1], "val1")
-    + genListCpy("val0", "ptr->val->arr", "ptr->val->size")
-    + "\tptr = n->layers[1].data;\n"
-    + genListCpy("val1", "ptr->val->arr", "ptr->val->size")
+    + genListCpy("val0", "n->layers[0].weights->arr", "n->layers[0].weights->size")
+    + genListCpy("val1", "n->layers[1].weights->arr", "n->layers[1].weights->size")
     + "\tnn_predict(n, &input);\n"
     + genStaticListDec([0.2135, 0.145, 0.5065], "expected")
     + genMxComp("(*n->layers[1].out)", "expected", DELTA)
@@ -184,10 +180,8 @@ gen.genTest(
 	LAYER_DENSE(nn, 1, NO_FUNC, 0.0, 0.0);\n"""
     + genStaticListDec([0.1, -0.1, 0.1], "val0")
     + genStaticListDec([0.3, 1.1, -0.3], "val1")
-    + "\tdense_data_t *ptr = (dense_data_t *) nn->layers->data;\n"
-    + genListCpy("val0", "ptr->val->arr", "ptr->val->size")
-    + "\n\tptr = (dense_data_t *) nn->layers[1].data;\n"
-    + genListCpy("val1", "ptr->val->arr", "ptr->val->size")
+    + genListCpy("val0", "nn->layers[0].weights->arr", "nn->layers[0].weights->size")
+    + genListCpy("val1", "nn->layers[1].weights->arr", "nn->layers[1].weights->size")
     + genStaticMxDec(np.array([[8.5]]), "input")
     + "\tnn_predict(nn, &input);\n"
     + genAssert(
@@ -209,10 +203,8 @@ gen.genTest(
     )
     + genStaticListDec([0.1, 0.2, -0.1, -0.1, 0.1, 0.9, 0.1, 0.4, 0.1], "val0")
     + genStaticListDec([0.3, 1.1, -0.3, 0.1, 0.2, 0.0, 0.0, 1.3, 0.1], "val1")
-    + "\tdense_data_t* ptr = nn->layers->data;\n"
-    + genListCpy("val0", "ptr->val->arr", "ptr->val->size")
-    + "\n\tptr = nn->layers[1].data;\n"
-    + genListCpy("val1", "ptr->val->arr", "ptr->val->size")
+    + genListCpy("val0", "nn->layers[0].weights->arr", "nn->layers[0].weights->size")
+    + genListCpy("val1", "nn->layers[1].weights->arr", "nn->layers[1].weights->size")
     + genStaticMxDec(
         np.array([[0.1, 1.0, 0.1], [0.0, 1.0, 0.0], [0.0, 0.0, 0.1], [0.1, 1.0, 0.2]]),
         "out",
@@ -246,9 +238,8 @@ gen.genTest(
         ],
         "exp_val1",
     )
-    + genMxComp("(* ptr->val)", "exp_val1", DELTA)
-    + "\tptr = (dense_data_t *) nn->layers[0].data;\n"
-    + genMxComp("(* ptr->val)", "exp_val0", DELTA)
+    + genMxComp("(*nn->layers[1].weights)", "exp_val1", DELTA)
+    + genMxComp("(*nn->layers[0].weights)", "exp_val0", DELTA)
     + "\tnn_destroy(nn);\n",
 )
 

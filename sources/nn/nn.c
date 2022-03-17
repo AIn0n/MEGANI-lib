@@ -8,6 +8,7 @@ nn_destroy(nn_t* nn)
 		return;
 	for (NN_SIZE i = 0; i < nn->len; ++i) {
 		mx_destroy(nn->layers[i].out);
+		mx_destroy(nn->layers[i].weights);
 		nn->layers[i].free_data(nn->layers[i].data);
 	}
 	free(nn->layers);

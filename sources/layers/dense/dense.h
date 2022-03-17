@@ -4,7 +4,6 @@
 #include "mx.h"
 //TODO DOCS
 typedef struct {
-	mx_t*       val;
 	act_func_t  act_func;
 }
 dense_data_t;

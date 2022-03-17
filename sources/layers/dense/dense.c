@@ -18,9 +18,9 @@ void
 dense_forwarding(struct nl_t *self, const mx_t *input)
 {
 	//output = input * values ^T
-    	const dense_data_t* data = self->data;
-    	mx_mp(*input, *data->val, self->out, B);  
+    	mx_mp(*input, *self->weights, self->out, B);  
 	//layer output = activation function ( layer output )
+	const dense_data_t* data = self->data;
 	if (*data->act_func.func_mx != NULL) 
 		(*data->act_func.func_mx)(self->out);  
 }
@@ -39,24 +39,22 @@ dense_backwarding(
 		mx_hadam_lambda(
 			nn->delta[even], *self->out, data->act_func.func_cell);
 	//temporary matrix is shared between layers so we had to change the size
-	mx_set_size(nn->temp, data->val->x, data->val->y);
+	mx_set_size(nn->temp, self->weights->x, self->weights->y);
 	//value delta = delta^T * previous output
 	mx_mp(*nn->delta[even], *prev_out, nn->temp, A);
-	mx_set_size(nn->delta[!even], data->val->x, nn->batch_len);
-	mx_mp(*nn->delta[even], *data->val, nn->delta[!even], DEF);
+	mx_set_size(nn->delta[!even], self->weights->x, nn->batch_len);
+	mx_mp(*nn->delta[even], *self->weights, nn->delta[!even], DEF);
 
 	mx_mp_num(nn->temp, nn->alpha);	//value delta = value delta * alpha
-	mx_sub(*data->val, *nn->temp, data->val); //values = values - vdelta
+	mx_sub(*self->weights, *nn->temp, self->weights); //values = values - vdelta
 }
 
 void
 dense_free_data(void* data)
 {
 	dense_data_t *d = (dense_data_t *) data;
-	if (data != NULL) {
-		mx_destroy(d->val);
+	if (data != NULL)
 		free(d);
-	}
 }
 
 bool
@@ -99,18 +97,19 @@ LAYER_DENSE(
 	    mx_recreate(nn->delta[even], neurons, batch))
 		return false;
 
+	curr->weights = mx_create(in, neurons);
+	if (curr->weights == NULL ||
+	   (nn->temp->size < in * neurons && mx_recreate(nn->temp, in, neurons)))
+	   	return false;
+
 	dense_data_t *data = (dense_data_t *) calloc(1, sizeof(dense_data_t));
 	if (curr->out == NULL || data == NULL)
 		return false;
 
 	data->act_func = act_func;
-	data->val = mx_create(in, neurons);
-	if (data->val == NULL  ||
-	   (nn->temp->size < in * neurons && mx_recreate(nn->temp, in, neurons)))
-		return false;
 
 	if (min && max)
-		dense_fill_rng(data->val, min, max);
+		dense_fill_rng(curr->weights, min, max);
 	curr->data		= (void *) data;
 	curr->forwarding	= (& dense_forwarding);
 	curr->backwarding	= (& dense_backwarding);
