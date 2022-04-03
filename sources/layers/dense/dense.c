@@ -52,9 +52,8 @@ dense_backwarding(
 void
 dense_free_data(void* data)
 {
-	dense_data_t *d = (dense_data_t *) data;
 	if (data != NULL)
-		free(d);
+		free(data);
 }
 
 bool
@@ -85,19 +84,29 @@ LAYER_DENSE(
 	const MX_TYPE min,
 	const MX_TYPE max)
 {
+/* check if layer is first one in neural network and calculate input size for it */
 	const MX_SIZE in = (nn->len) ? nn->layers[nn->len - 1].out->x : nn->in_len;
-	const MX_SIZE batch = nn->batch_len;
+/* increase size of neural layers array by one, in case of failure return false*/
 	if (neurons < 1 || !try_append_layers(nn))
 		return false;
-
+/* neural network structure have two matrices for delta, we need to decide which
+ * one this layer will use, so we check if index of current layer is even
+ */
 	const NN_SIZE even = nn->len % 2;
 	struct nl_t* curr = &nn->layers[nn->len++];
-	curr->out = mx_create(neurons, batch);
-	if (neurons * batch > nn->delta[even]->size && 
-	    mx_recreate(nn->delta[even], neurons, batch))
+	curr->out = mx_create(neurons, nn->batch_len);
+/* check if delta is big enough for this layer purpose, if not - realocate it 
+ * and check realocation success
+ */
+	if (neurons * nn->batch_len > nn->delta[even]->size && 
+	    mx_recreate(nn->delta[even], neurons, nn->batch_len))
 		return false;
 
 	curr->weights = mx_create(in, neurons);
+
+/* same thing like in above delta realocation code, difference is a fact that here
+ * is only one temp matrix in neural network structure (layer index doesn't matter now)
+ */
 	if (curr->weights == NULL ||
 	   (nn->temp->size < in * neurons && mx_recreate(nn->temp, in, neurons)))
 	   	return false;
@@ -108,8 +117,10 @@ LAYER_DENSE(
 
 	data->act_func = act_func;
 
+/* if min and max are other than zero we fill layer weights with values between (min, max) */
 	if (min && max)
 		dense_fill_rng(curr->weights, min, max);
+
 	curr->data		= (void *) data;
 	curr->forwarding	= (& dense_forwarding);
 	curr->backwarding	= (& dense_backwarding);
