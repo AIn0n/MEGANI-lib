@@ -2,7 +2,7 @@
 #include <stdio.h>  //FOR DEBUG ONLY
 
 inline void
-mx_set_size(mx_t* mx, const MX_SIZE x, const MX_SIZE y)
+mx_set_size(mx_t *mx, const MX_SIZE x, const MX_SIZE y)
 {
 	mx->x = x;
 	mx->y = y;
@@ -15,11 +15,11 @@ mx_create(const MX_SIZE x, const MX_SIZE y)
 	if (!x || !y) 
 		return NULL;
 
-	mx_t* output = (mx_t *) calloc(1, sizeof(mx_t));
+	mx_t *output = calloc(1, sizeof(*output));
 	if (output == NULL)
 		return NULL;
 	mx_set_size(output, x, y);
-	output->arr = (MX_TYPE *)calloc(output->size, sizeof(MX_TYPE));
+	output->arr = calloc(output->size, sizeof(*output->arr));
 	if (output->arr == NULL) { 
 		free(output);
 		return NULL;
@@ -38,7 +38,7 @@ mx_destroy(mx_t *mx)
 }
 
 void 
-mx_mp(const mx_t a, const mx_t b, mx_t* out, const mx_mp_params params)
+mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params)
 {
 	MX_SIZE tra_y = a.x, tra_i = 1, limit = a.x;
 	if (params & A) {
@@ -64,28 +64,28 @@ mx_mp(const mx_t a, const mx_t b, mx_t* out, const mx_mp_params params)
 }
 
 void 
-mx_hadamard(const mx_t a, const mx_t b, mx_t* out)
+mx_hadamard(const mx_t a, const mx_t b, mx_t *out)
 {
 	for (MX_SIZE i = 0; i < out->size; ++i)
 		out->arr[i] = a.arr[i] * b.arr[i];
 }
 
 void
-mx_sub(const mx_t a, const mx_t b, mx_t* out)
+mx_sub(const mx_t a, const mx_t b, mx_t *out)
 {
 	for (MX_SIZE i = 0; i < out->size; ++i)
 		out->arr[i] = a.arr[i] - b.arr[i];
 }
 
 void 
-mx_mp_num(mx_t* a, const MX_TYPE num)
+mx_mp_num(mx_t *a, const MX_TYPE num)
 {
 	for (MX_SIZE i = 0; i < a->size; ++i)
 		a->arr[i] *= num;
 }
 
 void 
-mx_hadam_lambda(mx_t* a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE))
+mx_hadam_lambda(mx_t *a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE))
 {
 	for (MX_SIZE i = 0; i < a->size; ++i)
 		a->arr[i] *= (*lambda)(b.arr[i]);
@@ -94,7 +94,7 @@ mx_hadam_lambda(mx_t* a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE))
 //---------------------------------DEBUG ONLY-----------------------------------
 
 void
-mx_print(const mx_t* a, char * name)
+mx_print(const mx_t *a, char *name)
 {
 	printf("%s\n", name);
 	if (a == NULL) {

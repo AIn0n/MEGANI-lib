@@ -1,17 +1,18 @@
 #include "nn.h"
-#include "dense.h"
 
 void
-nn_destroy(nn_t* nn)
+nn_destroy(nn_t *nn)
 {
 	if (nn == NULL)
 		return;
-	for (NN_SIZE i = 0; i < nn->len; ++i) {
-		mx_destroy(nn->layers[i].out);
-		mx_destroy(nn->layers[i].weights);
-		nn->layers[i].free_data(nn->layers[i].data);
+	if (nn->layers != NULL) {
+		for (NN_SIZE i = 0; i < nn->len; ++i) {
+			mx_destroy(nn->layers[i].out);
+			mx_destroy(nn->layers[i].weights);
+			nn->layers[i].free_data(nn->layers[i].data);
+		}
+		free(nn->layers);
 	}
-	free(nn->layers);
 	mx_destroy(nn->temp);
 	mx_destroy(nn->delta[0]);
 	mx_destroy(nn->delta[1]);
@@ -19,12 +20,8 @@ nn_destroy(nn_t* nn)
 }
 
 nn_t*
-nn_create(
-	const MX_SIZE in_len,
-	const MX_SIZE batch_len,
-	const MX_TYPE alpha)
-{
-	nn_t* result = (nn_t *) calloc(1, sizeof(nn_t));
+nn_create(const MX_SIZE in_len, const MX_SIZE batch_len, const MX_TYPE alpha) {
+	nn_t *result = calloc(1, sizeof(*result));
 	if (in_len < 1 || batch_len < 1 || result == NULL)
 		return NULL;
 	result->alpha		= alpha;
@@ -32,25 +29,13 @@ nn_create(
 	result->batch_len	= batch_len;
 	result->len		= 0;
 
-	result->layers = (struct nl_t *) calloc(0, sizeof(struct nl_t));
-	if (result->layers == NULL) {
-		free(result);
-		return NULL;
-	}
-
+	result->layers = calloc(0, sizeof(*result->layers));
 	result->temp = mx_create(1, 1);
-	if (result->temp == NULL) {
-		free(result);
-		free(result->layers);
-	}
-
 	result->delta[0] = mx_create(1, 1);
-	if (result->delta[0] == NULL) {
-		nn_destroy(result);
-		return NULL;
-	}
 	result->delta[1] = mx_create(1, 1);
-	if (result->delta[1] == NULL) {
+
+	if (result->layers == NULL || result->temp == NULL ||
+	    result->delta[0] == NULL || result->delta[1] == NULL) {
 		nn_destroy(result);
 		return NULL;
 	}
@@ -58,9 +43,9 @@ nn_create(
 }
 
 void
-nn_predict(nn_t* nn, const mx_t* input)
+nn_predict(nn_t *nn, const mx_t *input)
 {
-	const mx_t* prev_out = input;
+	const mx_t *prev_out = input;
 	for (NN_SIZE i = 0; i < nn->len; ++i) {
 		nn->layers[i].forwarding((nn->layers + i), prev_out);
 		prev_out = nn->layers[i].out;
@@ -68,18 +53,18 @@ nn_predict(nn_t* nn, const mx_t* input)
 }
 
 void
-nn_fit(nn_t* nn, const mx_t *input, const mx_t* output)
+nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 {
 	nn_predict(nn, input);
 	const NN_SIZE end = nn->len - 1;
 	NN_SIZE even = end % 2;
-	//delta = output - expected output (last layer case)
+	/* delta = output - expected output (last layer case) */
 	mx_sub(*nn->layers[end].out, *output, nn->delta[even]);
 	for (NN_SIZE i = end; i > 0; --i, even = !even) {
 		nn->layers[i].backwarding(
 			(nn->layers + i), nn, even, nn->layers[i - 1].out);
 	}
-	//vdelta = delta^T * input
+	/* vdelta = delta^T * input */
 	nn->layers->backwarding(nn->layers, nn, even, input);
 }
 
