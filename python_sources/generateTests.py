@@ -243,4 +243,27 @@ gen.genTest(
     + "\tnn_destroy(nn);\n",
 )
 
+gen.genTest("im2col",
+    genStaticMxDec(np.array([
+        [1, 3, 1], 
+        [2, 6, 6],
+        [3, 0, 4],
+        [4, 8, 5],
+        [8, 2, 3],
+        [7, 4, 0],
+        [6, 3, 9],
+        [5, 3, 8],
+        [3, 4, 1],
+        [7, 6, 0],
+        [2, 2, 3],
+        [1, 5, 1]]), "input")
+    + genStaticEmptyMxDec((12, 4), "output")
+    + "im2col(&input, &output, 3, 2, 3, 2, 2, 2);"
+    + genStaticListDec(
+        [1, 2, 4, 8, 3, 6, 8, 2, 1, 6, 5, 3,
+        2, 3, 8, 7, 6, 0, 2, 4, 6, 4, 3, 0,
+        6, 5, 7, 2, 3, 3, 6, 2, 9, 8, 0, 3,
+        5, 3, 2, 1, 3, 4, 2, 5, 8, 1, 3, 1], "expected")
+    + genMxComp("output", "expected", DELTA))
+
 gen.save("sources/main.c")
