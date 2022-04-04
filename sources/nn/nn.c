@@ -27,15 +27,12 @@ nn_create(const MX_SIZE in_len, const MX_SIZE batch_len, const MX_TYPE alpha) {
 	result->alpha		= alpha;
 	result->in_len		= in_len;
 	result->batch_len	= batch_len;
-	result->len		= 0;
 
-	result->layers = calloc(0, sizeof(*result->layers));
 	result->temp = mx_create(1, 1);
 	result->delta[0] = mx_create(1, 1);
 	result->delta[1] = mx_create(1, 1);
 
-	if (result->layers == NULL || result->temp == NULL ||
-	    result->delta[0] == NULL || result->delta[1] == NULL) {
+	if (!result->temp || !result->delta[0] || !result->delta[1]) {
 		nn_destroy(result);
 		return NULL;
 	}
