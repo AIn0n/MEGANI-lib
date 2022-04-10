@@ -5,9 +5,9 @@
 void im2col(
 	const mx_t *in,
 	mx_t *out,
-	const MX_SIZE in_x,
-	const MX_SIZE in_y,
-	const MX_SIZE in_z,
-	const MX_SIZE batch,
-	const MX_SIZE krnl_x, const MX_SIZE krnl_y);
+	const mx_size in_x,
+	const mx_size in_y,
+	const mx_size in_z,
+	const mx_size batch,
+	const mx_size krnl_x, const mx_size krnl_y);
 #endif

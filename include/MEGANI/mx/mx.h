@@ -5,38 +5,38 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-/** @def    MX_TYPE
+/** @def    mx_type
 *   @brief  Type of variables which contain neural values.
 *
 *   By default it is "double".
 */
-typedef double MX_TYPE;
+typedef double mx_type;
 
 /** @def    NN_ZERO
- *  @brief  zero cast on MX_TYPE.
+ *  @brief  zero cast on mx_type.
  */
-#define NN_ZERO ((MX_TYPE)0)
+#define NN_ZERO ((mx_type)0)
 
-/** @def MX_SIZE
+/** @def mx_size
  *  @brief Type of variables which contain matrix size, x, y. 
  * 
  *  By default it is uint32_t. I made this macro 'cause many times I used many 
  *  diffrent types for same tasks like iteration over matrix etc.
  */
-typedef uint32_t MX_SIZE;
+typedef uint32_t mx_size;
 
 /** @struct mx_t 
 *   @brief  Structure with matrix data and size.
 *
 *   I designed this struct as interpreted 1 dimensional array to make it as fast
-*   and small as possible. To change the data type in matrices, change MX_TYPE.
-*   @see MX_TYPE
+*   and small as possible. To change the data type in matrices, change mx_type.
+*   @see mx_type
 */
 typedef struct {
-	MX_TYPE* arr;   /**<    Array with matrix data */
-	MX_SIZE x;      /**<    matrix width */
-	MX_SIZE y;      /**<    matrix height*/
-	MX_SIZE size;   /**<    matrix height multiplied by width. 
+	mx_type* arr;   /**<    Array with matrix data */
+	mx_size x;      /**<    matrix width */
+	mx_size y;      /**<    matrix height*/
+	mx_size size;   /**<    matrix height multiplied by width. 
 				Nothing particular special but very often used */
 }
 mx_t;
@@ -57,22 +57,22 @@ mx_mp_params;
 * 
 *   Function get size of the output matrix <x, y>, checks the input, allocates memory 
 *   (with calloc) for it and returns the pointer. Size of output matrix in memory 
-*   depend on MX_TYPE. If you use thread-safe calloc this function is thread-safe.
+*   depend on mx_type. If you use thread-safe calloc this function is thread-safe.
 * 
 *   On success, pointer to matrix is returned. If errors occurs, function return NULL;
 * 
 *   @param [in] x output matrix width.
 *   @param [in] y output matrix height
 *
-*   @see MX_TYPE
+*   @see mx_type
  */
-mx_t* mx_create(const MX_SIZE x, const MX_SIZE y);
+mx_t* mx_create(const mx_size x, const mx_size y);
 
 
 /**
 *   @brief Function free memory allocated for matrix.
 *
-*   Function get pointer to mx_t and frees both structure and MX_TYPE array.
+*   Function get pointer to mx_t and frees both structure and mx_type array.
 *   This is not thread-safe.
 *
 *   @param [in] mx pointer to matrix allocated by matrix_create function.
@@ -127,16 +127,16 @@ void mx_sub(const mx_t a, const mx_t b, mx_t* out);
  *  @param [in] a input matrix
  *  @param [in] num every cell multiplier
  */
-void mx_mp_num(mx_t* a, const MX_TYPE num);
+void mx_mp_num(mx_t* a, const mx_type num);
 
 /** @brief matrix A = matrix A o lambda on cell( matrix B )
  * 
  * function uses lambda on every cell of second matrix and 
  * return to first matrix hadamard product.
  */
-void mx_hadam_lambda(mx_t* a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE));
+void mx_hadam_lambda(mx_t* a, const mx_t b, mx_type (*lambda)(mx_type));
 
-extern void mx_set_size(mx_t* mx, const MX_SIZE x, const MX_SIZE y);
+extern void mx_set_size(mx_t* mx, const mx_size x, const mx_size y);
 
 void mx_print(const mx_t* a, char * name);
 

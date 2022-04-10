@@ -3,11 +3,11 @@
 //STATIC FUNCTIONS
 
 static void
-dense_fill_rng(mx_t *values, const MX_TYPE min, const MX_TYPE max)
+dense_fill_rng(mx_t *values, const mx_type min, const mx_type max)
 {
-	const MX_TYPE diff = (max - min);
-	for (MX_SIZE i = 0; i < values->size; ++i) {
-		MX_TYPE rand_val = (MX_TYPE) rand() / RAND_MAX;
+	const mx_type diff = (max - min);
+	for (mx_size i = 0; i < values->size; ++i) {
+		mx_type rand_val = (mx_type) rand() / RAND_MAX;
 		values->arr[i] = min + rand_val * diff;
 	}
 }
@@ -29,7 +29,7 @@ void
 dense_backwarding(
 	struct nl_t	*self, 
 	nn_t		*nn, 
-	const NN_SIZE	even,
+	const nn_size	even,
 	const mx_t	*prev_out)
 {
 	const dense_data_t* data = (dense_data_t *) self->data;
@@ -57,9 +57,9 @@ dense_free_data(void* data)
 }
 
 bool
-mx_recreate(mx_t *mx, const MX_SIZE x, const MX_SIZE y)
+mx_recreate(mx_t *mx, const mx_size x, const mx_size y)
 {
-	MX_TYPE *new_arr = (MX_TYPE *) realloc(mx->arr, x * y * sizeof(MX_TYPE));
+	mx_type *new_arr = (mx_type *) realloc(mx->arr, x * y * sizeof(mx_type));
 	if (new_arr == NULL)
 		return true;
 	mx->arr = new_arr;
@@ -79,20 +79,20 @@ try_append_layers(nn_t *nn)
 bool
 LAYER_DENSE(
 	nn_t* nn,
-	const MX_SIZE neurons,
+	const mx_size neurons,
 	const act_func_t act_func,
-	const MX_TYPE min,
-	const MX_TYPE max)
+	const mx_type min,
+	const mx_type max)
 {
 /* check if layer is first one in neural network and calculate input size for it */
-	const MX_SIZE in = (nn->len) ? nn->layers[nn->len - 1].out->x : nn->in_len;
+	const mx_size in = (nn->len) ? nn->layers[nn->len - 1].out->x : nn->in_len;
 /* increase size of neural layers array by one, in case of failure return false*/
 	if (neurons < 1 || !try_append_layers(nn))
 		return false;
 /* neural network structure have two matrices for delta, we need to decide which
  * one this layer will use, so we check if index of current layer is even
  */
-	const NN_SIZE even = nn->len % 2;
+	const nn_size even = nn->len % 2;
 	struct nl_t* curr = &nn->layers[nn->len++];
 	curr->out = mx_create(neurons, nn->batch_len);
 /* check if delta is big enough for this layer purpose, if not - realocate it 

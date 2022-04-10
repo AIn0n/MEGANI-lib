@@ -27,7 +27,7 @@ _END_MAIN = """}};
 def genStaticMxDec(mx, mxName: str) -> str:
     return (
         f"""	mx_t {mxName} = {{.x = {mx.shape[1]}, .y = {mx.shape[0]}, .size = {mx.size}}};
-	MX_TYPE {mxName}_arr[] = {{\n"""
+	mx_type {mxName}_arr[] = {{\n"""
         + "".join("\t\t" + "".join(f"{x}, " for x in y) + "\n" for y in mx)
         + f"\n\t}};\n\t{mxName}.arr = {mxName}_arr;\n\n"
     )
@@ -38,14 +38,14 @@ def genStaticEmptyMxDec(shape, mxName: str) -> str:
     size = shape[0] * shape[1]
     return (
         f"""	mx_t {mxName} = {{.x = {shape[1]}, .y = {shape[0]}, .size = {size}}};
-	MX_TYPE {mxName}_arr[{size}];"""
+	mx_type {mxName}_arr[{size}];"""
         + f"\n\t{mxName}.arr = {mxName}_arr;\n\n"
     )
 
 
 # generate static list declaration
 def genStaticListDec(l, lName: str) -> str:
-    return f"\tMX_TYPE {lName}[] = {{" + "".join(f"{n}, " for n in l) + "};\n\n"
+    return f"\tmx_type {lName}[] = {{" + "".join(f"{n}, " for n in l) + "};\n\n"
 
 
 # 	---=== generators of macro-like functions ===---
@@ -56,7 +56,7 @@ def genStaticListDec(l, lName: str) -> str:
 # 	* l  - list name as string
 # 	* delta - max acceptable difference between expected and got value
 def genMxComp(mx: str, l: str, delta: float) -> str:
-    return f"""	for (MX_SIZE i = 0; i < {mx}.size; ++i)
+    return f"""	for (mx_size i = 0; i < {mx}.size; ++i)
 		if ({mx}.arr[i] > {l}[i] + {delta} || {mx}.arr[i] < {l}[i] - {delta}) {{
 			printf("---- ERROR! (line %i)\\n------ expected -> %f, got -> %f\\n", __LINE__, {l}[i], {mx}.arr[i]);
 			return 1;
@@ -70,7 +70,7 @@ def genMxComp(mx: str, l: str, delta: float) -> str:
 # 	* dest - destination list name as string
 # 	* size - size as string
 def genListCpy(src: str, dest: str, size: str) -> str:
-    return f"""	for (MX_SIZE i = 0; i < {size}; ++i)
+    return f"""	for (mx_size i = 0; i < {size}; ++i)
 		{dest}[i] = {src}[i];
 """
 

@@ -2,7 +2,7 @@
 #include <stdio.h>  //FOR DEBUG ONLY
 
 inline void
-mx_set_size(mx_t *mx, const MX_SIZE x, const MX_SIZE y)
+mx_set_size(mx_t *mx, const mx_size x, const mx_size y)
 {
 	mx->x = x;
 	mx->y = y;
@@ -10,7 +10,7 @@ mx_set_size(mx_t *mx, const MX_SIZE x, const MX_SIZE y)
 }
 
 mx_t* 
-mx_create(const MX_SIZE x, const MX_SIZE y)
+mx_create(const mx_size x, const mx_size y)
 {
 	if (!x || !y) 
 		return NULL;
@@ -40,21 +40,21 @@ mx_destroy(mx_t *mx)
 void 
 mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params)
 {
-	MX_SIZE tra_y = a.x, tra_i = 1, limit = a.x;
+	mx_size tra_y = a.x, tra_i = 1, limit = a.x;
 	if (params & A) {
 		tra_y = 1;
 		tra_i = a.x;
 		limit = a.y;
 	}
-	MX_SIZE trb_x = 1, trb_i = b.x;
+	mx_size trb_x = 1, trb_i = b.x;
 	if (params & B) {
 		trb_x = b.x;
 		trb_i = 1;
 	}
-	for (MX_SIZE y = 0; y < out->y; ++y) {
-		for (MX_SIZE x = 0; x < out->x; ++x) {
-			MX_TYPE val = 0;
-			for (MX_SIZE i = 0; i < limit; ++i) {
+	for (mx_size y = 0; y < out->y; ++y) {
+		for (mx_size x = 0; x < out->x; ++x) {
+			mx_type val = 0;
+			for (mx_size i = 0; i < limit; ++i) {
 				val +=	a.arr[i * tra_i + y * tra_y] * 
 					b.arr[x * trb_x + i * trb_i];
 			}
@@ -66,28 +66,28 @@ mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params)
 void 
 mx_hadamard(const mx_t a, const mx_t b, mx_t *out)
 {
-	for (MX_SIZE i = 0; i < out->size; ++i)
+	for (mx_size i = 0; i < out->size; ++i)
 		out->arr[i] = a.arr[i] * b.arr[i];
 }
 
 void
 mx_sub(const mx_t a, const mx_t b, mx_t *out)
 {
-	for (MX_SIZE i = 0; i < out->size; ++i)
+	for (mx_size i = 0; i < out->size; ++i)
 		out->arr[i] = a.arr[i] - b.arr[i];
 }
 
 void 
-mx_mp_num(mx_t *a, const MX_TYPE num)
+mx_mp_num(mx_t *a, const mx_type num)
 {
-	for (MX_SIZE i = 0; i < a->size; ++i)
+	for (mx_size i = 0; i < a->size; ++i)
 		a->arr[i] *= num;
 }
 
 void 
-mx_hadam_lambda(mx_t *a, const mx_t b, MX_TYPE (*lambda)(MX_TYPE))
+mx_hadam_lambda(mx_t *a, const mx_t b, mx_type (*lambda)(mx_type))
 {
-	for (MX_SIZE i = 0; i < a->size; ++i)
+	for (mx_size i = 0; i < a->size; ++i)
 		a->arr[i] *= (*lambda)(b.arr[i]);
 }
 
@@ -101,7 +101,7 @@ mx_print(const mx_t *a, char *name)
 		puts("NULL");
 		return;
 	}
-	for (MX_SIZE i = 0; i < a->x * a->y; ++i) {
+	for (mx_size i = 0; i < a->x * a->y; ++i) {
 		if(i && !(i % a->x)) 
 			puts("");
 		printf("%lf ", a->arr[i]);

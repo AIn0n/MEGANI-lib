@@ -14,7 +14,7 @@ void
 dense_backwarding(
 	struct nl_t*  self, 
 	nn_t*         nn, 
-	const NN_SIZE idx,
+	const nn_size idx,
 	const mx_t*	prev_out);
-bool LAYER_DENSE(nn_t* nn, const MX_SIZE neurons, const act_func_t act_func, const MX_TYPE min, const MX_TYPE max);
+bool LAYER_DENSE(nn_t* nn, const mx_size neurons, const act_func_t act_func, const mx_type min, const mx_type max);
 #endif

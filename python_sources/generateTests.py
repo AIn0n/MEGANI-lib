@@ -104,7 +104,7 @@ for n in range(5):
 
 # 	matrix hadamard product with lambda
 
-gen.appendCode("\nMX_TYPE foo(MX_TYPE a) {return (a > 4) ? 0 : a;}\n")
+gen.appendCode("\nmx_type foo(mx_type a) {return (a > 4) ? 0 : a;}\n")
 
 x, y = random.randint(1, 16), random.randint(1, 16)
 a = np.random.randint(-254, high=254, size=(y, x))
@@ -243,7 +243,7 @@ gen.genTest(
     + "\tnn_destroy(nn);\n",
 )
 
-gen.genTest("im2col",
+"""gen.genTest("im2col",
     genStaticMxDec(np.array([
         [1, 3, 1], 
         [2, 6, 6],
@@ -265,5 +265,5 @@ gen.genTest("im2col",
         6, 5, 7, 2, 3, 3, 6, 2, 9, 8, 0, 3,
         5, 3, 2, 1, 3, 4, 2, 5, 8, 1, 3, 1], "expected")
     + genMxComp("output", "expected", DELTA))
-
+"""
 gen.save("sources/main.c")

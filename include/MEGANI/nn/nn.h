@@ -8,10 +8,10 @@
 #define NO_FUNC ((act_func_t) {.func_cell =NULL, .func_mx =NULL})
 #define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
 
-/** @def NN_SIZE
+/** @def nn_size
  *  @brief Type for number of layer in neural network. By default it is uint16_t.
  */
-#define NN_SIZE uint16_t
+#define nn_size uint16_t
 
 //------------------------------------------------STRUCTURES---------------------------------------
 
@@ -25,7 +25,7 @@
  *  @see mx_hadam_lambda
  */
 typedef struct {
-	MX_TYPE (*func_cell)(MX_TYPE);  /**< function used in forwarding */
+	mx_type (*func_cell)(mx_type);  /**< function used in forwarding */
 	void (*func_mx)(mx_t *);        /**< function used in backpropagation */
 }
 act_func_t;
@@ -43,10 +43,10 @@ typedef struct {
 	struct nl_t		*layers; /**< all neurons layers in current network */
 	mx_t			*temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
 	mx_t			*delta[2];
-	MX_TYPE			alpha;  /**< alpha indicates learning speed */
-	NN_SIZE			len;   /**< number of layers */
-	MX_SIZE			in_len;
-	MX_SIZE			batch_len;
+	mx_type			alpha;  /**< alpha indicates learning speed */
+	nn_size			len;   /**< number of layers */
+	mx_size			in_len;
+	mx_size			batch_len;
 }
 nn_t;
 
@@ -66,13 +66,13 @@ struct nl_t {
 	/**< function used to free memory allocated for data */
 	void (* forwarding)	(struct nl_t*, const mx_t*);	
 	/**< function used in nn_predict() */
-	void (* backwarding)	(struct nl_t *self, nn_t *n, const NN_SIZE idx, const mx_t *prev_out);
+	void (* backwarding)	(struct nl_t *self, nn_t *n, const nn_size idx, const mx_t *prev_out);
 	/**< function use in nn_fit() */		
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------
 
-nn_t* nn_create(const MX_SIZE in_len, const MX_SIZE batch_len, const MX_TYPE alpha);
+nn_t* nn_create(const mx_size in_len, const mx_size batch_len, const mx_type alpha);
 
 /** @brief Free memory allocated for neural network struct.
  * 
@@ -90,7 +90,7 @@ void nn_fit(nn_t* nn, const mx_t *input, const mx_t* output);
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
 
 void relu_mx(mx_t *a);
-MX_TYPE relu_deriv_cell(MX_TYPE a);
+mx_type relu_deriv_cell(mx_type a);
 
 #endif
 
