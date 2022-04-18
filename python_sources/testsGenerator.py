@@ -9,7 +9,6 @@ _INCLUDE = """#include <stdio.h>
 #include "mx.h"
 #include "nn.h"
 #include "dense.h"
-#include "im2col.h"
 """
 
 _END_MAIN = """}};

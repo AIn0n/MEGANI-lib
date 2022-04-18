@@ -42,11 +42,12 @@ act_func_t;
 typedef struct {
 	struct nl_t		*layers; /**< all neurons layers in current network */
 	mx_t			*temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
-	mx_t			*delta[2];
+	mx_t			*delta[2]; /**< Two delta matrices to switch between in backpropagation */
 	mx_type			alpha;  /**< alpha indicates learning speed */
 	nn_size			len;   /**< number of layers */
-	mx_size			in_len;
-	mx_size			batch_len;
+	mx_size			in_len;	/**< size of input */
+	mx_size			batch_len; /**< number of batches */
+	uint8_t			error;	/**< Error code indicating that something was done wrong */
 }
 nn_t;
 
@@ -62,9 +63,9 @@ struct nl_t {
 	mx_t* out;		/**< layer output */
 	mx_t* weights;		/**< layer weights */
 	void* data;		/**< layer specialized data */
-	void (* free_data)	(void * data);
+	void (* free_data)	(void * data);	/**< function to free layer specific data */
 	/**< function used to free memory allocated for data */
-	void (* forwarding)	(struct nl_t*, const mx_t*);	
+	void (* forwarding)	(struct nl_t*, const mx_t*);
 	/**< function used in nn_predict() */
 	void (* backwarding)	(struct nl_t *self, nn_t *n, const nn_size idx, const mx_t *prev_out);
 	/**< function use in nn_fit() */		
@@ -83,8 +84,21 @@ nn_t* nn_create(const mx_size in_len, const mx_size batch_len, const mx_type alp
  */
 void nn_destroy(nn_t *nn);
 
-//TODO docs
+/**
+ * @brief predict network response based on input
+ * 
+ * @param [in] nn network which response we want to get 
+ * @param [in] input input with proper size and batch length
+ */
 void nn_predict(nn_t* nn, const mx_t* input);
+
+/**
+ * @brief learn network with input and expected output
+ * 
+ * @param [in] nn network which we want to learn
+ * @param [in] input network with proper size and batch length
+ * @param [in] output exepcted output with size equal to last layer output size
+ */
 void nn_fit(nn_t* nn, const mx_t *input, const mx_t* output);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------

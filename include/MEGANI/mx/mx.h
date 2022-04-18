@@ -3,7 +3,6 @@
 
 #include <stdint.h> //for uintN_t - better portability
 #include <stdlib.h>
-#include <stdbool.h>
 
 /** @def    mx_type
 *   @brief  Type of variables which contain neural values.
