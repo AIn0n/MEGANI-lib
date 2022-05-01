@@ -59,3 +59,9 @@ html
 
 #python
 *__pycache__
+
+#datasets
+/mnist
+
+#macOS
+/.DS_Store

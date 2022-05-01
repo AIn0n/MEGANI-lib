@@ -247,4 +247,21 @@ gen.genTest(
     + "\tnn_destroy(nn);\n",
 )
 
+randomNumbers = [random.randint(0, 16) for _ in range(4)]
+gen.genTest("default matrix list iterator test",
+    genStaticMxDec(np.array([[randomNumbers[0]]]), "a0")
+    + genStaticMxDec(np.array([[randomNumbers[1]]]), "a1")
+    + genStaticMxDec(np.array([[randomNumbers[2]]]), "a2")
+    + genStaticMxDec(np.array([[randomNumbers[3]]]), "a3")
+    + """
+    mx_t list[] = {a0, a1, a2, a3};
+    mx_iterator iterator = {.list = list, .size = 4, .curr = 0};
+    void * iter = (void *) &iterator;
+    """
+    + genAssert("default_iter_next(iter) == &a0")
+    + genAssert("default_iter_next(iter) == &a1")
+    + genAssert("default_iter_next(iter) == &a2")
+    + genAssert("default_iter_next(iter) == &a3")
+)
+
 gen.save("sources/main.c")
