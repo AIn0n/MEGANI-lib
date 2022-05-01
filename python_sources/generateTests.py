@@ -247,21 +247,20 @@ gen.genTest(
     + "\tnn_destroy(nn);\n",
 )
 
-randomNumbers = [random.randint(0, 16) for _ in range(4)]
-gen.genTest("default matrix list iterator test",
-    genStaticMxDec(np.array([[randomNumbers[0]]]), "a0")
-    + genStaticMxDec(np.array([[randomNumbers[1]]]), "a1")
-    + genStaticMxDec(np.array([[randomNumbers[2]]]), "a2")
-    + genStaticMxDec(np.array([[randomNumbers[3]]]), "a3")
+arr = [np.array([[random.randint(0, 16)]]) for _ in range(random.randint(1, 16))]
+indexes = [str(n) for n in range(len(arr))]
+
+gen.genTest(
+    "default matrix list iterator test",
+    "".join([genStaticMxDec(arr[int(n)], "a" + n) for n in indexes])
+    + "mx_t list[] = {"
+    + "".join([f"a{n}, " for n in indexes])
+    + "};"
     + """
-    mx_t list[] = {a0, a1, a2, a3};
     mx_iterator iterator = {.list = list, .size = 4, .curr = 0};
     void * iter = (void *) &iterator;
     """
-    + genAssert("default_iter_next(iter) == &a0")
-    + genAssert("default_iter_next(iter) == &a1")
-    + genAssert("default_iter_next(iter) == &a2")
-    + genAssert("default_iter_next(iter) == &a3")
+    + "".join([genAssert("default_iter_next(iter) == &a" + n) for n in indexes]),
 )
 
 gen.save("sources/main.c")
