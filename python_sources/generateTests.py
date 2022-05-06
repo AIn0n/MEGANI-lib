@@ -263,7 +263,20 @@ gen.genTest(
     + """, .curr = 0};
     void * iter = (void *) &iterator;
     """
-    + "".join(genAssert("default_iter_next(iter) == &a" + n) for n in indexes),
+    + "".join(genAssert("default_iter_next(iter) == &a" + n) for n in indexes)
+)
+
+size = random.randint(1, 256)
+gen.genTest("default matrix list iterator has_next function test",
+    f"""
+    mx_iterator iterator = {{.list = NULL, .size = {size}, .curr = 0}};
+    void *iter = (void *) &iterator;
+    int i = 0;
+    do {{
+        default_iter_next(iter);
+    }} while (default_iter_has_next(iter));
+    """
+    + genAssert(f"i == {size}")
 )
 
 gen.save("sources/main.c")
