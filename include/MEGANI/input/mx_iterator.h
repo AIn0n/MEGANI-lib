@@ -5,7 +5,7 @@
 #include "stdint.h"
 
 typedef struct {
-    mx_t* list;
+    mx_t** list;
     size_t curr;
     size_t size;
 }

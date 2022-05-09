@@ -11,5 +11,5 @@ mx_t*
 default_iter_next(void* iterator)
 {
 	mx_iterator *iter = (mx_iterator *) iterator;
-	return iter->list + iter->curr++;
+	return iter->list[iter->curr++];
 }

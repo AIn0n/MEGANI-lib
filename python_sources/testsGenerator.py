@@ -10,6 +10,7 @@ _INCLUDE = """#include <stdio.h>
 #include "nn.h"
 #include "dense.h"
 #include "mx_iterator.h"
+#include "read_mnist.h"
 """
 
 _END_MAIN = """}};

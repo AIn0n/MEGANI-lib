@@ -1,7 +1,7 @@
+from read_mnist import read_images
 from testsGenerator import *
 import numpy as np
 import random
-import subprocess
 
 DELTA = 0.0001
 
@@ -254,8 +254,8 @@ indexes = [str(n) for n in range(len(arr))]
 gen.genTest(
     "default matrix list iterator test",
     "".join(genStaticMxDec(arr[int(n)], "a" + n) for n in indexes)
-    + "mx_t list[] = {"
-    + "".join([f"a{n}, " for n in indexes])
+    + "mx_t* list[] = {"
+    + "".join([f"&a{n}, " for n in indexes])
     + "};"
     + """
     mx_iterator iterator = {.list = list, .size = """
@@ -263,13 +263,17 @@ gen.genTest(
     + """, .curr = 0};
     void * iter = (void *) &iterator;
     """
-    + "".join(genAssert("default_iter_next(iter) == &a" + n) for n in indexes)
+    + "".join(genAssert("default_iter_next(iter) != &a" + n) for n in indexes)
 )
 
 size = random.randint(1, 256)
 gen.genTest("default matrix list iterator has_next function test",
-    f"""
-    mx_iterator iterator = {{.list = NULL, .size = {size}, .curr = 0}};
+    "".join(genStaticMxDec(arr[int(n)], "a" + n) for n in indexes)
+    + "mx_t* list[] = {"
+    + "".join([f"&a{n}, " for n in indexes])
+    + "};"
+    + f"""
+    mx_iterator iterator = {{.list = list, .size = {size}, .curr = 0}};
     void *iter = (void *) &iterator;
     int i = 0;
     do {{
@@ -279,4 +283,23 @@ gen.genTest("default matrix list iterator has_next function test",
     + genAssert(f"i == {size}")
 )
 
+mnist_images_filepath = "mnist/t10k-images-idx3-ubyte"
+mnist = read_images(mnist_images_filepath)
+
+# TODO: check more indexes
+index = random.randint(0, 9_999)
+gen.genTest("reading idx3 file test - random image from mnist",
+    genStaticListDec(mnist[index], "expected")
++f"""
+        mx_iterator iterator = read_idx3("{mnist_images_filepath}", 1, 1);
+        void *iter = (void *) &iterator;
+        mx_t result = *(iterator.list[{index}]);
+"""
++ genMxComp("result", "expected", DELTA)
++ """
+        do {
+                mx_destroy(default_iter_next(iter));
+        } while(default_iter_has_next(iter));
+        free(iterator.list);
+""")
 gen.save("sources/main.c")

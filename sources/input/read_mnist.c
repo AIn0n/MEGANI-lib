@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "mx_iterator.h"
-#include "mx.h"
 
 static void
 reverse_bytes_int32(int32_t *n)
@@ -23,7 +21,8 @@ reverse_bytes_int32(int32_t *n)
 
 /* In case of some errors in reading function I just return empty iterator */
 const mx_iterator empty_iterator = {.list = NULL, .size = 0, .curr = 0};
-#define I32_LEN 32
+#define I32_LEN 4
+#define U8_LEN 1
 
 mx_iterator
 read_idx3(const char *filename, mx_size batch_len, uint8_t vertical)
@@ -41,47 +40,46 @@ read_idx3(const char *filename, mx_size batch_len, uint8_t vertical)
 	if (fread(&magic_num,	1, I32_LEN, f) != I32_LEN
 	    || fread(&size,	1, I32_LEN, f) != I32_LEN
 	    || fread(&height,	1, I32_LEN, f) != I32_LEN
-	    || fread(&width,	1, I32_LEN, f) != I32_LEN
-	    || !width || !height || !size)
+	    || fread(&width,	1, I32_LEN, f) != I32_LEN)
 		goto err_close_file;
 
-
+	reverse_bytes_int32(&magic_num);
 	reverse_bytes_int32(&size);
 	reverse_bytes_int32(&height);
 	reverse_bytes_int32(&width);
-
-	const mx_size batch_size = width * height * batch_len;
-	const mx_size all_batch = size / batch_size;
-
-	uint8_t *tmp = malloc(batch_size);
-	if (tmp == NULL)
+	
+	if (magic_num != 2051 || !width || !height || !size)
 		goto err_close_file;
 
-	mx_t *list = malloc(all_batch * sizeof(*list));
-	if (list == NULL)
-		goto err_free_tmp;
+	const mx_size num_of_batches = size / batch_len;
+	const mx_size batch_cells = width * height * batch_len;
 
-	const mx_size x = (vertical) ? batch_size : width * height;
+	mx_t** list = malloc(sizeof(*list) * num_of_batches);
+	if (list == NULL)
+		goto err_close_file;
+
+	const mx_size x = (vertical) ? batch_cells : (mx_size) (width * height);
 	const mx_size y = (vertical) ? 1 : batch_len;
 
-	mx_t *new = list;
-	for (int i = 0; i < all_batch; ++i, ++new) {
-		new = mx_create(x, y);
-		if (new == NULL || fread(tmp, batch_size, 1, f) != batch_size) {
-			for (int j = i - 1; j > -1; --j)
-				free(new--);
-			free(list);
-			goto err_free_tmp;
+	uint8_t byte;
+	mx_size n;
+	for (n = 0; n < num_of_batches; ++n) {
+		list[n] = mx_create(x, y);
+		if (list[n] == NULL)
+			goto free_all_err;
+		for (mx_size i = 0; i < batch_cells; ++i) {
+			if (fread(&byte, 1, U8_LEN, f) != U8_LEN)
+				goto free_all_err;
+			list[n]->arr[i] = (mx_type) byte / 255;
 		}
-		for (int n = 0; n < batch_size; ++n)
-			new[i].arr[n] = (mx_type)(tmp[n] / 255);
 	}
-	free(tmp);
 	fclose(f);
-	return (mx_iterator) {.list = list, .curr = 0, .size = all_batch};
+	return (mx_iterator) {.list = list, .curr = 0, .size = num_of_batches};
 
-err_free_tmp:
-	free(tmp);
+free_all_err:
+	for (int j = n; j > -1; --j)
+		mx_destroy(list[j]);
+	free(list);
 err_close_file:
 	fclose(f);
 	return empty_iterator;
