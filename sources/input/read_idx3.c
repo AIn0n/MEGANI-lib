@@ -43,6 +43,7 @@ read_and_verify_header_idx3(FILE *f, int32_t *size, int32_t *height, int32_t *wi
 	return (magic != 2051 || !*width || !*height || !*size);
 }
 
+//TODO: make arguments constants, add newline character
 mx_iterator
 read_idx3(const char *filename, mx_size batch_len, uint8_t vertical)
 {
