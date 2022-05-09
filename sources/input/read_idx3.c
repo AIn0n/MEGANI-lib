@@ -1,4 +1,4 @@
-#include "read_mnist.h"
+#include "read_idx3.h"
 
 #include <stdint.h>
 #include <stdio.h>

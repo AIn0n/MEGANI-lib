@@ -1,5 +1,5 @@
-#ifndef _READ_MNIST_H_
-#define _READ_MNIST_H_
+#ifndef _READ_IDX3_H_
+#define _READ_IDX3_H_
 
 #include "mx_iterator.h"
 
