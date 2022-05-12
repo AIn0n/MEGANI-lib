@@ -22,6 +22,11 @@ CFLAGS ?= -g -O2 -std=c99 -pedantic-errors -Werror -Wall -Wfatal-errors -Wextra 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
+test:
+	python3 python_sources/generateTests.py
+	make
+	$(BUILD_DIR)/$(TARGET_EXEC)
+
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -30,6 +35,7 @@ $(BUILD_DIR)/%.c.o: %.c
 
 clean:
 	$(RM) -r $(BUILD_DIR)
+	rm -rf $(SRC_DIRS)/main.c
 
 -include $(DEPS)
 
