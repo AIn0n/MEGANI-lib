@@ -23,7 +23,7 @@ $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 test:
-	python3 python_sources/generateTests.py
+	python3 scripts/generateTests.py
 	make
 	$(BUILD_DIR)/$(TARGET_EXEC)
 
