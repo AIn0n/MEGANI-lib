@@ -44,9 +44,6 @@ dense_backwarding(
 	mx_mp(*nn->delta[even], *prev_out, nn->temp, A);
 	mx_set_size(nn->delta[!even], self->weights->x, nn->batch_len);
 	mx_mp(*nn->delta[even], *self->weights, nn->delta[!even], DEF);
-
-	mx_mp_num(nn->temp, nn->alpha);	//value delta = value delta * alpha
-	mx_sub(*self->weights, *nn->temp, self->weights); //values = values - vdelta
 }
 
 void

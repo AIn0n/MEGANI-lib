@@ -20,13 +20,14 @@ nn_destroy(nn_t *nn)
 }
 
 nn_t*
-nn_create(const mx_size in_len, const mx_size batch_len, const mx_type alpha) {
+nn_create(const mx_size in_len, const mx_size batch_len, optimizer_t optimizer)
+{
 	nn_t *result = calloc(1, sizeof(*result));
 	if (in_len < 1 || batch_len < 1 || result == NULL)
 		return NULL;
-	result->alpha		= alpha;
-	result->in_len		= in_len;
-	result->batch_len	= batch_len;
+	result->in_len = in_len;
+	result->batch_len = batch_len;
+	result->optimizer = optimizer;
 
 	result->temp = mx_create(1, 1);
 	result->delta[0] = mx_create(1, 1);
@@ -60,9 +61,14 @@ nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 	for (nn_size i = end; i > 0; --i, even = !even) {
 		nn->layers[i].backwarding(
 			(nn->layers + i), nn, even, nn->layers[i - 1].out);
+		nn->optimizer.optimize(
+			nn->temp, 
+			nn->layers[i].weights, 
+			nn->optimizer.params);
 	}
 	/* vdelta = delta^T * input */
 	nn->layers->backwarding(nn->layers, nn, even, input);
+	nn->optimizer.optimize(nn->temp, nn->layers->weights, nn->optimizer.params);
 }
 
 //ACTIVATION FUNCS

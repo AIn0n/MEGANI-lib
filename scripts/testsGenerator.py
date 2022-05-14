@@ -11,6 +11,8 @@ _INCLUDE = """#include <stdio.h>
 #include "dense.h"
 #include "mx_iterator.h"
 #include "read_idx3.h"
+#include "optimizer.h"
+#include "bgd.h"
 """
 
 _END_MAIN = """}};

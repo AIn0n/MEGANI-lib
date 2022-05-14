@@ -1,6 +1,7 @@
 #ifndef _NN_H_
 #define _NN_H_
 #include "mx.h"
+#include "optimizer.h"
 
 //------------------------------------------------MACROS------------------------------------------
 
@@ -25,8 +26,8 @@
  *  @see mx_hadam_lambda
  */
 typedef struct {
-	mx_type (*func_cell)(mx_type);  /**< function used in forwarding */
-	void (*func_mx)(mx_t *);        /**< function used in backpropagation */
+	mx_type (* func_cell)(mx_type);	/**< function used in forwarding */
+	void 	(* func_mx)(mx_t *);	/**< function used in backpropagation */
 }
 act_func_t;
 
@@ -43,7 +44,7 @@ typedef struct {
 	struct nl_t		*layers; /**< all neurons layers in current network */
 	mx_t			*temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
 	mx_t			*delta[2]; /**< Two delta matrices to switch between in backpropagation */
-	mx_type			alpha;  /**< alpha indicates learning speed */
+	optimizer_t		optimizer; /**< Optimizer structure with optimize function and parameters */
 	nn_size			len;   /**< number of layers */
 	mx_size			in_len;	/**< size of input */
 	mx_size			batch_len; /**< number of batches */
@@ -60,20 +61,20 @@ nn_t;
  *  in backpropagation.
  */
 struct nl_t {
-	mx_t* out;		/**< layer output */
-	mx_t* weights;		/**< layer weights */
-	void* data;		/**< layer specialized data */
-	void (* free_data)	(void * data);	/**< function to free layer specific data */
+	mx_t *out;		/**< layer output */
+	mx_t *weights;		/**< layer weights */
+	void *data;		/**< layer specialized data */
+	void (* free_data)	(void *);	/**< function to free layer specific data */
 	/**< function used to free memory allocated for data */
 	void (* forwarding)	(struct nl_t*, const mx_t*);
 	/**< function used in nn_predict() */
-	void (* backwarding)	(struct nl_t *self, nn_t *n, const nn_size idx, const mx_t *prev_out);
-	/**< function use in nn_fit() */		
+	void (* backwarding)	(struct nl_t *, nn_t *, const nn_size, const mx_t *);
+	/**< function use in nn_fit() */
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------
 
-nn_t* nn_create(const mx_size in_len, const mx_size batch_len, const mx_type alpha);
+nn_t* nn_create(const mx_size in_len, const mx_size batch_len, optimizer_t optimizer);
 
 /** @brief Free memory allocated for neural network struct.
  * 
@@ -90,7 +91,7 @@ void nn_destroy(nn_t *nn);
  * @param [in] nn network which response we want to get 
  * @param [in] input input with proper size and batch length
  */
-void nn_predict(nn_t* nn, const mx_t* input);
+void nn_predict(nn_t *nn, const mx_t *input);
 
 /**
  * @brief learn network with input and expected output
@@ -99,7 +100,7 @@ void nn_predict(nn_t* nn, const mx_t* input);
  * @param [in] input network with proper size and batch length
  * @param [in] output exepcted output with size equal to last layer output size
  */
-void nn_fit(nn_t* nn, const mx_t *input, const mx_t* output);
+void nn_fit(nn_t *nn, const mx_t *input, const mx_t *output);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
 
