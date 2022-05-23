@@ -61,14 +61,9 @@ nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 	for (nn_size i = end; i > 0; --i, even = !even) {
 		nn->layers[i].backwarding(
 			(nn->layers + i), nn, even, nn->layers[i - 1].out);
-		nn->optimizer.update(
-			nn->temp, 
-			nn->layers[i].weights, 
-			nn->optimizer.params);
 	}
 	/* vdelta = delta^T * input */
 	nn->layers->backwarding(nn->layers, nn, even, input);
-	nn->optimizer.update(nn->temp, nn->layers->weights, nn->optimizer.params);
 }
 
 //ACTIVATION FUNCS

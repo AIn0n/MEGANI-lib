@@ -44,6 +44,7 @@ dense_backwarding(
 	mx_mp(*nn->delta[even], *prev_out, nn->temp, A);
 	mx_set_size(nn->delta[!even], self->weights->x, nn->batch_len);
 	mx_mp(*nn->delta[even], *self->weights, nn->delta[!even], DEF);
+	nn->optimizer.update(nn->temp, self->weights, nn->optimizer.params);
 }
 
 void
