@@ -42,24 +42,30 @@ mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params)
 {
 	mx_size stride_ya = a.x, stride_xa = 1, limit = a.x;
 	if (params & A) {
+		limit = a.y;
 		stride_ya = 1;
 		stride_xa = a.x;
-		limit = a.y;
 	}
 	mx_size stride_xb = 1, stride_yb = b.x;
 	if (params & B) {
 		stride_xb = b.x;
 		stride_yb = 1;
 	}
-	for (mx_size y = 0; y < out->y; ++y) {
-		for (mx_size x = 0; x < out->x; ++x) {
-			mx_type val = 0;
-			for (mx_size i = 0; i < limit; ++i) {
-				val +=	a.arr[i * stride_xa + y * stride_ya] * 
-					b.arr[x * stride_xb + i * stride_yb];
+
+	for (mx_size i = 0; i < out->size; ++i)
+		out->arr[i] = 0;
+
+	const mx_type *addrA = a.arr, *addrB = b.arr;
+	for (mx_size i = 0; i < limit; ++i) {
+		mx_type *addrC = out->arr;
+		for (mx_size y = 0; y < out->y; ++y) {
+			for(mx_size x = 0; x < out->x; ++x) {
+				addrC[x] += addrA[y * stride_ya] * addrB[x * stride_xb];
 			}
-			out->arr[x + y * out->x] = val; 
+			addrC += out->x;
 		}
+		addrA += stride_xa;
+		addrB += stride_yb;
 	}
 }
 
