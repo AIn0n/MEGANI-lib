@@ -40,23 +40,23 @@ mx_destroy(mx_t *mx)
 void 
 mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params)
 {
-	mx_size tra_y = a.x, tra_i = 1, limit = a.x;
+	mx_size stride_ya = a.x, stride_xa = 1, limit = a.x;
 	if (params & A) {
-		tra_y = 1;
-		tra_i = a.x;
+		stride_ya = 1;
+		stride_xa = a.x;
 		limit = a.y;
 	}
-	mx_size trb_x = 1, trb_i = b.x;
+	mx_size stride_xb = 1, stride_yb = b.x;
 	if (params & B) {
-		trb_x = b.x;
-		trb_i = 1;
+		stride_xb = b.x;
+		stride_yb = 1;
 	}
 	for (mx_size y = 0; y < out->y; ++y) {
 		for (mx_size x = 0; x < out->x; ++x) {
 			mx_type val = 0;
 			for (mx_size i = 0; i < limit; ++i) {
-				val +=	a.arr[i * tra_i + y * tra_y] * 
-					b.arr[x * trb_x + i * trb_i];
+				val +=	a.arr[i * stride_xa + y * stride_ya] * 
+					b.arr[x * stride_xb + i * stride_yb];
 			}
 			out->arr[x + y * out->x] = val; 
 		}
