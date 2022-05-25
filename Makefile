@@ -6,6 +6,8 @@
 
 TARGET_EXEC ?= a.out
 
+TEST_GENERATOR ?= generate_functional_tests.py
+
 BUILD_DIR ?= ./build
 SRC_DIRS ?= ./sources
 INC_DIRS ?= ./include/MEGANI
@@ -17,13 +19,14 @@ DEPS := $(OBJS:.o=.d)
 INC_DIRS := $(shell find $(INC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CFLAGS ?= -g -O2 -std=c99 -pedantic-errors -Werror -Wall -Wfatal-errors -Wextra $(INC_FLAGS) -MMD -MP
+OPTIMIZE ?= -O2
+CFLAGS ?= -g $(OPTIMIZE) -std=c99 -pedantic-errors -Werror -Wall -Wfatal-errors -Wextra $(INC_FLAGS) -MMD -MP
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 test:
-	python3 scripts/generateTests.py
+	python3 scripts/$(TEST_GENERATOR)
 	make
 	$(BUILD_DIR)/$(TARGET_EXEC)
 
