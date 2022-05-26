@@ -52,16 +52,15 @@ mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params)
 		stride_yb = 1;
 	}
 
-	for (mx_size i = 0; i < out->size; ++i)
-		out->arr[i] = 0;
-
+	mx_type *addrC = out->arr;
+	for (mx_size n = out->size; n > 0; --n, ++addrC)
+		*addrC = 0;
 	const mx_type *addrA = a.arr, *addrB = b.arr;
 	for (mx_size i = 0; i < limit; ++i) {
-		mx_type *addrC = out->arr;
+		addrC = out->arr;
 		for (mx_size y = 0; y < out->y; ++y) {
-			for(mx_size x = 0; x < out->x; ++x) {
+			for(mx_size x = 0; x < out->x; ++x)
 				addrC[x] += addrA[y * stride_ya] * addrB[x * stride_xb];
-			}
 			addrC += out->x;
 		}
 		addrA += stride_xa;
