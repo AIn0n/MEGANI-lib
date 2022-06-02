@@ -1,4 +1,4 @@
-#include "dense.h"
+#include "dense.h"	/* include dense related datatypes and mx.h header */
 
 //STATIC FUNCTIONS
 
@@ -57,7 +57,7 @@ dense_free_data(void* data)
 uint8_t
 mx_recreate(mx_t *mx, const mx_size x, const mx_size y)
 {
-	mx_type *new_arr = (mx_type *) realloc(mx->arr, x * y * sizeof(mx_type));
+	mx_type *new_arr = realloc(mx->arr, x * y * sizeof(*new_arr));
 	if (new_arr == NULL)
 		return 1;
 	mx->arr = new_arr;
@@ -68,8 +68,7 @@ mx_recreate(mx_t *mx, const mx_size x, const mx_size y)
 uint8_t
 try_append_layers(nn_t *nn)
 {
-	struct nl_t *l = (struct nl_t *) 
-		realloc(nn->layers, sizeof(struct nl_t) * (nn->len + 1));
+	struct nl_t *l = realloc(nn->layers, sizeof(*l) * (nn->len + 1));
 	nn->layers = (l == NULL) ? nn->layers : l;
 	return (l != NULL);
 }
@@ -94,25 +93,23 @@ LAYER_DENSE(
  */
 	const nn_size even = nn->len % 2;
 	struct nl_t* curr = &nn->layers[nn->len++];
-	curr->out = mx_create(neurons, nn->batch_len);
-/* check if delta is big enough for this layer purpose, if not - realocate it 
+
+/* check if delta is big enough for this layer purpose, if not - realocate it
  * and check realocation success
  */
-	if (neurons * nn->batch_len > nn->delta[even]->size && 
-	    mx_recreate(nn->delta[even], neurons, nn->batch_len))
+	if (neurons * nn->batch_len > nn->delta[even]->size
+	   && mx_recreate(nn->delta[even], neurons, nn->batch_len))
 		goto dense_err_exit;
-
-	curr->weights = mx_create(in, neurons);
 
 /* same thing like in above delta realocation code, difference is a fact that here
  * is only one temporary matrix in neural network structure (layer index doesn't matter now)
  */
-	if (curr->weights == NULL ||
-	   (nn->temp->size < in * neurons && mx_recreate(nn->temp, in, neurons)))
+	if ((curr->weights = mx_create(in, neurons)) == NULL 
+	   || (nn->temp->size < in * neurons && mx_recreate(nn->temp, in, neurons)))
 		goto dense_err_exit;
 
-	dense_data_t *data = (dense_data_t *) calloc(1, sizeof(dense_data_t));
-	if (curr->out == NULL || data == NULL)
+	dense_data_t *data = calloc(1, sizeof(*data));
+	if ((curr->out = mx_create(neurons, nn->batch_len)) == NULL || data == NULL)
 		goto dense_err_exit;
 
 	data->act_func = act_func;

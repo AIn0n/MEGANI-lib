@@ -1,4 +1,4 @@
-#include "mx.h"
+#include "mx.h"		/* matrix type, and types related to matrices */
 #include <stdio.h>  //FOR DEBUG ONLY
 
 inline void
@@ -19,8 +19,7 @@ mx_create(const mx_size x, const mx_size y)
 	if (output == NULL)
 		return NULL;
 	mx_set_size(output, x, y);
-	output->arr = calloc(output->size, sizeof(*output->arr));
-	if (output->arr == NULL) { 
+	if ((output->arr = calloc(output->size, sizeof(*output->arr))) == NULL) { 
 		free(output);
 		return NULL;
 	}

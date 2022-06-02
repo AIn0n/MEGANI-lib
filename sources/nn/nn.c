@@ -29,11 +29,9 @@ nn_create(const mx_size in_len, const mx_size batch_len, optimizer_t optimizer)
 	result->batch_len = batch_len;
 	result->optimizer = optimizer;
 
-	result->temp = mx_create(1, 1);
-	result->delta[0] = mx_create(1, 1);
-	result->delta[1] = mx_create(1, 1);
-
-	if (!result->temp || !result->delta[0] || !result->delta[1]) {
+	if (!(result->temp = mx_create(1, 1)) 
+	    || !(result->delta[0] = mx_create(1, 1)) 
+	    || !(result->delta[1] = mx_create(1, 1))) {
 		nn_destroy(result);
 		return NULL;
 	}
