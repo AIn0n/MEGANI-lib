@@ -16,18 +16,18 @@ nn_destroy(nn_t *nn)
 	mx_destroy(nn->temp);
 	mx_destroy(nn->delta[0]);
 	mx_destroy(nn->delta[1]);
+	nn->optimizer.params_destroy(nn->optimizer.params);
 	free(nn);
 }
 
 nn_t*
-nn_create(const mx_size in_len, const mx_size batch_len, optimizer_t optimizer)
+nn_create(const mx_size in_len, const mx_size batch_len)
 {
 	nn_t *result = calloc(1, sizeof(*result));
 	if (in_len < 1 || batch_len < 1 || result == NULL)
 		return NULL;
 	result->in_len = in_len;
 	result->batch_len = batch_len;
-	result->optimizer = optimizer;
 
 	if (!(result->temp = mx_create(1, 1)) 
 	    || !(result->delta[0] = mx_create(1, 1)) 

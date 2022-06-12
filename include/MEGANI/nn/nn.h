@@ -70,7 +70,7 @@ struct nl_t {
 
 //------------------------------------------FUNCTIONS--------------------------------------------
 
-nn_t* nn_create(const mx_size in_len, const mx_size batch_len, optimizer_t optimizer);
+nn_t* nn_create(const mx_size in_len, const mx_size batch_len);
 
 /** @brief Free memory allocated for neural network struct.
  * 

@@ -2,12 +2,13 @@
 #define _BGD_H_
 
 #include "mx.h"
+#include "nn.h"
 
 typedef struct {
     mx_type alpha;
 }
 bgd_data_t;
 
-void bgd_optimize(void *params, mx_t *vdelta, mx_t *weights, const nn_size idx);
+uint8_t add_batch_gradient_descent(nn_t *nn, mx_type alpha);
 
 #endif

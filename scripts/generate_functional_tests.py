@@ -133,8 +133,8 @@ for n in range(5):
         "nn_create",
         # initializer of neural network
         f"""
-		nn_t *nn = nn_create({inputSize}, {batchSize}, (optimizer_t) {{
-            .params = NULL, .update = bgd_optimize}});
+		nn_t *nn = nn_create({inputSize}, {batchSize});
+        add_batch_gradient_descent(nn, 0.01);
 		LAYER_DENSE(nn, {denseSize1}, RELU, 0.1, 0.2);
 		LAYER_DENSE(nn, {denseSize2}, NO_FUNC, 0.1, 0.2);\n"""
         +
@@ -165,9 +165,8 @@ gen.genTest(
     "nn_predict",
     genStaticMxDec(np.array([[8.5, 0.65, 1.2]]), "input")
     + """
-    bgd_data_t bgd_params = {.alpha = 0.01};
-	nn_t *n = nn_create(3, 1, (optimizer_t) {
-        .params = (void *) &bgd_params, .update = bgd_optimize});
+	nn_t *n = nn_create(3, 1);
+    add_batch_gradient_descent(n, 0.01);
 	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);
 	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);\n"""
     + genStaticListDec([0.1, 0.2, -0.1, -0.1, 0.1, 0.9, 0.1, 0.4, 0.1], "val0")
@@ -183,9 +182,8 @@ gen.genTest(
 gen.genTest(
     "nn_predict",
     """
-    bgd_data_t bgd_params = {.alpha = 0.01};
-    nn_t *nn = nn_create(1, 1, (optimizer_t) {
-        .params = (void *) &bgd_params, .update = bgd_optimize});
+    nn_t *nn = nn_create(1, 1);
+    add_batch_gradient_descent(nn, 0.01);
 	LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
 	LAYER_DENSE(nn, 1, NO_FUNC, 0.0, 0.0);\n"""
     + genStaticListDec([0.1, -0.1, 0.1], "val0")
@@ -205,9 +203,8 @@ gen.genTest(
 gen.genTest(
     "nn_fit",
     """
-    bgd_data_t bgd_params = {.alpha = 0.01};
-    nn_t* nn = nn_create(3, 4, (optimizer_t) {
-        .params = (void *) &bgd_params, .update = bgd_optimize});
+    nn_t* nn = nn_create(3, 4);
+    add_batch_gradient_descent(nn, 0.01);
 	LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
 	LAYER_DENSE(nn, 3, NO_FUNC, 0.0, 0.0);\n"""
     + genStaticMxDec(
