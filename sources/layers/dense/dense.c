@@ -26,12 +26,13 @@ dense_forwarding(struct nl_t *self, const mx_t *input)
 }
 
 void 
-dense_backwarding(
-	struct nl_t	*self, 
-	nn_t		*nn, 
+dense_backwarding( 
+	const nn_t	*nn,
+	const nn_size	idx,
 	const nn_size	even,
 	const mx_t	*prev_out)
 {
+	const struct nl_t *self = (nn->layers + idx);
 	const dense_data_t* data = (dense_data_t *) self->data;
 
 	//delta = delta o activation function ( output )
@@ -44,7 +45,7 @@ dense_backwarding(
 	mx_mp(*nn->delta[even], *prev_out, nn->temp, A);
 	mx_set_size(nn->delta[!even], self->weights->x, nn->batch_len);
 	mx_mp(*nn->delta[even], *self->weights, nn->delta[!even], DEF);
-	nn->optimizer.update(nn->temp, self->weights, nn->optimizer.params);
+	nn->optimizer.update(nn->optimizer.params, nn->temp, self->weights, idx);
 }
 
 void

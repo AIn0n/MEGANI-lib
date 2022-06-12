@@ -57,11 +57,11 @@ nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 	/* delta = output - expected output (last layer case) */
 	mx_sub(*nn->layers[end].out, *output, nn->delta[even]);
 	for (nn_size i = end; i > 0; --i, even = !even) {
-		nn->layers[i].backwarding(
-			(nn->layers + i), nn, even, nn->layers[i - 1].out);
+		nn->layers[i].backwarding(nn, i, even, nn->layers[i - 1].out);
+
 	}
 	/* vdelta = delta^T * input */
-	nn->layers->backwarding(nn->layers, nn, even, input);
+	nn->layers->backwarding(nn, 0, even, input);
 }
 
 //ACTIVATION FUNCS

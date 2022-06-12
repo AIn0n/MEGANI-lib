@@ -2,17 +2,13 @@
 #define _NN_H_
 #include "mx.h"
 #include "optimizer.h"
+#include "types_wrappers.h"
 
 //------------------------------------------------MACROS------------------------------------------
 
 #define MAX(a, b)	((a) < (b) ? (b) : (a))
 #define NO_FUNC ((act_func_t) {.func_cell =NULL, .func_mx =NULL})
 #define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
-
-/** @def nn_size
- *  @brief Type for number of layer in neural network. By default it is uint16_t.
- */
-#define nn_size uint16_t
 
 //------------------------------------------------STRUCTURES---------------------------------------
 
@@ -68,7 +64,7 @@ struct nl_t {
 	/**< function used to free memory allocated for data */
 	void (* forwarding)	(struct nl_t*, const mx_t*);
 	/**< function used in nn_predict() */
-	void (* backwarding)	(struct nl_t *, nn_t *, const nn_size, const mx_t *);
+	void (* backwarding)	(const nn_t *, const nn_size, const nn_size, const mx_t *);
 	/**< function use in nn_fit() */
 };
 

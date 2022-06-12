@@ -2,9 +2,10 @@
 #define _OPTIMIZER_H_
 
 #include "mx.h"
+#include "nn.h"
 
 typedef struct {
-    void (* update)(mx_t*, mx_t*, void*);
+    void (* update)(void* opt_data, mx_t* weights, mx_t* delta, const nn_size idx);
     void *params;
 }
 optimizer_t;

@@ -8,6 +8,6 @@ typedef struct {
 }
 bgd_data_t;
 
-void bgd_optimize(mx_t *vdelta, mx_t *weights, void *params);
+void bgd_optimize(void *params, mx_t *vdelta, mx_t *weights, const nn_size idx);
 
 #endif
