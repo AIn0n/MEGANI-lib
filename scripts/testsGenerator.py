@@ -13,6 +13,7 @@ _INCLUDE = """#include <stdio.h>
 #include "read_idx3.h"
 #include "optimizer.h"
 #include "bgd.h"
+#include "rms_prop.h"
 """
 
 _END_MAIN = """}};

@@ -11,10 +11,11 @@ bgd_optimize(void *params, mx_t *vdelta, mx_t *weights, const nn_size idx)
 }
 
 void 
-bgd_destroy(void *data)
+bgd_destroy(nn_size unused, void* data)
 {
+	(void) (unused);
 	bgd_data_t *cast_data = (bgd_data_t *) data;
-	if (data != NULL)
+	if (cast_data != NULL)
 		free(cast_data);
 }
 

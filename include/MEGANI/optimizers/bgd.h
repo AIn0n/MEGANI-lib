@@ -1,7 +1,6 @@
 #ifndef _BGD_H_
 #define _BGD_H_
 
-#include "mx.h"
 #include "nn.h"
 
 typedef struct {

@@ -16,7 +16,7 @@ nn_destroy(nn_t *nn)
 	mx_destroy(nn->temp);
 	mx_destroy(nn->delta[0]);
 	mx_destroy(nn->delta[1]);
-	nn->optimizer.params_destroy(nn->optimizer.params);
+	nn->optimizer.params_destroy(nn->len ,nn->optimizer.params);
 	free(nn);
 }
 

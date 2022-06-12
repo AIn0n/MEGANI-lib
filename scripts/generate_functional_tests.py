@@ -308,4 +308,29 @@ gen.genTest("reading idx3 file test - random image from mnist",
         } while(default_iter_has_next(iter));
         free(iterator.list);
 """)
+
+inputSize = random.randint(1, 16)
+batchSize = random.randint(1, 16)
+denseSize1 = random.randint(1, 16)
+denseSize2 = random.randint(1, 16)
+maxTmp = max([inputSize * denseSize1, denseSize1 * denseSize2])
+gen.genTest(
+    "rms prop creation - how much and how large caches do we get",
+    # initializer of neural network
+    f"""
+    nn_t *nn = nn_create({inputSize}, {batchSize});
+    LAYER_DENSE(nn, {denseSize1}, RELU, 0.1, 0.2);
+    LAYER_DENSE(nn, {denseSize2}, NO_FUNC, 0.1, 0.2);
+    add_rms_prop(nn, 0.01, 0.9);
+    rms_prop_data_t *data = (void *) nn->optimizer.params;\n"""
+    # check size of first rms cache
+    + genAssert(
+        f"data->caches[0]->x != {inputSize} || data->caches[0]->y != {denseSize1}"
+    )
+    # check size of second rms cache
+    + genAssert(
+        f"data->caches[1]->x != {denseSize1} || data->caches[1]->y != {denseSize2}"
+    )
+)
+
 gen.save("sources/main.c")
