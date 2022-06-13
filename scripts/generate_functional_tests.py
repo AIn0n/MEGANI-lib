@@ -359,4 +359,13 @@ gen.genTest("mx_add_to_first test",
     + genMxComp("in_out_mx", "expected", DELTA)
 )
 
+mx = np.array([[4, 9], [16, 25]])
+expected = np.sqrt(mx).flatten()
+
+gen.genTest("element-wise sqrt",
+    genStaticMxDec(mx, "mx")
+    + genStaticListDec(expected, "expected") + """
+        mx_cell_sqrt(&mx);\n"""
+    + genMxComp("mx", "expected", DELTA))
+
 gen.save("sources/main.c")

@@ -1,5 +1,6 @@
 #include "mx.h"		/* matrix type, and types related to matrices */
 #include <stdio.h>  //FOR DEBUG ONLY
+#include <math.h>
 
 inline void
 mx_set_size(mx_t *mx, const mx_size x, const mx_size y)
@@ -108,6 +109,14 @@ mx_hadam_lambda(mx_t *a, const mx_t b, mx_type (*lambda)(mx_type))
 {
 	for (mx_size i = 0; i < a->size; ++i)
 		a->arr[i] *= (*lambda)(b.arr[i]);
+}
+
+void
+mx_cell_sqrt(mx_t *input)
+{
+	for (nn_size n = 0; n < input->size; ++n) {
+		input->arr[n] = sqrt(input->arr[n]);
+	}
 }
 
 //---------------------------------DEBUG ONLY-----------------------------------

@@ -6,7 +6,6 @@
 typedef struct {
     mx_type alpha;
     mx_type rho;
-    uint32_t iterations;
     mx_t **caches;
 }
 rms_prop_data_t;
