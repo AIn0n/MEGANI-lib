@@ -96,6 +96,13 @@ mx_mp_num(mx_t *a, const mx_type num)
 		a->arr[i] *= num;
 }
 
+void
+mx_add_to_first(mx_t *a, const mx_t *b)
+{
+	for (mx_size n = 0; n < a->size; ++n)
+		a->arr[n] += b->arr[n];
+}
+
 void 
 mx_hadam_lambda(mx_t *a, const mx_t b, mx_type (*lambda)(mx_type))
 {

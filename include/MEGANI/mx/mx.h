@@ -126,6 +126,12 @@ void mx_elem_power_by_two(mx_t *mx);
 
 extern void mx_set_size(mx_t *mx, const mx_size x, const mx_size y);
 
+/**
+ * @brief sum matrix a and b, store result in a
+ * 
+ */
+void mx_add_to_first(mx_t *a, const mx_t *b);
+
 void mx_print(const mx_t* a, char * name);
 
 #endif

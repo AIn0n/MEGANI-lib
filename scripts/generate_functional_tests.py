@@ -345,4 +345,18 @@ gen.genTest("test matrix element-wise power by factor of 2",
     + genMxComp("mx", "expected", DELTA)
 )
 
+x = random.randint(1, 16)
+y = random.randint(1, 16)
+in_out_mx = np.random.randint(-254, high=254, size=(y, x))
+mx_to_add = np.random.randint(-254, high=254, size=(y, x))
+expected = in_out_mx + mx_to_add
+
+gen.genTest("mx_add_to_first test",
+    genStaticMxDec(in_out_mx, "in_out_mx")
+    + genStaticMxDec(mx_to_add, "mx_to_add")
+    + genStaticListDec(expected.flatten(), "expected") + """
+        mx_add_to_first(&in_out_mx, &mx_to_add);\n"""
+    + genMxComp("in_out_mx", "expected", DELTA)
+)
+
 gen.save("sources/main.c")
