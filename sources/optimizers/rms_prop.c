@@ -1,20 +1,23 @@
 #include "rms_prop.h"
 #include <stdlib.h>
+#include <math.h>
 
 #define EPSILON 1e-7
+
+
 
 void
 rms_prop_update(void* opt_data, mx_t* weights, mx_t* delta, const nn_size idx)
 {
-	/* TODO: add functionality */
-	rms_prop_data_t *cast_data = (rms_prop_data_t *) opt_data;
+	rms_prop_data_t *data = (rms_prop_data_t *) opt_data;
 	/* cache = rho * cache + (1 - rho) * delta^2 (elements-wise) */
-	mx_mp_num(cast_data->caches[idx], cast_data->rho);
-	mx_elem_power_by_two(delta);
-	mx_mp_num(delta, (1 - cast_data->rho));
-	mx_add_to_first(cast_data->caches[idx], delta);
-	(void) (weights);
-	(void) (idx);
+	for (nn_size n = 0; n < data->caches[idx]->size; ++n)
+		data->caches[idx]->arr[n] = data->caches[idx]->arr[n] * data->rho
+			+ (1 - data->rho) * (delta->arr[n] * delta->arr[n]);
+	/* weights += -alpha * delta / (sqrt_cell(cache) + epsilon) */
+	for (nn_size n = 0; n < weights->size; ++n)
+		weights->arr[n] += -data->alpha * delta->arr[n]
+			/ (sqrt(data->caches[idx]->arr[n]) + EPSILON);
 }
 
 void
@@ -22,10 +25,10 @@ rms_prop_destroy(nn_size size, void* params)
 {
 	if (params == NULL)
 		return;
-	rms_prop_data_t *cast_data = (rms_prop_data_t *) params;
+	rms_prop_data_t *data = (rms_prop_data_t *) params;
 	for (nn_size i = 0; i < size; ++i)
-		mx_destroy(cast_data->caches[i]);
-	free(cast_data);
+		mx_destroy(data->caches[i]);
+	free(data);
 }
 
 uint8_t
