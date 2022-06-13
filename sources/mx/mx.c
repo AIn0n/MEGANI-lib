@@ -27,6 +27,14 @@ mx_create(const mx_size x, const mx_size y)
 }
 
 void
+mx_elem_power_by_two(mx_t *mx)
+{
+	mx_type *addr = mx->arr;
+	for (mx_size n = mx->size; n > 0; --n, ++addr)
+		*addr *= *addr;
+}
+
+void
 mx_destroy(mx_t *mx)
 {
 	if (mx == NULL)

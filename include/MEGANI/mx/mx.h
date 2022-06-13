@@ -12,7 +12,7 @@
 *   @see mx_type
 */
 typedef struct {
-	mx_type* arr;   /**<    Array with matrix data */
+	mx_type *arr;   /**<    Array with matrix data */
 	mx_size x;      /**<    matrix width */
 	mx_size y;      /**<    matrix height*/
 	mx_size size;   /**<    matrix height multiplied by width. 
@@ -25,10 +25,10 @@ mx_t;
  *  Set this to choose which matrix is transposed in mulitplication.
  */
 typedef enum {  
-	DEF = 0,    /**< default option */
-	A = 1,      /**< first matrix is transposed */
-	B = 2,      /**< second matrix is transposed */
-	BOTH = 3    /**< both matrix are transposed */
+	DEF	= 0,	/**< default option */
+	A	= 1,	/**< first matrix is transposed */
+	B	= 2,	/**< second matrix is transposed */
+	BOTH= 3		/**< both matrix are transposed */
 } 
 mx_mp_params;
 
@@ -74,7 +74,7 @@ void mx_destroy(mx_t *mx);
  *
  *  @see mx_mp_params
  */
-void mx_mp(const mx_t a, const mx_t b, mx_t* out, const mx_mp_params params);
+void mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params);
 
 /** @brief Matrix hadamard product function.
  * 
@@ -85,7 +85,7 @@ void mx_mp(const mx_t a, const mx_t b, mx_t* out, const mx_mp_params params);
  *  @param [in] b second output matrix
  *  @param [out] out result of hadamard product (a o b = out)
  */
-void mx_hadamard(const mx_t a, const mx_t b, mx_t* out);
+void mx_hadamard(const mx_t a, const mx_t b, mx_t *out);
 
 /** @brief Matrix substraction function.
  * 
@@ -96,7 +96,7 @@ void mx_hadamard(const mx_t a, const mx_t b, mx_t* out);
  *  @param [in] b second output matrix
  *  @param [out] out result of matrix substraction (a - b = out)
  */
-void mx_sub(const mx_t a, const mx_t b, mx_t* out);
+void mx_sub(const mx_t a, const mx_t b, mx_t *out);
 
 /** @brief Matrix multiplication by single number.
  * 
@@ -106,16 +106,25 @@ void mx_sub(const mx_t a, const mx_t b, mx_t* out);
  *  @param [in] a input matrix
  *  @param [in] num every cell multiplier
  */
-void mx_mp_num(mx_t* a, const mx_type num);
+void mx_mp_num(mx_t *a, const mx_type num);
 
 /** @brief matrix A = matrix A o lambda on cell( matrix B )
  * 
  * function uses lambda on every cell of second matrix and 
  * return to first matrix hadamard product.
  */
-void mx_hadam_lambda(mx_t* a, const mx_t b, mx_type (*lambda)(mx_type));
+void mx_hadam_lambda(mx_t *a, const mx_t b, mx_type (* lambda)(mx_type));
 
-extern void mx_set_size(mx_t* mx, const mx_size x, const mx_size y);
+/** @brief matrix elementwise power by two
+ * 
+ * function calculates power of two in every matrix cell, modify matrix in place.
+ * Not thread-safe and input is not validated.
+ * 
+ * @param mx input matrix
+ */
+void mx_elem_power_by_two(mx_t *mx);
+
+extern void mx_set_size(mx_t *mx, const mx_size x, const mx_size y);
 
 void mx_print(const mx_t* a, char * name);
 

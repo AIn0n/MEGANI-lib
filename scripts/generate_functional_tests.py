@@ -333,4 +333,16 @@ gen.genTest(
     )
 )
 
+x = random.randint(1, 16)
+y = random.randint(1, 16)
+mx = np.random.randint(-254, high=254, size=(y, x))
+expected = mx ** 2
+
+gen.genTest("test matrix element-wise power by factor of 2",
+    genStaticMxDec(mx, "mx")
+    + genStaticListDec(expected.flatten(), "expected") + """
+        mx_elem_power_by_two(&mx);\n"""
+    + genMxComp("mx", "expected", DELTA)
+)
+
 gen.save("sources/main.c")

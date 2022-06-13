@@ -5,7 +5,8 @@ void
 rms_prop_update(void* opt_data, mx_t* weights, mx_t* delta, const nn_size idx)
 {
 	/* TODO: add functionality */
-	(void) (opt_data);
+	rms_prop_data_t *cast_data = (rms_prop_data_t *) opt_data;
+	mx_mp_num(cast_data->caches[idx], cast_data->rho);
 	(void) (weights);
 	(void) (delta);
 	(void) (idx);
