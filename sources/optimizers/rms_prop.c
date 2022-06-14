@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define EPSILON 1e-7
+#define EPSILON 1e-07
 
 
 
@@ -11,13 +11,13 @@ rms_prop_update(void* opt_data, mx_t* weights, mx_t* delta, const nn_size idx)
 {
 	rms_prop_data_t *data = (rms_prop_data_t *) opt_data;
 	/* cache = rho * cache + (1 - rho) * delta^2 (elements-wise) */
-	for (nn_size n = 0; n < data->caches[idx]->size; ++n)
+	for (nn_size n = 0; n < data->caches[idx]->size; ++n) {
 		data->caches[idx]->arr[n] = data->caches[idx]->arr[n] * data->rho
 			+ (1 - data->rho) * (delta->arr[n] * delta->arr[n]);
 	/* weights += -alpha * delta / (sqrt_cell(cache) + epsilon) */
-	for (nn_size n = 0; n < weights->size; ++n)
 		weights->arr[n] += -data->alpha * delta->arr[n]
 			/ (sqrt(data->caches[idx]->arr[n]) + EPSILON);
+	}
 }
 
 void

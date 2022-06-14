@@ -330,7 +330,7 @@ gen.genTest(
     # check size of second rms cache
     + genAssert(
         f"data->caches[1]->x != {denseSize1} || data->caches[1]->y != {denseSize2}"
-    )
+    ) + "nn_destroy(nn);"
 )
 
 x = random.randint(1, 16)
@@ -367,5 +367,27 @@ gen.genTest("element-wise sqrt",
     + genStaticListDec(expected, "expected") + """
         mx_cell_sqrt(&mx);\n"""
     + genMxComp("mx", "expected", DELTA))
+
+print(np.array([[.1]]).shape)
+gen.genTest("RMS prop optimizer test", 
+    """
+        nn_t *nn = nn_create(1, 1);
+        LAYER_DENSE(nn, 3, NO_FUNC, 0.0, 0.0);
+        LAYER_DENSE(nn, 1, NO_FUNC, 0.0, 0.0);
+        add_rms_prop(nn, 0.001, 0.9);\n"""
+    + genStaticMxDec(np.array([[0.32]]), "input") # input
+    + genStaticMxDec(np.array([[0.1]]), "expected_output") #expected output
+    + genStaticListDec([0.7, 0.3, 0.05], "weights0") # weights injected into first layer
+    + genStaticListDec([0.02, 0.12, 1.1], "weights1") # weights injected into second layer
+    + genListCpy("weights0", "nn->layers[0].weights->arr", "nn->layers[0].weights->size")
+    + genListCpy("weights1", "nn->layers[1].weights->arr", "nn->layers[1].weights->size")
+    + """
+        nn_fit(nn, &input, &expected_output);\n"""
+    + genStaticListDec([0.70316025, 0.3031619, 0.05316223], "expected_weights0")
+    + genStaticListDec([0.02316221, 0.12316212, 1.10316134], "expected_weights1")
+    + genMxComp("(* nn->layers[0].weights)", "expected_weights0", DELTA)
+    + genMxComp("(* nn->layers[1].weights)", "expected_weights1", DELTA)
+    + "\tnn_destroy(nn);\n"
+)
 
 gen.save("sources/main.c")

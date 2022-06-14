@@ -2,7 +2,7 @@
 #include "stdlib.h"
 
 void 
-bgd_optimize(void *params, mx_t *vdelta, mx_t *weights, const nn_size idx)
+bgd_optimize(void *params, mx_t *weights, mx_t *vdelta, const nn_size idx)
 {	
 	(void)(idx); /* to stop compiler screaming about unused parameters ;) */
 	const bgd_data_t *data = (bgd_data_t *) params;
@@ -11,7 +11,7 @@ bgd_optimize(void *params, mx_t *vdelta, mx_t *weights, const nn_size idx)
 }
 
 void 
-bgd_destroy(nn_size unused, void* data)
+bgd_destroy(const nn_size unused, void* data)
 {
 	(void) (unused);
 	bgd_data_t *cast_data = (bgd_data_t *) data;
@@ -20,7 +20,7 @@ bgd_destroy(nn_size unused, void* data)
 }
 
 uint8_t
-add_batch_gradient_descent(nn_t *nn, mx_type alpha)
+add_batch_gradient_descent(nn_t *nn, const mx_type alpha)
 {
 	bgd_data_t *data = calloc(1, sizeof(*data));
 	if (data == NULL || nn == NULL || nn->optimizer.params != NULL)
