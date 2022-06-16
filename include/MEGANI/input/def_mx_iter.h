@@ -3,6 +3,7 @@
 
 #include "mx.h"
 #include "stdint.h"
+#include "mx_iterator.h"
 
 typedef struct {
     mx_t **list;
@@ -11,9 +12,9 @@ typedef struct {
 }
 def_mx_iter_data_t;
 
-mx_t* def_iter_next(void *iterator_data);
-uint8_t def_iter_has_next(void *iterator_data);
-void def_iter_reset(void *iterator_data);
-void free_default_iterator(void **iterator);
+mx_t* def_iter_next(struct mx_iterator_t *iterator);
+uint8_t def_iter_has_next(const struct mx_iterator_t *iterator);
+void def_iter_reset(struct mx_iterator_t *iterator);
+void free_default_iterator_data(struct mx_iterator_t *iterator);
 
 #endif

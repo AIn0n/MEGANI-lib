@@ -3,12 +3,11 @@
 
 #include "mx.h"
 
-typedef struct {
-    mx_t* (* next)(void *);
-    uint8_t (* has_next)(void *);
-    void (* reset)(void *);
+struct mx_iterator_t {
+    mx_t* (* next)(struct mx_iterator_t *);
+    uint8_t (* has_next)(const struct mx_iterator_t *);
+    void (* reset)(struct mx_iterator_t *);
     void *data;
-}
-mx_iterator_t;
+};
 
 #endif

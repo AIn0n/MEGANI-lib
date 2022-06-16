@@ -1,4 +1,5 @@
 #include "nn.h"
+#include "mx_iterator.h"
 
 void
 nn_destroy(nn_t *nn)
@@ -62,6 +63,18 @@ nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 	}
 	/* vdelta = delta^T * input */
 	nn->layers->backwarding(nn, 0, even, input);
+}
+
+void
+nn_fit_all(nn_t *nn, struct mx_iterator_t *input, struct mx_iterator_t *output, const size_t epochs)
+{
+	for (size_t i = 0; i < epochs; ++i) {
+		while (input->has_next(input) && output->has_next(output)) {
+			nn_fit(nn, input->next(input), output->next(output));
+		}
+		input->reset(input);
+		output->reset(output);
+	}
 }
 
 //ACTIVATION FUNCS

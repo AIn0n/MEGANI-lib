@@ -41,12 +41,12 @@ read_and_verify_header_idx3(FILE *f, int32_t *size, int32_t *height, int32_t *wi
 	return (magic != 2051 || !*width || !*height || !*size);
 }
 
-mx_iterator_t
+struct mx_iterator_t
 read_idx3(const char *filename, const mx_size batch_len, const uint8_t vertical)
 {
 	FILE *f = fopen(filename, "rb");
 	if (f == NULL || batch_len == 0)
-		return (mx_iterator_t){0};
+		return (struct mx_iterator_t){0};
 
 	int32_t size, height, width;
 	if (read_and_verify_header_idx3(f, &size, &height, &width))
@@ -78,7 +78,7 @@ read_idx3(const char *filename, const mx_size batch_len, const uint8_t vertical)
 		}
 	}
 	fclose(f);
-	return (mx_iterator_t) {
+	return (struct mx_iterator_t) {
 		.data = data, .next = def_iter_next, 
 		.has_next = def_iter_has_next, .reset = def_iter_reset
 	};
@@ -90,5 +90,5 @@ free_data_err:
 	free(data);
 close_file:
 	fclose(f);
-	return (mx_iterator_t){0};
+	return (struct mx_iterator_t){0};
 }

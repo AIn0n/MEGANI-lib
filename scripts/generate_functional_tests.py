@@ -267,9 +267,11 @@ gen.genTest(
     def_mx_iter_data_t data = {.list = list, .size = """
     + str(size)
     + """, .curr = 0};
-    void * iter = (void *) &data;
+    struct mx_iterator_t iterator = (struct mx_iterator_t) {
+        .data = (void *) &data
+    };
     """
-    + "".join(genAssert("def_iter_next(iter) != &a" + n) for n in indexes)
+    + "".join(genAssert("def_iter_next(&iterator) != &a" + n) for n in indexes)
 )
 
 size = random.randint(1, 256)
@@ -279,12 +281,14 @@ gen.genTest("default matrix list iterator has_next function test",
     + "".join([f"&a{n}, " for n in indexes])
     + "};"
     + f"""
-    def_mx_iter_data_t iterator = {{.list = list, .size = {size}, .curr = 0}};
-    void *iter = (void *) &iterator;
+    def_mx_iter_data_t data = {{.list = list, .size = {size}, .curr = 0}};
+    struct mx_iterator_t iter = (struct mx_iterator_t) {{
+        .data = (void *) &data
+    }};
     int i = 0;
     do {{
-        def_iter_next(iter);
-    }} while (def_iter_has_next(iter));
+        def_iter_next(&iter);
+    }} while (def_iter_has_next(&iter));
     """
     + genAssert(f"i == {size}")
 )
@@ -297,13 +301,13 @@ index = random.randint(0, 9_999)
 gen.genTest("reading idx3 file test - random image from mnist",
     genStaticListDec(mnist[index], "expected")
 +f"""
-        mx_iterator_t iterator = read_idx3("{mnist_images_filepath}", 1, 1);
+        struct mx_iterator_t iterator = read_idx3("{mnist_images_filepath}", 1, 1);
         def_mx_iter_data_t *data = (def_mx_iter_data_t *) iterator.data;
         mx_t result = *(data->list[{index}]);
 """
 + genMxComp("result", "expected", DELTA)
 + """
-    free_default_iterator(&iterator.data);
+    free_default_iterator_data(&iterator);
 """)
 
 inputSize = random.randint(1, 16)
