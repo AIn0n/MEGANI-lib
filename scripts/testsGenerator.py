@@ -10,6 +10,7 @@ _INCLUDE = """#include <stdio.h>
 #include "nn.h"
 #include "dense.h"
 #include "mx_iterator.h"
+#include "def_mx_iter.h"
 #include "read_idx3.h"
 #include "optimizer.h"
 #include "bgd.h"

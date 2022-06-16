@@ -1,17 +1,14 @@
-#ifndef _MX_ITERATOR_H_
-#define _MX_ITERATOR_H_
+#ifndef _MX_ITER_FUNCS_H_
+#define _MX_ITER_FUNCS_H_
 
 #include "mx.h"
-#include "stdint.h"
 
 typedef struct {
-    mx_t** list;
-    size_t curr;
-    size_t size;
+    mx_t* (* next)(void *);
+    uint8_t (* has_next)(void *);
+    void (* reset)(void *);
+    void *data;
 }
-mx_iterator;
-
-mx_t* default_iter_next(void* iterator);
-uint8_t default_iter_has_next(void* iterator);
+mx_iterator_t;
 
 #endif

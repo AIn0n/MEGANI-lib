@@ -264,12 +264,12 @@ gen.genTest(
     + "".join([f"&a{n}, " for n in indexes])
     + "};"
     + """
-    mx_iterator iterator = {.list = list, .size = """
+    def_mx_iter_data_t data = {.list = list, .size = """
     + str(size)
     + """, .curr = 0};
-    void * iter = (void *) &iterator;
+    void * iter = (void *) &data;
     """
-    + "".join(genAssert("default_iter_next(iter) != &a" + n) for n in indexes)
+    + "".join(genAssert("def_iter_next(iter) != &a" + n) for n in indexes)
 )
 
 size = random.randint(1, 256)
@@ -279,12 +279,12 @@ gen.genTest("default matrix list iterator has_next function test",
     + "".join([f"&a{n}, " for n in indexes])
     + "};"
     + f"""
-    mx_iterator iterator = {{.list = list, .size = {size}, .curr = 0}};
+    def_mx_iter_data_t iterator = {{.list = list, .size = {size}, .curr = 0}};
     void *iter = (void *) &iterator;
     int i = 0;
     do {{
-        default_iter_next(iter);
-    }} while (default_iter_has_next(iter));
+        def_iter_next(iter);
+    }} while (def_iter_has_next(iter));
     """
     + genAssert(f"i == {size}")
 )
@@ -297,16 +297,13 @@ index = random.randint(0, 9_999)
 gen.genTest("reading idx3 file test - random image from mnist",
     genStaticListDec(mnist[index], "expected")
 +f"""
-        mx_iterator iterator = read_idx3("{mnist_images_filepath}", 1, 1);
-        void *iter = (void *) &iterator;
-        mx_t result = *(iterator.list[{index}]);
+        mx_iterator_t iterator = read_idx3("{mnist_images_filepath}", 1, 1);
+        def_mx_iter_data_t *data = (def_mx_iter_data_t *) iterator.data;
+        mx_t result = *(data->list[{index}]);
 """
 + genMxComp("result", "expected", DELTA)
 + """
-        do {
-                mx_destroy(default_iter_next(iter));
-        } while(default_iter_has_next(iter));
-        free(iterator.list);
+    free_default_iterator(&iterator.data);
 """)
 
 inputSize = random.randint(1, 16)

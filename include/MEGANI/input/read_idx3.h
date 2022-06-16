@@ -3,6 +3,6 @@
 
 #include "mx_iterator.h"
 
-mx_iterator read_idx3(const char *filename, mx_size batch_len, uint8_t vertical);
+mx_iterator_t read_idx3(const char *filename, const mx_size batch_len, const uint8_t vertical);
 
 #endif
