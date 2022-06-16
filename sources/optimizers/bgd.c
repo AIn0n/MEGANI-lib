@@ -15,8 +15,8 @@ bgd_destroy(const nn_size unused, void* data)
 {
 	(void) (unused);
 	bgd_data_t *cast_data = (bgd_data_t *) data;
-	if (cast_data != NULL)
-		free(cast_data);
+	free(cast_data);
+	cast_data = NULL;
 }
 
 uint8_t

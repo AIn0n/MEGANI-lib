@@ -51,8 +51,8 @@ dense_backwarding(
 void
 dense_free_data(void* data)
 {
-	if (data != NULL)
-		free(data);
+	free(data);
+	data = NULL;
 }
 
 uint8_t

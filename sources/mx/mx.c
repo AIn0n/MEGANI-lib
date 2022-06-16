@@ -39,9 +39,9 @@ mx_destroy(mx_t *mx)
 {
 	if (mx == NULL)
 		return;
-	if (mx->arr != NULL) 
-		free(mx->arr);
+	free(mx->arr);
 	free(mx);
+	mx = NULL;
 }
 
 void 
