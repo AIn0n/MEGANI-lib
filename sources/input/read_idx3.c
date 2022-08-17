@@ -1,27 +1,9 @@
 #include "read_idx3.h"
 #include "def_mx_iter.h"
+#include "commons.h"
 
 #include <stdint.h>
 #include <stdio.h>
-
-
-static void
-reverse_bytes_int32(int32_t *n)
-{
-	if(n == NULL) return;
-	unsigned char *start = (unsigned char *) n;
-	unsigned char *end = (unsigned char *) n + 3;
-	unsigned char tmp;
-	for(int i = 0; i < 2; ++i) {
-		tmp = *end;
-		*end = *start;
-		*start = tmp;
-		start++; end--;
-	}
-}
-
-#define I32_LEN 4
-#define U8_LEN 1
 
 static inline uint8_t
 read_and_verify_header_idx3(FILE *f, int32_t *size, int32_t *height, int32_t *width)

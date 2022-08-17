@@ -10,7 +10,7 @@ build_mnist_labels(mx_size size, uint8_t *buff)
 	if (result != NULL)
 		for (mx_size y = 0; y < size; ++y)
 			for (mx_size x = 0; x < NUM_OF_LABELS; ++x)
-				result->arr[x + y * result->x] = (buff[y] == x) ? 1 : 0;
+				result->arr[x + y * result->x] = (buff[y] == x);
 	return result;
 }
 
