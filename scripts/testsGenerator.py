@@ -15,6 +15,7 @@ _INCLUDE = """#include <stdio.h>
 #include "optimizer.h"
 #include "bgd.h"
 #include "rms_prop.h"
+#include "get_mnist_labels.h"
 """
 
 _END_MAIN = """}};

@@ -17,3 +17,18 @@ def read_images(filepath :str):
         img = np.array(image_data[i * rows * cols:(i + 1) * rows * cols])
         images.append(img / 255)
     return images
+
+def read_labels(filepath :str):
+    with open(filepath, "rb") as f:
+        magic, size = struct.unpack(">II", f.read(8))
+        print(magic)
+        if magic != 2049:
+            print("WRONG MAGIC NUMBER, SOMETHING IS WRONG WITH MNIST DATASET FILE")
+            return None
+        labels_data = array("B", f.read())
+
+    labels = []
+    for i in range(size):
+        labels.append(np.array([1 if n == labels_data[i] else 0 for n in range(10)]))
+
+    return labels

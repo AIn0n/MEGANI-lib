@@ -1,4 +1,4 @@
-from read_mnist import read_images
+from read_mnist import read_images, read_labels
 from testsGenerator import *
 import numpy as np
 import random
@@ -360,7 +360,6 @@ gen.genTest("mx_add_to_first test",
     + genMxComp("in_out_mx", "expected", DELTA)
 )
 
-print(np.array([[.1]]).shape)
 gen.genTest("RMS prop optimizer test", 
     """
         nn_t *nn = nn_create(1, 1);
@@ -381,5 +380,21 @@ gen.genTest("RMS prop optimizer test",
     + genMxComp("(* nn->layers[1].weights)", "expected_weights1", DELTA)
     + "\tnn_destroy(nn);\n"
 )
+
+mnist_labels_filepath = "mnist/t10k-labels-idx1-ubyte"
+labels = read_labels(mnist_labels_filepath)
+
+gen.genTest("read idx1 mnist labels",
+    genStaticListDec(labels[index], "expected")
++ f"""
+        struct mx_iterator_t iterator = get_mnist_labels("{mnist_labels_filepath}", 1);
+        def_mx_iter_data_t *data = (def_mx_iter_data_t *) iterator.data;
+
+        mx_t result = *(data->list[{index}]);
+    """
++ genMxComp("result", "expected", DELTA)
++ """
+    free_default_iterator_data(&iterator);
+""")
 
 gen.save("sources/main.c")
