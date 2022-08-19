@@ -24,6 +24,8 @@ def_iter_reset(struct mx_iterator_t *iterator)
 void
 free_default_iterator_data(struct mx_iterator_t *iterator)
 {
+	if (iterator->data == NULL)
+		return;
         do {
                 mx_destroy(def_iter_next(iterator));
         } 

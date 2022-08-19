@@ -40,7 +40,7 @@ read_idx1_build_mx(const char *filename, const mx_size batch, mx_t* (*build_mx)(
 		goto err_clean_data;
 	mx_size n;
 	for (n = 0; n < batch_count; ++n) {
-		if (fread(buffer, batch, U8_LEN, f) != batch * U8_LEN)
+		if (fread(buffer, U8_LEN, batch, f) != batch)
 			goto err_clean_list;
 		data->list[n] = build_mx(batch, buffer);
 		if (data->list[n] == NULL)
@@ -49,6 +49,7 @@ read_idx1_build_mx(const char *filename, const mx_size batch, mx_t* (*build_mx)(
 	free(buffer);
 	fclose(f);
 
+	data->size = batch_count;
 	return (struct mx_iterator_t) {
 		.data = data, .has_next = def_iter_has_next,
 		.next = def_iter_next, .reset = def_iter_reset

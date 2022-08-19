@@ -3,6 +3,7 @@
 #include "mx.h"
 #include "optimizer.h"
 #include "types_wrappers.h"
+#include "mx_iterator.h"
 
 //------------------------------------------------MACROS------------------------------------------
 
@@ -97,6 +98,10 @@ void nn_predict(nn_t *nn, const mx_t *input);
  * @param [in] output exepcted output with size equal to last layer output size
  */
 void nn_fit(nn_t *nn, const mx_t *input, const mx_t *output);
+
+
+void
+nn_fit_all(nn_t *nn, struct mx_iterator_t *input, struct mx_iterator_t *output, const size_t epochs);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
 

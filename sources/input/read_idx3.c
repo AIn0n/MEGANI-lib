@@ -60,6 +60,7 @@ read_idx3(const char *filename, const mx_size batch_len, const uint8_t vertical)
 		}
 	}
 	fclose(f);
+	data->size = batch_count;
 	return (struct mx_iterator_t) {
 		.data = data, .next = def_iter_next, 
 		.has_next = def_iter_has_next, .reset = def_iter_reset
