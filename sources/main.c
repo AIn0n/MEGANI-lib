@@ -65,16 +65,15 @@ main(void)
 	int n = 0, errors = 0;
 	mx_t 	*expected_ptr	= expected.next(&expected),
 		*input_ptr	= input.next(&input);
-	printf("%i\n",expected.has_next(&expected));
-	while(expected.has_next(&expected) && input.has_next(&input)) { 	
-		nn_predict(network, input_ptr);
-		errors += hor_max_idx_cmp(*network->layers[network->len].out, *expected_ptr);
 
+	while(expected.has_next(&expected) && input.has_next(&input)) {
+		nn_predict(network, input_ptr);
+		errors += hor_max_idx_cmp(*network->layers[network->len - 1].out, *expected_ptr);
 		expected_ptr	= expected.next(&expected),
 		input_ptr	= input.next(&input);
+		++n;
 	}
-
-	printf("test error rate %.3lf%%\n", (double) (errors * 100) / n);
+	printf("test error rate %.3lf%%\n", ((double) (errors * 100) / (n * BATCH_SIZE)));
 	free_default_iterator_data(&input);
 	free_default_iterator_data(&expected);
 	nn_destroy(network);
