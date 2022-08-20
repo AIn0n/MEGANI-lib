@@ -6,8 +6,9 @@
 #include "bgd.h"
 #include "types_wrappers.h"
 #include <stdio.h>
+#include <errno.h>
 
-#define BATCH_SIZE 10
+#define BATCH_SIZE 200
 
 int
 hor_max_idx_cmp(const mx_t a, const mx_t b)
@@ -36,17 +37,13 @@ main(void)
 
 	nn_t *network = nn_create(10, BATCH_SIZE);
 	LAYER_DENSE(network, 300, RELU, -0.01, 0.01);
-	LAYER_DENSE(network, 10, NO_FUNC, 0.0, 0.0);
+	LAYER_DENSE(network, 10, NO_FUNC, -0.01, 0.01);
 	add_batch_gradient_descent(network, 0.01);
 
 	if (input.data == NULL || expected.data == NULL || test_input.data == NULL
 	    || test_expected.data == NULL || network->error) {
-		free_default_iterator_data(&input);
-		free_default_iterator_data(&expected);
-		free_default_iterator_data(&test_input);
-		free_default_iterator_data(&test_expected);
-		nn_destroy(network);
-		return 1;
+		perror("some resources cannot be readed nor allocated");
+		goto free_memory;
 	}
 	
 	nn_fit_all(network, &input, &expected, 1);
@@ -62,7 +59,8 @@ main(void)
 		test_input_ptr	= test_input.next(&test_input);
 		++n;
 	}
-	printf("test error rate %.3lf%%\n", ((double) (errors * 100) / (n * BATCH_SIZE)));
+	printf("test error rate %.3lf%%\n", (double) (errors * 100) / (n * BATCH_SIZE));
+free_memory:
 	free_default_iterator_data(&input);
 	free_default_iterator_data(&expected);
 	free_default_iterator_data(&test_input);
