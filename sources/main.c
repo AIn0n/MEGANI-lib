@@ -28,54 +28,45 @@ hor_max_idx_cmp(const mx_t a, const mx_t b)
 int
 main(void)
 {
-	struct mx_iterator_t input = read_idx3("mnist/train-images-idx3-ubyte", BATCH_SIZE, 0);
-	struct mx_iterator_t expected = get_mnist_labels("mnist/train-labels-idx1-ubyte", BATCH_SIZE);
-
-	if (input.data == NULL || expected.data == NULL) {
-		free_default_iterator_data(&input);
-		free_default_iterator_data(&expected);
-		return 1;
-	}
+	struct mx_iterator_t
+		input = read_idx3("mnist/train-images-idx3-ubyte",		BATCH_SIZE, 0),
+		expected = get_mnist_labels("mnist/train-labels-idx1-ubyte",	BATCH_SIZE),
+		test_input = read_idx3("mnist/t10k-images-idx3-ubyte",		BATCH_SIZE, 0),
+		test_expected = get_mnist_labels("mnist/t10k-labels-idx1-ubyte",BATCH_SIZE);
 
 	nn_t *network = nn_create(10, BATCH_SIZE);
 	LAYER_DENSE(network, 300, RELU, -0.01, 0.01);
 	LAYER_DENSE(network, 10, NO_FUNC, 0.0, 0.0);
 	add_batch_gradient_descent(network, 0.01);
-	if (network->error) {
+
+	if (input.data == NULL || expected.data == NULL || test_input.data == NULL
+	    || test_expected.data == NULL || network->error) {
 		free_default_iterator_data(&input);
 		free_default_iterator_data(&expected);
+		free_default_iterator_data(&test_input);
+		free_default_iterator_data(&test_expected);
 		nn_destroy(network);
 		return 1;
 	}
 	
 	nn_fit_all(network, &input, &expected, 1);
-	free_default_iterator_data(&input);
-	free_default_iterator_data(&expected);
-
-	input = read_idx3("mnist/t10k-images-idx3-ubyte", BATCH_SIZE, 0);
-	expected = get_mnist_labels("mnist/t10k-labels-idx1-ubyte", BATCH_SIZE);
-
-	if (input.data == NULL || expected.data == NULL) {
-		free_default_iterator_data(&input);
-		free_default_iterator_data(&expected);
-		nn_destroy(network);
-		return 0;
-	}
 
 	int n = 0, errors = 0;
-	mx_t 	*expected_ptr	= expected.next(&expected),
-		*input_ptr	= input.next(&input);
+	mx_t 	*expected_ptr	= test_expected.next(&test_expected),
+		*test_input_ptr	= test_input.next(&test_input);
 
-	while(expected.has_next(&expected) && input.has_next(&input)) {
-		nn_predict(network, input_ptr);
+	while(test_expected.has_next(&test_expected) && test_input.has_next(&test_input)) {
+		nn_predict(network, test_input_ptr);
 		errors += hor_max_idx_cmp(*network->layers[network->len - 1].out, *expected_ptr);
-		expected_ptr	= expected.next(&expected),
-		input_ptr	= input.next(&input);
+		expected_ptr	= test_expected.next(&test_expected),
+		test_input_ptr	= test_input.next(&test_input);
 		++n;
 	}
 	printf("test error rate %.3lf%%\n", ((double) (errors * 100) / (n * BATCH_SIZE)));
 	free_default_iterator_data(&input);
 	free_default_iterator_data(&expected);
+	free_default_iterator_data(&test_input);
+	free_default_iterator_data(&test_expected);
 	nn_destroy(network);
 	return 0;
 }
