@@ -45,7 +45,7 @@ add_rms_prop(nn_t *nn, mx_type alpha, mx_type rho)
 		const mx_size x = nn->layers[i].weights->x;
 		const mx_size y = nn->layers[i].weights->y;
 		if (!(data->caches[i] = mx_create(x, y))) {
-			for (nn_size j = i; j >= 0; --j)
+			for (nn_size j = 0; j < i; ++j)
 				mx_destroy(data->caches[j]);
 			free(data->caches);
 		}

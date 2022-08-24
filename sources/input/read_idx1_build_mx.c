@@ -55,7 +55,7 @@ read_idx1_build_mx(const char *filename, const mx_size batch, mx_t* (*build_mx)(
 		.next = def_iter_next, .reset = def_iter_reset
 	};
 err_clean_list:
-	for (mx_size m = n; m >= 0; --m)
+	for (mx_size m = 0; m < n; ++m)
 		mx_destroy(data->list[m]);
 err_clean_data:
 	free(data);

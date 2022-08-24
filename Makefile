@@ -23,7 +23,7 @@ OPTIMIZE ?= -O2
 CFLAGS ?= -g $(OPTIMIZE) -std=c99 -pedantic-errors -Werror -Wall -Wfatal-errors -Wextra $(INC_FLAGS) -MMD -MP
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS) -lm
 
 test:
 	python3 scripts/$(TEST_GENERATOR)

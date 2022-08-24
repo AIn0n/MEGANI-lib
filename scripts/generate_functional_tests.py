@@ -397,4 +397,25 @@ gen.genTest("read idx1 mnist labels",
     free_default_iterator_data(&iterator);
 """)
 
+gen.genTest("test function learning and predictions with three layers network, each layer with different number of neurons",
+"""
+    nn_t* nn = nn_create(1, 1);
+    LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
+    LAYER_DENSE(nn, 1, NO_FUNC, 0.0, 0.0);
+    add_batch_gradient_descent(nn, 0.01);
+"""
++ genStaticMxDec(np.array([[8.5]]), "input")
++ genStaticListDec([0.1, -0.1, 0.1], "val0")
++ genStaticListDec([0.3, 1.1, -0.3], "val1")
++ genListCpy("val0", "nn->layers[0].weights->arr", "nn->layers[0].weights->size")
++ genListCpy("val1", "nn->layers[1].weights->arr", "nn->layers[1].weights->size")
++ genStaticMxDec(np.array([[0.1]]), "out")
++ "\tnn_fit(nn, &input, &out);\n"
++ genStaticListDec([0.10255, -0.1, 0.09745], "exp_val0")
++ genStaticListDec([0.30085, 1.1, -0.29915], "exp_val1")
++ genMxComp("(*nn->layers[1].weights)", "exp_val1", DELTA)
++ genMxComp("(*nn->layers[0].weights)", "exp_val0", DELTA)
++ "\tnn_destroy(nn);\n",
+)
+
 gen.save("sources/main.c")
