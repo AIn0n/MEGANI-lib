@@ -28,6 +28,7 @@ rms_prop_destroy(nn_size size, void* params)
 	rms_prop_data_t *data = (rms_prop_data_t *) params;
 	for (nn_size i = 0; i < size; ++i)
 		mx_destroy(data->caches[i]);
+	free(data->caches);
 	free(data);
 }
 

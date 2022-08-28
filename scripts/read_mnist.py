@@ -21,7 +21,6 @@ def read_images(filepath :str):
 def read_labels(filepath :str):
     with open(filepath, "rb") as f:
         magic, size = struct.unpack(">II", f.read(8))
-        print(magic)
         if magic != 2049:
             print("WRONG MAGIC NUMBER, SOMETHING IS WRONG WITH MNIST DATASET FILE")
             return None
