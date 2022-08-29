@@ -26,11 +26,7 @@ dense_forwarding(struct nl_t *self, const mx_t *input)
 }
 
 void 
-dense_backwarding( 
-	const nn_t	*nn,
-	const nn_size	idx,
-	const nn_size	even,
-	const mx_t	*prev_out)
+dense_backwarding(const nn_t	*nn, const nn_size	idx, const mx_t	*prev_out)
 {
 	const struct nl_t *self = (nn->layers + idx);
 	const dense_data_t* data = (dense_data_t *) self->data;
@@ -38,13 +34,13 @@ dense_backwarding(
 	//delta = delta o activation function ( output )
 	if (data->act_func.func_cell != NULL)	
 		mx_hadam_lambda(
-			nn->delta[even], *self->out, data->act_func.func_cell);
+			nn->delta[self->cache_idx], *self->out, data->act_func.func_cell);
 	//temporary matrix is shared between layers so we had to change the size
 	mx_set_size(nn->temp, self->weights->x, self->weights->y);
 	//value delta = delta^T * previous output
-	mx_mp(*nn->delta[even], *prev_out, nn->temp, A);
-	mx_set_size(nn->delta[!even], self->weights->x, nn->batch_len);
-	mx_mp(*nn->delta[even], *self->weights, nn->delta[!even], DEF);
+	mx_mp(*nn->delta[self->cache_idx], *prev_out, nn->temp, A);
+	mx_set_size(nn->delta[!self->cache_idx], self->weights->x, nn->batch_len);
+	mx_mp(*nn->delta[self->cache_idx], *self->weights, nn->delta[!self->cache_idx], DEF);
 	nn->optimizer.update(nn->optimizer.params, self->weights, nn->temp, idx);
 }
 
@@ -90,20 +86,21 @@ LAYER_DENSE(
 	if (neurons < 1 || !try_append_layers(nn))
 		goto dense_err_exit;
 /* neural network structure have two matrices for delta, we need to decide which
- * one this layer will use, so we check if index of current layer is even
+ * one this layer will use, so we check which matrix is used by previous layer
+ * and get opposite one.
  */
-	const nn_size even = nn->len % 2;
+	const uint8_t curr_cache = (nn->len) ? !(nn->layers[nn->len - 1].cache_idx) : 0;
 	struct nl_t* curr = &nn->layers[nn->len++];
 
 /* check if delta is big enough for this layer purpose, if not - realocate it
  * and check realocation success
  */
-	if (neurons * nn->batch_len > nn->delta[even]->size
-	   && mx_recreate(nn->delta[even], neurons, nn->batch_len))
+	if (neurons * nn->batch_len > nn->delta[curr_cache]->size
+	   && mx_recreate(nn->delta[curr_cache], neurons, nn->batch_len))
 		goto dense_err_exit;
 
 /* same thing like in above delta realocation code, difference is a fact that here
- * is only one temporary matrix in neural network structure (layer index doesn't matter now)
+ * is only one temporary matrix in neural network structure
  */
 	if ((curr->weights = mx_create(in, neurons)) == NULL 
 	   || (nn->temp->size < in * neurons && mx_recreate(nn->temp, in, neurons)))
@@ -119,10 +116,11 @@ LAYER_DENSE(
 	if (min && max)
 		dense_fill_rng(curr->weights, min, max);
 
-	curr->data		= (void *) data;
+	curr->data			= (void *) data;
 	curr->forwarding	= (& dense_forwarding);
 	curr->backwarding	= (& dense_backwarding);
 	curr->free_data		= (& dense_free_data);
+	curr->cache_idx		= curr_cache;
 	return;
 dense_err_exit:
 	nn->error = 1;

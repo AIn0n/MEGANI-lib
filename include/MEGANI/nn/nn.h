@@ -58,6 +58,7 @@ nn_t;
  *  in backpropagation.
  */
 struct nl_t {
+	uint8_t cache_idx; /**< struct shows which cache should be used to calculate delta for layer */
 	mx_t *out;		/**< layer output */
 	mx_t *weights;		/**< layer weights */
 	void *data;		/**< layer specialized data */
@@ -65,7 +66,7 @@ struct nl_t {
 	/**< function used to free memory allocated for data */
 	void (* forwarding)	(struct nl_t*, const mx_t*);
 	/**< function used in nn_predict() */
-	void (* backwarding)	(const nn_t *, const nn_size, const nn_size, const mx_t *);
+	void (* backwarding)	(const nn_t *, const nn_size, const mx_t *);
 	/**< function use in nn_fit() */
 };
 

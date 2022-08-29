@@ -52,17 +52,14 @@ nn_predict(nn_t *nn, const mx_t *input)
 void
 nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 {
-	nn_predict(nn, input);
 	const nn_size end = nn->len - 1;
-	nn_size even = end % 2;
+	nn_predict(nn, input);
 	/* delta = output - expected output (last layer case) */
-	mx_sub(*nn->layers[end].out, *output, nn->delta[even]);
-	for (nn_size i = end; i > 0; --i, even = !even) {
-		nn->layers[i].backwarding(nn, i, even, nn->layers[i - 1].out);
-
-	}
+	mx_sub(*nn->layers[end].out, *output, nn->delta[nn->layers[end].cache_idx]);
+	for (nn_size i = end; i > 0; --i)
+		nn->layers[i].backwarding(nn, i, nn->layers[i - 1].out);
 	/* vdelta = delta^T * input */
-	nn->layers->backwarding(nn, 0, even, input);
+	nn->layers->backwarding(nn, 0, input);
 }
 
 void
