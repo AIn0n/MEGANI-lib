@@ -35,7 +35,7 @@ main(void)
 		test_input = read_idx3("mnist/t10k-images-idx3-ubyte",		BATCH_SIZE, 0),
 		test_expected = get_mnist_labels("mnist/t10k-labels-idx1-ubyte",BATCH_SIZE);
 
-	nn_t *network = nn_create(10, BATCH_SIZE);
+	nn_t *network = nn_create(28 * 28, BATCH_SIZE);
 	LAYER_DENSE(network, 300, RELU, -0.01, 0.01);
 	LAYER_DENSE(network, 10, NO_FUNC, -0.01, 0.01);
 	add_batch_gradient_descent(network, 0.01);
