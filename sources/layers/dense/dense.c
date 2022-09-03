@@ -22,15 +22,14 @@ dense_forwarding(struct nl_t *self, const mx_t *input)
 	//layer output = activation function ( layer output )
 	const dense_data_t* data = self->data;
 	if (*data->act_func.func_mx != NULL) 
-		(*data->act_func.func_mx)(self->out);  
+		(*data->act_func.func_mx)(self->out);
 }
 
 void 
-dense_backwarding(const nn_t	*nn, const nn_size	idx, const mx_t	*prev_out)
+dense_backwarding(const nn_t *nn, const nn_size	idx, const mx_t	*prev_out)
 {
 	const struct nl_t *self = (nn->layers + idx);
 	const dense_data_t* data = (dense_data_t *) self->data;
-
 	//delta = delta o activation function ( output )
 	if (data->act_func.func_cell != NULL)	
 		mx_hadam_lambda(
@@ -39,8 +38,10 @@ dense_backwarding(const nn_t	*nn, const nn_size	idx, const mx_t	*prev_out)
 	mx_set_size(nn->temp, self->weights->x, self->weights->y);
 	//value delta = delta^T * previous output
 	mx_mp(*nn->delta[self->cache_idx], *prev_out, nn->temp, A);
-	mx_set_size(nn->delta[!self->cache_idx], self->weights->x, nn->batch_len);
-	mx_mp(*nn->delta[self->cache_idx], *self->weights, nn->delta[!self->cache_idx], DEF);
+	if (idx) {
+		mx_set_size(nn->delta[!self->cache_idx], self->weights->x, nn->batch_len);
+		mx_mp(*nn->delta[self->cache_idx], *self->weights, nn->delta[!self->cache_idx], DEF);
+	}
 	nn->optimizer.update(nn->optimizer.params, self->weights, nn->temp, idx);
 }
 
@@ -113,7 +114,7 @@ LAYER_DENSE(
 	data->act_func = act_func;
 
 /* if min and max are other than zero we fill layer weights with values between (min, max) */
-	if (min && max)
+	if (min != NN_ZERO || max != NN_ZERO)
 		dense_fill_rng(curr->weights, min, max);
 
 	curr->data			= (void *) data;

@@ -55,6 +55,7 @@ nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 	const nn_size end = nn->len - 1;
 	nn_predict(nn, input);
 	/* delta = output - expected output (last layer case) */
+	mx_set_size(nn->delta[nn->layers[end].cache_idx], nn->layers[end].out->x, nn->layers[end].out->y);
 	mx_sub(*nn->layers[end].out, *output, nn->delta[nn->layers[end].cache_idx]);
 	for (nn_size i = end; i > 0; --i)
 		nn->layers[i].backwarding(nn, i, nn->layers[i - 1].out);
