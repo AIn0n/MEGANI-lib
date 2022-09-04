@@ -59,7 +59,7 @@ main(void)
 		test_input_ptr	= test_input.next(&test_input);
 		++n;
 	}
-	printf("test error rate %.3lf%%\n", (double) (errors * 100) / (n * BATCH_SIZE));
+	printf("accuracy %.3lf%%\n", (double) (errors * 100) / (n * BATCH_SIZE));
 free_memory:
 	free_default_iterator_data(&input);
 	free_default_iterator_data(&expected);

@@ -26,11 +26,11 @@ free_default_iterator_data(struct mx_iterator_t *iterator)
 {
 	if (iterator->data == NULL)
 		return;
-        do {
-                mx_destroy(def_iter_next(iterator));
-        } 
-	while(def_iter_has_next(iterator));
-        def_mx_iter_data_t *data = (def_mx_iter_data_t *) iterator->data;
+	def_iter_reset(iterator);
+	while(def_iter_has_next(iterator)) {
+		mx_destroy(def_iter_next(iterator));
+	}
+	def_mx_iter_data_t *data = (def_mx_iter_data_t *) iterator->data;
 	free(data->list);
 	free(data);
 }
