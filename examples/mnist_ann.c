@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#define BATCH_SIZE 200
+#define BATCH_SIZE 50
 
 int
 hor_max_idx_cmp(const mx_t a, const mx_t b)
@@ -36,7 +36,7 @@ main(void)
 		test_expected = get_mnist_labels("mnist/t10k-labels-idx1-ubyte",BATCH_SIZE);
 
 	nn_t *network = nn_create(28 * 28, BATCH_SIZE);
-	LAYER_DENSE(network, 300, RELU, -0.01, 0.01);
+	LAYER_DENSE(network, 32, RELU, -0.01, 0.01);
 	LAYER_DENSE(network, 10, NO_FUNC, -0.01, 0.01);
 	add_batch_gradient_descent(network, 0.01);
 
@@ -46,7 +46,7 @@ main(void)
 		goto free_memory;
 	}
 	
-	nn_fit_all(network, &input, &expected, 1);
+	nn_fit_all(network, &input, &expected, 2);
 
 	int n = 0, errors = 0;
 	mx_t 	*expected_ptr	= test_expected.next(&test_expected),

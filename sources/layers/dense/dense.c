@@ -20,7 +20,7 @@ dense_forwarding(struct nl_t *self, const mx_t *input)
 	//output = input * values ^T
     	mx_mp(*input, *self->weights, self->out, B);  
 	//layer output = activation function ( layer output )
-	const dense_data_t* data = self->data;
+	const dense_data_t *data = self->data;
 	if (*data->act_func.func_mx != NULL) 
 		(*data->act_func.func_mx)(self->out);
 }
@@ -46,7 +46,7 @@ dense_backwarding(const nn_t *nn, const nn_size	idx, const mx_t	*prev_out)
 }
 
 void
-dense_free_data(void* data)
+dense_free_data(void *data)
 {
 	free(data);
 	data = NULL;
@@ -63,14 +63,6 @@ mx_recreate(mx_t *mx, const mx_size x, const mx_size y)
 	return 0;
 }
 
-uint8_t
-try_append_layers(nn_t *nn)
-{
-	struct nl_t *l = realloc(nn->layers, sizeof(*l) * (nn->len + 1));
-	nn->layers = (l == NULL) ? nn->layers : l;
-	return (l != NULL);
-}
-
 void
 LAYER_DENSE(
 	nn_t* nn,
@@ -79,19 +71,17 @@ LAYER_DENSE(
 	const mx_type min,
 	const mx_type max)
 {
-	if (nn->error)
+/* increase size of neural layers array by one, in case of failure return false*/
+	if (nn->error || neurons < 1 || !try_append_layers(nn))
 		goto dense_err_exit;
 /* check if layer is first one in neural network and calculate input size for it */
 	const mx_size in = (nn->len) ? nn->layers[nn->len - 1].out->x : nn->in_len;
-/* increase size of neural layers array by one, in case of failure return false*/
-	if (neurons < 1 || !try_append_layers(nn))
-		goto dense_err_exit;
 /* neural network structure have two matrices for delta, we need to decide which
  * one this layer will use, so we check which matrix is used by previous layer
  * and get opposite one.
  */
 	const uint8_t curr_cache = (nn->len) ? !(nn->layers[nn->len - 1].cache_idx) : 0;
-	struct nl_t* curr = &nn->layers[nn->len++];
+	struct nl_t *curr = &nn->layers[nn->len++];
 
 /* check if delta is big enough for this layer purpose, if not - realocate it
  * and check realocation success

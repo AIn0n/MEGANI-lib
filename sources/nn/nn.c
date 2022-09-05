@@ -8,6 +8,7 @@ nn_destroy(nn_t *nn)
 		return;
 	if (nn->layers != NULL) {
 		for (nn_size i = 0; i < nn->len; ++i) {
+		/*this code can't work with flatten or something */
 			mx_destroy(nn->layers[i].out);
 			mx_destroy(nn->layers[i].weights);
 			nn->layers[i].free_data(nn->layers[i].data);
@@ -54,8 +55,12 @@ nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 {
 	const nn_size end = nn->len - 1;
 	nn_predict(nn, input);
+	mx_set_size(
+		nn->delta[nn->layers[end].cache_idx],
+		nn->layers[end].out->x,
+		nn->layers[end].out->y
+	);
 	/* delta = output - expected output (last layer case) */
-	mx_set_size(nn->delta[nn->layers[end].cache_idx], nn->layers[end].out->x, nn->layers[end].out->y);
 	mx_sub(*nn->layers[end].out, *output, nn->delta[nn->layers[end].cache_idx]);
 	for (nn_size i = end; i > 0; --i)
 		nn->layers[i].backwarding(nn, i, nn->layers[i - 1].out);
@@ -64,7 +69,11 @@ nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 }
 
 void
-nn_fit_all(nn_t *nn, struct mx_iterator_t *input, struct mx_iterator_t *output, const size_t epochs)
+nn_fit_all(
+	nn_t *nn,
+	struct mx_iterator_t *input,
+	struct mx_iterator_t *output,
+	const size_t epochs)
 {
 	for (size_t i = 0; i < epochs; ++i) {
 		while (input->has_next(input) && output->has_next(output)) {
@@ -73,6 +82,14 @@ nn_fit_all(nn_t *nn, struct mx_iterator_t *input, struct mx_iterator_t *output, 
 		input->reset(input);
 		output->reset(output);
 	}
+}
+
+uint8_t
+try_append_layers(nn_t *nn)
+{
+	struct nl_t *l = realloc(nn->layers, sizeof(*l) * (nn->len + 1));
+	nn->layers = (l == NULL) ? nn->layers : l;
+	return (l != NULL);
 }
 
 //ACTIVATION FUNCS

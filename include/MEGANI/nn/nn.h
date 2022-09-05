@@ -23,8 +23,8 @@
  *  @see mx_hadam_lambda
  */
 typedef struct {
-	mx_type (* func_cell)(mx_type);	/**< function used in forwarding */
-	void 	(* func_mx)(mx_t *);	/**< function used in backpropagation */
+	mx_type (*func_cell)(mx_type);	/**< function used in forwarding */
+	void 	(*func_mx)(mx_t*);	/**< function used in backpropagation */
 }
 act_func_t;
 
@@ -62,11 +62,11 @@ struct nl_t {
 	mx_t *out;		/**< layer output */
 	mx_t *weights;		/**< layer weights */
 	void *data;		/**< layer specialized data */
-	void (* free_data)	(void *);	/**< function to free layer specific data */
+	void (*free_data)	(void*);	/**< function to free layer specific data */
 	/**< function used to free memory allocated for data */
-	void (* forwarding)	(struct nl_t*, const mx_t*);
+	void (*forwarding)	(struct nl_t*, const mx_t*);
 	/**< function used in nn_predict() */
-	void (* backwarding)	(const nn_t *, const nn_size, const mx_t *);
+	void (*backwarding)	(const nn_t*, const nn_size, const mx_t*);
 	/**< function use in nn_fit() */
 };
 
@@ -103,6 +103,8 @@ void nn_fit(nn_t *nn, const mx_t *input, const mx_t *output);
 
 void
 nn_fit_all(nn_t *nn, struct mx_iterator_t *input, struct mx_iterator_t *output, const size_t epochs);
+
+uint8_t try_append_layers(nn_t *nn);
 
 //----------------------------------------ACTIVATION FUNCTIONS--------------------------------------------
 
