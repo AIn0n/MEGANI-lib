@@ -62,7 +62,7 @@ struct nl_t {
 	mx_t *out;		/**< layer output */
 	mx_t *weights;		/**< layer weights */
 	void *data;		/**< layer specialized data */
-	void (*free_data)	(void*);	/**< function to free layer specific data */
+	void (*free_data)	(struct nl_t*);	/**< function to free layer */
 	/**< function used to free memory allocated for data */
 	void (*forwarding)	(struct nl_t*, const mx_t*);
 	/**< function used in nn_predict() */

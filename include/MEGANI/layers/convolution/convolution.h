@@ -3,11 +3,24 @@
 #include "image_layer_data.h"
 #include "nn.h"
 
-mx_t*
-get_im2col_idxs(
-	const img_size_t krnl_size,
-	const img_size_t in_size,
+typedef struct {
+	act_func_t act_func;
+	mx_size *im2col_idxs;
+	mx_t *image_sections;	/* this field can be cached but I don't have time to do that */
+}
+conv_data_t;
+
+
+void
+add_convolution_layer(
+	nn_t *nn,
+	img_size_t input_size,
+	const img_size_t kernel_size,
 	const mx_size stride,
-	const mx_size batch);
+	const act_func_t act_func,
+	const mx_type min,
+	const mx_type max);
+void conv_backwarding(const nn_t *nn, const nn_size idx, const mx_t *prev_out);
+void conv_forwarding(struct nl_t *self, const mx_t *input);
 
 #endif

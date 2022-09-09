@@ -132,6 +132,12 @@ extern void mx_set_size(mx_t *mx, const mx_size x, const mx_size y);
  */
 void mx_add_to_first(mx_t *a, const mx_t *b);
 
+uint8_t mx_recreate(mx_t *mx, const mx_size x, const mx_size y);
+
+void mx_fill_rng(mx_t *values, const mx_type min, const mx_type max);
+
+uint8_t mx_recreate_if_too_small(mx_t *mx, const mx_size x, const mx_size y);
+
 void mx_print(const mx_t* a, char * name);
 
 #endif

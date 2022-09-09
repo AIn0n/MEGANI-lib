@@ -26,6 +26,35 @@ mx_create(const mx_size x, const mx_size y)
 	return output;
 }
 
+uint8_t
+mx_recreate(mx_t *mx, const mx_size x, const mx_size y)
+{
+	mx_type *new_arr = realloc(mx->arr, x * y * sizeof(*new_arr));
+	if (new_arr == NULL)
+		return 1;
+	mx->arr = new_arr;
+	mx_set_size(mx, x, y);
+	return 0;
+}
+
+uint8_t
+mx_recreate_if_too_small(mx_t *mx, const mx_size x, const mx_size y)
+{
+	if (mx->size < x * y)
+		return mx_recreate(mx, x, y);
+	return 0;
+}
+
+void
+mx_fill_rng(mx_t *values, const mx_type min, const mx_type max)
+{
+	const mx_type diff = (max - min);
+	for (mx_size i = 0; i < values->size; ++i) {
+		mx_type rand_val = (mx_type) rand() / RAND_MAX;
+		values->arr[i] = min + rand_val * diff;
+	}
+}
+
 void
 mx_elem_power_by_two(mx_t *mx)
 {

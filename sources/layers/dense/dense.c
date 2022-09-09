@@ -1,19 +1,5 @@
 #include "dense.h"	/* include dense related datatypes and mx.h header */
 
-//STATIC FUNCTIONS
-
-static void
-dense_fill_rng(mx_t *values, const mx_type min, const mx_type max)
-{
-	const mx_type diff = (max - min);
-	for (mx_size i = 0; i < values->size; ++i) {
-		mx_type rand_val = (mx_type) rand() / RAND_MAX;
-		values->arr[i] = min + rand_val * diff;
-	}
-}
-
-//PUBLIC FUNCTIONS
-
 void
 dense_forwarding(struct nl_t *self, const mx_t *input)
 {
@@ -46,21 +32,13 @@ dense_backwarding(const nn_t *nn, const nn_size	idx, const mx_t	*prev_out)
 }
 
 void
-dense_free_data(void *data)
+dense_free(struct nl_t *self)
 {
+	dense_data_t *data = self->data;
 	free(data);
 	data = NULL;
-}
-
-uint8_t
-mx_recreate(mx_t *mx, const mx_size x, const mx_size y)
-{
-	mx_type *new_arr = realloc(mx->arr, x * y * sizeof(*new_arr));
-	if (new_arr == NULL)
-		return 1;
-	mx->arr = new_arr;
-	mx_set_size(mx, x, y);
-	return 0;
+	mx_destroy(self->weights);
+	mx_destroy(self->out);
 }
 
 void
@@ -86,15 +64,14 @@ LAYER_DENSE(
 /* check if delta is big enough for this layer purpose, if not - realocate it
  * and check realocation success
  */
-	if (neurons * nn->batch_len > nn->delta[curr_cache]->size
-	   && mx_recreate(nn->delta[curr_cache], neurons, nn->batch_len))
+	if (mx_recreate_if_too_small(nn->delta[curr_cache], neurons, nn->batch_len))
 		goto dense_err_exit;
 
 /* same thing like in above delta realocation code, difference is a fact that here
  * is only one temporary matrix in neural network structure
  */
-	if ((curr->weights = mx_create(in, neurons)) == NULL 
-	   || (nn->temp->size < in * neurons && mx_recreate(nn->temp, in, neurons)))
+	if ((curr->weights = mx_create(in, neurons)) == NULL
+	   || mx_recreate_if_too_small(nn->temp, in, neurons))
 		goto dense_err_exit;
 
 	dense_data_t *data = calloc(1, sizeof(*data));
@@ -105,12 +82,12 @@ LAYER_DENSE(
 
 /* if min and max are other than zero we fill layer weights with values between (min, max) */
 	if (min != NN_ZERO || max != NN_ZERO)
-		dense_fill_rng(curr->weights, min, max);
+		mx_fill_rng(curr->weights, min, max);
 
 	curr->data			= (void *) data;
 	curr->forwarding	= (& dense_forwarding);
 	curr->backwarding	= (& dense_backwarding);
-	curr->free_data		= (& dense_free_data);
+	curr->free_data		= (& dense_free);
 	curr->cache_idx		= curr_cache;
 	return;
 dense_err_exit:

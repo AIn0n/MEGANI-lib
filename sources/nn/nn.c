@@ -9,9 +9,7 @@ nn_destroy(nn_t *nn)
 	if (nn->layers != NULL) {
 		for (nn_size i = 0; i < nn->len; ++i) {
 		/*this code can't work with flatten or something */
-			mx_destroy(nn->layers[i].out);
-			mx_destroy(nn->layers[i].weights);
-			nn->layers[i].free_data(nn->layers[i].data);
+			nn->layers[i].free_data(&nn->layers[i]);
 		}
 		free(nn->layers);
 	}
