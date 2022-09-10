@@ -136,7 +136,33 @@ uint8_t mx_recreate(mx_t *mx, const mx_size x, const mx_size y);
 
 void mx_fill_rng(mx_t *values, const mx_type min, const mx_type max);
 
+/**
+ * @brief reacreate matrix if dims are smaller than x and y attributes
+ * 
+ * Function check mx matrix size, if it is smaller than x y product, then
+ * matrix will be recreated with mx_recreate function. Return 0 in case of success,
+ * if realloctaion go wrong - 1.
+ * 
+ * @param mx matrix to recreation
+ * @param [in] x  expected x
+ * @param [in] y expected y
+ * @return uint8_t 
+ */
 uint8_t mx_recreate_if_too_small(mx_t *mx, const mx_size x, const mx_size y);
+
+/**
+ * @brief find indexes of horizontal (row-wise) max values and compare them.
+ * 
+ * Function takes two matrixes, in each row find max values of both matrices and compare
+ * their indexes. Returns number of indexes where max values indexes are same.
+ * All operations assume that both matrices have the same dimensions, in other case
+ * behavior is undefined!
+ * 
+ * @param a 
+ * @param b 
+ * @return int 
+ */
+int mx_hor_max_idx_cmp(const mx_t a, const mx_t b);
 
 void mx_print(const mx_t* a, char * name);
 

@@ -1,31 +1,14 @@
-#include "def_mx_iter.h"
-#include "read_idx3.h"
-#include "get_mnist_labels.h"
-#include "nn.h"
-#include "dense.h"
-#include "bgd.h"
-#include "types_wrappers.h"
 #include <stdio.h>
-#include <errno.h>
+
+#include "def_mx_iter.h"	/* default iterator operations */
+#include "read_idx3.h"		/* read mnist images */
+#include "get_mnist_labels.h"	/* read mnist labels */
+#include "nn.h"			/* basic nerual netwok type and functions */
+#include "dense.h"		/* dense layer */
+#include "bgd.h"		/* batch gradient descent optimizer */
 
 #define BATCH_SIZE 50
 
-int
-hor_max_idx_cmp(const mx_t a, const mx_t b)
-{
-	int result = 0;
-	for (mx_size y = 0; y < a.y; ++y) {
-		int max_a = 0, max_b = 0;
-		for (mx_size x = 0; x < a.x; ++x) {
-			if (a.arr[x + y * a.x] > a.arr[max_a + y * a.x])
-				max_a = x;
-			if (b.arr[x + y * b.x] > b.arr[max_b + y * b.x])
-				max_b = x;
-		}
-		result += (max_a == max_b);
-	}
-	return result;
-}
 int
 main(void)
 {
@@ -42,7 +25,7 @@ main(void)
 
 	if (input.data == NULL || expected.data == NULL || test_input.data == NULL
 	    || test_expected.data == NULL || network->error) {
-		perror("some resources cannot be readed nor allocated");
+		puts("some resources cannot be readed nor allocated");
 		goto free_memory;
 	}
 	
@@ -54,7 +37,7 @@ main(void)
 
 	while(test_expected.has_next(&test_expected) && test_input.has_next(&test_input)) {
 		nn_predict(network, test_input_ptr);
-		errors += hor_max_idx_cmp(*network->layers[network->len - 1].out, *expected_ptr);
+		errors += mx_hor_max_idx_cmp(*network->layers[network->len - 1].out, *expected_ptr);
 		expected_ptr	= test_expected.next(&test_expected),
 		test_input_ptr	= test_input.next(&test_input);
 		++n;

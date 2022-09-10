@@ -26,6 +26,23 @@ mx_create(const mx_size x, const mx_size y)
 	return output;
 }
 
+int
+mx_hor_max_idx_cmp(const mx_t a, const mx_t b)
+{
+	int result = 0;
+	for (mx_size y = 0; y < a.y; ++y) {
+		int max_a = 0, max_b = 0;
+		for (mx_size x = 0; x < a.x; ++x) {
+			if (a.arr[x + y * a.x] > a.arr[max_a + y * a.x])
+				max_a = x;
+			if (b.arr[x + y * b.x] > b.arr[max_b + y * b.x])
+				max_b = x;
+		}
+		result += (max_a == max_b);
+	}
+	return result;
+}
+
 uint8_t
 mx_recreate(mx_t *mx, const mx_size x, const mx_size y)
 {
