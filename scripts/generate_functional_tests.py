@@ -134,7 +134,6 @@ for n in range(5):
         # initializer of neural network
         f"""
 		nn_t *nn = nn_create({inputSize}, {batchSize});
-        add_batch_gradient_descent(nn, 0.01);
 		LAYER_DENSE(nn, {denseSize1}, RELU, 0.1, 0.2);
 		LAYER_DENSE(nn, {denseSize2}, NO_FUNC, 0.1, 0.2);\n"""
         +
@@ -166,7 +165,6 @@ gen.genTest(
     genStaticMxDec(np.array([[8.5, 0.65, 1.2]]), "input")
     + """
 	nn_t *n = nn_create(3, 1);
-    add_batch_gradient_descent(n, 0.01);
 	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);
 	LAYER_DENSE(n, 3, NO_FUNC, 0.0, 0.0);\n"""
     + genStaticListDec([0.1, 0.2, -0.1, -0.1, 0.1, 0.9, 0.1, 0.4, 0.1], "val0")
@@ -183,7 +181,6 @@ gen.genTest(
     "nn_predict",
     """
     nn_t *nn = nn_create(1, 1);
-    add_batch_gradient_descent(nn, 0.01);
 	LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
 	LAYER_DENSE(nn, 1, NO_FUNC, 0.0, 0.0);\n"""
     + genStaticListDec([0.1, -0.1, 0.1], "val0")
@@ -204,7 +201,7 @@ gen.genTest(
     "nn_fit",
     """
     nn_t* nn = nn_create(3, 4);
-    add_batch_gradient_descent(nn, 0.01);
+    optimizer_t opt = bgd_create(nn, 0.01);
 	LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
 	LAYER_DENSE(nn, 3, NO_FUNC, 0.0, 0.0);\n"""
     + genStaticMxDec(
@@ -219,7 +216,7 @@ gen.genTest(
         np.array([[0.1, 1.0, 0.1], [0.0, 1.0, 0.0], [0.0, 0.0, 0.1], [0.1, 1.0, 0.2]]),
         "out",
     )
-    + "\tnn_fit(nn, &input, &out);\n"
+    + "\tnn_fit(nn, opt, &input, &out);\n"
     + genStaticListDec(
         [
             0.118847,
@@ -250,7 +247,7 @@ gen.genTest(
     )
     + genMxComp("(*nn->layers[1].weights)", "exp_val1", DELTA)
     + genMxComp("(*nn->layers[0].weights)", "exp_val0", DELTA)
-    + "\tnn_destroy(nn);\n",
+    + "\tnn_destroy(nn);\nbgd_destroy(opt);\n",
 )
 
 size = random.randint(1, 16)
@@ -322,8 +319,8 @@ gen.genTest(
     nn_t *nn = nn_create({inputSize}, {batchSize});
     LAYER_DENSE(nn, {denseSize1}, RELU, 0.1, 0.2);
     LAYER_DENSE(nn, {denseSize2}, NO_FUNC, 0.1, 0.2);
-    add_rms_prop(nn, 0.01, 0.9);
-    rms_prop_data_t *data = (void *) nn->optimizer.params;\n"""
+    optimizer_t opt = rms_prop_create(nn, 0.01, 0.9);
+    rms_prop_data_t *data = opt.params;\n"""
     # check size of first rms cache
     + genAssert(
         f"data->caches[0]->x != {inputSize} || data->caches[0]->y != {denseSize1}"
@@ -331,7 +328,7 @@ gen.genTest(
     # check size of second rms cache
     + genAssert(
         f"data->caches[1]->x != {denseSize1} || data->caches[1]->y != {denseSize2}"
-    ) + "nn_destroy(nn);"
+    ) + "nn_destroy(nn);\nrms_prop_destroy(opt);\n"
 )
 
 x = random.randint(1, 16)
@@ -365,7 +362,7 @@ gen.genTest("RMS prop optimizer test",
         nn_t *nn = nn_create(1, 1);
         LAYER_DENSE(nn, 3, NO_FUNC, 0.0, 0.0);
         LAYER_DENSE(nn, 1, NO_FUNC, 0.0, 0.0);
-        add_rms_prop(nn, 0.001, 0.9);\n"""
+        optimizer_t opt = rms_prop_create(nn, 0.001, 0.9);\n"""
     + genStaticMxDec(np.array([[0.32]]), "input") # input
     + genStaticMxDec(np.array([[0.1]]), "expected_output") #expected output
     + genStaticListDec([0.7, 0.3, 0.05], "weights0") # weights injected into first layer
@@ -373,12 +370,12 @@ gen.genTest("RMS prop optimizer test",
     + genListCpy("weights0", "nn->layers[0].weights->arr", "nn->layers[0].weights->size")
     + genListCpy("weights1", "nn->layers[1].weights->arr", "nn->layers[1].weights->size")
     + """
-        nn_fit(nn, &input, &expected_output);\n"""
+        nn_fit(nn, opt, &input, &expected_output);\n"""
     + genStaticListDec([0.70316025, 0.3031619, 0.05316223], "expected_weights0")
     + genStaticListDec([0.02316221, 0.12316212, 1.10316134], "expected_weights1")
     + genMxComp("(* nn->layers[0].weights)", "expected_weights0", DELTA)
     + genMxComp("(* nn->layers[1].weights)", "expected_weights1", DELTA)
-    + "\tnn_destroy(nn);\n"
+    + "\tnn_destroy(nn);\nrms_prop_destroy(opt);\n"
 )
 
 mnist_labels_filepath = "mnist/t10k-labels-idx1-ubyte"
@@ -402,7 +399,7 @@ gen.genTest("test function learning and predictions with three layers network, e
     nn_t* nn = nn_create(1, 1);
     LAYER_DENSE(nn, 3, RELU, 0.0, 0.0);
     LAYER_DENSE(nn, 1, NO_FUNC, 0.0, 0.0);
-    add_batch_gradient_descent(nn, 0.01);
+    optimizer_t opt = bgd_create(nn, 0.01);
 """
 + genStaticMxDec(np.array([[8.5]]), "input")
 + genStaticListDec([0.1, -0.1, 0.1], "val0")
@@ -410,12 +407,12 @@ gen.genTest("test function learning and predictions with three layers network, e
 + genListCpy("val0", "nn->layers[0].weights->arr", "nn->layers[0].weights->size")
 + genListCpy("val1", "nn->layers[1].weights->arr", "nn->layers[1].weights->size")
 + genStaticMxDec(np.array([[0.1]]), "out")
-+ "\tnn_fit(nn, &input, &out);\n"
++ "\tnn_fit(nn, opt, &input, &out);\n"
 + genStaticListDec([0.10255, -0.1, 0.09745], "exp_val0")
 + genStaticListDec([0.30085, 1.1, -0.29915], "exp_val1")
 + genMxComp("(*nn->layers[1].weights)", "exp_val1", DELTA)
 + genMxComp("(*nn->layers[0].weights)", "exp_val0", DELTA)
-+ "\tnn_destroy(nn);\n",
++ "\tnn_destroy(nn);\nbgd_destroy(opt);\n",
 )
 
 gen.save("sources/main.c")
