@@ -41,7 +41,6 @@ typedef struct {
 	struct nl_t		*layers; /**< all neurons layers in current network */
 	mx_t			*temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
 	mx_t			*delta[2]; /**< Two delta matrices to switch between in backpropagation */
-	optimizer_t		optimizer; /**< Optimizer structure with optimize function and parameters */
 	nn_size			len;   /**< number of layers */
 	mx_size			in_len;	/**< size of input */
 	mx_size			batch_len; /**< number of batches */
@@ -66,7 +65,7 @@ struct nl_t {
 	/**< function used to free memory allocated for data */
 	void (*forwarding)	(struct nl_t*, const mx_t*);
 	/**< function used in nn_predict() */
-	void (*backwarding)	(const nn_t*, const nn_size, const mx_t*);
+	void (*backwarding)	(const nn_t*, const nn_size, const mx_t*, optimizer_t opt);
 	/**< function use in nn_fit() */
 };
 
@@ -98,11 +97,11 @@ void nn_predict(nn_t *nn, const mx_t *input);
  * @param [in] input network with proper size and batch length
  * @param [in] output exepcted output with size equal to last layer output size
  */
-void nn_fit(nn_t *nn, const mx_t *input, const mx_t *output);
+void nn_fit(nn_t *nn, optimizer_t optimizer, const mx_t *input, const mx_t *output);
 
 
 void
-nn_fit_all(nn_t *nn, struct mx_iterator_t *input, struct mx_iterator_t *output, const size_t epochs);
+nn_fit_all(nn_t *nn, optimizer_t opt, struct mx_iterator_t *input, struct mx_iterator_t *output, const size_t epochs);
 
 uint8_t try_append_layers(nn_t *nn);
 

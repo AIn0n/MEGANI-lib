@@ -8,6 +8,7 @@ typedef struct {
 }
 bgd_data_t;
 
-uint8_t add_batch_gradient_descent(nn_t *nn, mx_type alpha);
+optimizer_t bgd_create(nn_t *nn, mx_type alpha);
+void bgd_destroy(optimizer_t self);
 
 #endif

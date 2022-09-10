@@ -28,15 +28,15 @@ main(void)
 		2, RELU, -0.01, 0.01);	/* stride = 2 */
 	add_flatten_layer(network);
 	LAYER_DENSE(network, 10, NO_FUNC, -0.01, 0.01);
-	add_batch_gradient_descent(network, 0.01);
+	optimizer_t optimizer = bgd_create(network, 0.01);
 
 	if (input.data == NULL || expected.data == NULL || test_input.data == NULL
-	    || test_expected.data == NULL || network->error) {
+	    || test_expected.data == NULL || network->error || optimizer.size < 1) {
 		printf("Some resources cannot be allocated nor created");
 		goto free_memory;
 	}
 	
-	nn_fit_all(network, &input, &expected, 1);
+	nn_fit_all(network, optimizer, &input, &expected, 1);
 
 	int n = 0, errors = 0;
 	mx_t 	*expected_ptr	= test_expected.next(&test_expected),
@@ -56,5 +56,6 @@ free_memory:
 	free_default_iterator_data(&test_input);
 	free_default_iterator_data(&test_expected);
 	nn_destroy(network);
+	bgd_destroy(optimizer);
 	return 0;
 }

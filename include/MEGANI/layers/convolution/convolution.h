@@ -20,7 +20,5 @@ add_convolution_layer(
 	const act_func_t act_func,
 	const mx_type min,
 	const mx_type max);
-void conv_backwarding(const nn_t *nn, const nn_size idx, const mx_t *prev_out);
-void conv_forwarding(struct nl_t *self, const mx_t *input);
 
 #endif

@@ -16,7 +16,6 @@ nn_destroy(nn_t *nn)
 	mx_destroy(nn->temp);
 	mx_destroy(nn->delta[0]);
 	mx_destroy(nn->delta[1]);
-	nn->optimizer.params_destroy(nn->len ,nn->optimizer.params);
 	free(nn);
 }
 
@@ -49,7 +48,7 @@ nn_predict(nn_t *nn, const mx_t *input)
 }
 
 void
-nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
+nn_fit(nn_t *nn, optimizer_t optimizer, const mx_t *input, const mx_t *output)
 {
 	const nn_size end = nn->len - 1;
 	nn_predict(nn, input);
@@ -61,21 +60,22 @@ nn_fit(nn_t *nn, const mx_t *input, const mx_t *output)
 	/* delta = output - expected output (last layer case) */
 	mx_sub(*nn->layers[end].out, *output, nn->delta[nn->layers[end].cache_idx]);
 	for (nn_size i = end; i > 0; --i)
-		nn->layers[i].backwarding(nn, i, nn->layers[i - 1].out);
+		nn->layers[i].backwarding(nn, i, nn->layers[i - 1].out, optimizer);
 	/* vdelta = delta^T * input */
-	nn->layers->backwarding(nn, 0, input);
+	nn->layers->backwarding(nn, 0, input, optimizer);
 }
 
 void
 nn_fit_all(
 	nn_t *nn,
+	optimizer_t opt,
 	struct mx_iterator_t *input,
 	struct mx_iterator_t *output,
 	const size_t epochs)
 {
 	for (size_t i = 0; i < epochs; ++i) {
 		while (input->has_next(input) && output->has_next(output)) {
-			nn_fit(nn, input->next(input), output->next(output));
+			nn_fit(nn, opt, input->next(input), output->next(output));
 		}
 		input->reset(input);
 		output->reset(output);

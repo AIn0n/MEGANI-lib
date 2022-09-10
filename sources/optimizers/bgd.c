@@ -11,25 +11,23 @@ bgd_optimize(void *params, mx_t *weights, mx_t *vdelta, const nn_size idx)
 }
 
 void 
-bgd_destroy(const nn_size unused, void* data)
+bgd_destroy(optimizer_t self)
 {
-	(void) (unused);
-	bgd_data_t *cast_data = (bgd_data_t *) data;
+	bgd_data_t *cast_data = (bgd_data_t *) self.params;
 	free(cast_data);
 	cast_data = NULL;
 }
 
-uint8_t
-add_batch_gradient_descent(nn_t *nn, const mx_type alpha)
+optimizer_t
+bgd_create(nn_t *nn, const mx_type alpha)
 {
 	bgd_data_t *data = calloc(1, sizeof(*data));
-	if (data == NULL || nn == NULL || nn->optimizer.params != NULL)
-		return 1;
+	if (data == NULL || nn == NULL)
+		return (optimizer_t){0};
 	data->alpha = alpha;
-	nn->optimizer = (optimizer_t) {
+	return (optimizer_t) {
 		.update = bgd_optimize,
-		.params_destroy = bgd_destroy,
+		.size = 1,
 		.params = (void *) data
 	};
-	return 0;
 }

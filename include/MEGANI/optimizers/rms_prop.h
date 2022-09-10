@@ -10,6 +10,7 @@ typedef struct {
 }
 rms_prop_data_t;
 
-uint8_t add_rms_prop(nn_t *nn, mx_type alpha, mx_type rho);
+optimizer_t rms_prop_create(nn_t *nn, mx_type alpha, mx_type rho);
+void rms_prop_destroy(optimizer_t self);
 
 #endif

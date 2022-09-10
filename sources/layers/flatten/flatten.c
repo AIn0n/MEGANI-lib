@@ -10,9 +10,10 @@ flatten_forwarding(struct nl_t *self, const mx_t *input)
 }
 
 void
-flatten_backwarding(const nn_t *nn, const nn_size idx, const mx_t *prev_out)
+flatten_backwarding(const nn_t *nn, const nn_size idx, const mx_t *unused0, optimizer_t unused1)
 {
-	(void) (prev_out); /* make compiler happy */
+	(void) (unused0); /* make compiler happy */
+	(void) (unused1);
 	const struct nl_t *self = nn->layers + idx;
 	const flatten_data_t *data = (flatten_data_t *) self->data;
 	mx_set_size(nn->delta[self->cache_idx], data->pre_x, data->pre_y);

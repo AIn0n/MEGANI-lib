@@ -91,7 +91,7 @@ conv_forwarding(struct nl_t *self, const mx_t *input)
 }
 
 void
-conv_backwarding(const nn_t *nn, const nn_size idx, const mx_t *prev_out)
+conv_backwarding(const nn_t *nn, const nn_size idx, const mx_t *prev_out, optimizer_t opt)
 {
 	(void) (prev_out);
 	const struct nl_t *self = (nn->layers + idx);
@@ -109,7 +109,7 @@ conv_backwarding(const nn_t *nn, const nn_size idx, const mx_t *prev_out)
 		mx_set_size(nn->delta[!self->cache_idx], self->weights->x, nn->batch_len);
 		mx_mp(*nn->delta[self->cache_idx], *self->weights, nn->delta[!self->cache_idx], DEF);
 	}
-	nn->optimizer.update(nn->optimizer.params, self->weights, nn->temp, idx);
+	opt.update(opt.params, self->weights, nn->temp, idx);
 }
 
 void
