@@ -3,7 +3,7 @@
 
 #define NUM_OF_LABELS 10
 
-static mx_t*
+static mx_t *
 build_mnist_labels(mx_size size, uint8_t *buff)
 {
 	mx_t *result = mx_create(NUM_OF_LABELS, size);

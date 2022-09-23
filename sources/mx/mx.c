@@ -1,5 +1,5 @@
-#include "mx.h"		/* matrix type, and types related to matrices */
-#include <stdio.h>  //FOR DEBUG ONLY
+#include "mx.h" /* matrix type, and types related to matrices */
+#include <stdio.h> //FOR DEBUG ONLY
 
 inline void
 mx_set_size(mx_t *mx, const mx_size x, const mx_size y)
@@ -9,17 +9,18 @@ mx_set_size(mx_t *mx, const mx_size x, const mx_size y)
 	mx->size = x * y;
 }
 
-mx_t* 
+mx_t *
 mx_create(const mx_size x, const mx_size y)
 {
-	if (!x || !y) 
+	if (!x || !y)
 		return NULL;
 
 	mx_t *output = calloc(1, sizeof(*output));
 	if (output == NULL)
 		return NULL;
 	mx_set_size(output, x, y);
-	if ((output->arr = calloc(output->size, sizeof(*output->arr))) == NULL) { 
+	if ((output->arr = calloc(output->size, sizeof(*output->arr))) ==
+	    NULL) {
 		free(output);
 		return NULL;
 	}
@@ -67,7 +68,7 @@ mx_fill_rng(mx_t *values, const mx_type min, const mx_type max)
 {
 	const mx_type diff = (max - min);
 	for (mx_size i = 0; i < values->size; ++i) {
-		mx_type rand_val = (mx_type) rand() / RAND_MAX;
+		mx_type rand_val = (mx_type)rand() / RAND_MAX;
 		values->arr[i] = min + rand_val * diff;
 	}
 }
@@ -90,7 +91,7 @@ mx_destroy(mx_t *mx)
 	mx = NULL;
 }
 
-void 
+void
 mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params)
 {
 	mx_size stride_ya = a.x, stride_xa = 1, limit = a.x;
@@ -112,8 +113,9 @@ mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params)
 	for (mx_size i = 0; i < limit; ++i) {
 		addrC = out->arr;
 		for (mx_size y = 0; y < out->y; ++y) {
-			for(mx_size x = 0; x < out->x; ++x)
-				addrC[x] += addrA[y * stride_ya] * addrB[x * stride_xb];
+			for (mx_size x = 0; x < out->x; ++x)
+				addrC[x] += addrA[y * stride_ya] *
+					    addrB[x * stride_xb];
 			addrC += out->x;
 		}
 		addrA += stride_xa;
@@ -121,7 +123,7 @@ mx_mp(const mx_t a, const mx_t b, mx_t *out, const mx_mp_params params)
 	}
 }
 
-void 
+void
 mx_hadamard(const mx_t a, const mx_t b, mx_t *out)
 {
 	for (mx_size i = 0; i < out->size; ++i)
@@ -135,7 +137,7 @@ mx_sub(const mx_t a, const mx_t b, mx_t *out)
 		out->arr[i] = a.arr[i] - b.arr[i];
 }
 
-void 
+void
 mx_mp_num(mx_t *a, const mx_type num)
 {
 	for (mx_size i = 0; i < a->size; ++i)
@@ -149,7 +151,7 @@ mx_add_to_first(mx_t *a, const mx_t *b)
 		a->arr[n] += b->arr[n];
 }
 
-void 
+void
 mx_hadam_lambda(mx_t *a, const mx_t b, mx_type (*lambda)(mx_type))
 {
 	for (mx_size i = 0; i < a->size; ++i)

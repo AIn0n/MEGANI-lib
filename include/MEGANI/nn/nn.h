@@ -5,9 +5,9 @@
 
 //------------------------------------------------MACROS------------------------------------------
 
-#define MAX(a, b)	((a) < (b) ? (b) : (a))
-#define NO_FUNC ((act_func_t) {.func_cell =NULL, .func_mx =NULL})
-#define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
+#define MAX(a, b) ((a) < (b) ? (b) : (a))
+#define NO_FUNC ((act_func_t){ .func_cell = NULL, .func_mx = NULL })
+#define RELU ((act_func_t){ .func_cell = relu_deriv_cell, .func_mx = relu_mx })
 
 //------------------------------------------------STRUCTURES---------------------------------------
 
@@ -25,9 +25,8 @@ typedef uint16_t nn_size;
  */
 typedef struct {
 	mx_type (*func_cell)(mx_type);	/**< function used in forwarding */
-	void 	(*func_mx)(mx_t*);	/**< function used in backpropagation */
-}
-act_func_t;
+	void (*func_mx)(mx_t *);	/**< function used in backpropagation */
+} act_func_t;
 
 /** @brief Main neural network struct.
  * 
@@ -39,22 +38,20 @@ act_func_t;
  *  @see nl_t
  */
 typedef struct {
-	struct nl_t		*layers; /**< all neurons layers in current network */
-	mx_t			*temp; /**< temporary matrix shared between layers for things like im2col, value delta, etc */
-	mx_t			*delta[2]; /**< Two delta matrices to switch between in backpropagation */
-	nn_size			len;   /**< number of layers */
-	mx_size			in_len;	/**< size of input */
-	mx_size			batch_len; /**< number of batches */
-	uint8_t			error;	/**< Error code indicating that something was done wrong */
-}
-nn_t;
+	struct nl_t *layers;	/**< all neurons layers in current network */
+	mx_t *temp;		/**< temporary matrix shared between layers for things like im2col, value delta, etc */
+	mx_t *delta[2];		/**< Two delta matrices to switch between in backpropagation */
+	nn_size len;		/**< number of layers */
+	mx_size in_len;		/**< size of input */
+	mx_size batch_len;	/**< number of batches */
+	uint8_t error;		/**< Error code indicating that something was done wrong */
+} nn_t;
 
 typedef struct {
-    void (* update)(void* opt_data, mx_t* weights, mx_t* delta, const nn_size idx);
-    void *params;
-    nn_size size;
-}
-optimizer_t;
+	void (*update)(void *opt_data, mx_t *weights, mx_t *delta, const nn_size idx);
+	void *params;
+	nn_size size;
+} optimizer_t;
 
 /** @brief struct containing all data from single layer.
  * 
@@ -65,21 +62,22 @@ optimizer_t;
  *  in backpropagation.
  */
 struct nl_t {
-	uint8_t cache_idx; /**< struct shows which cache should be used to calculate delta for layer */
+	uint8_t cache_idx;	/**< struct shows which cache should be used to calculate delta for layer */
 	mx_t *out;		/**< layer output */
-	mx_t *weights;		/**< layer weights */
+	mx_t *weights; 		/**< layer weights */
 	void *data;		/**< layer specialized data */
-	void (*free_data)	(struct nl_t*);	/**< function to free layer */
+	void (*free_data)(struct nl_t *); /**< function to free layer */
 	/**< function used to free memory allocated for data */
-	void (*forwarding)	(struct nl_t*, const mx_t*);
+	void (*forwarding)(struct nl_t *, const mx_t *);
 	/**< function used in nn_predict() */
-	void (*backwarding)	(const nn_t*, const nn_size, const mx_t*, optimizer_t opt);
+	void (*backwarding)(const nn_t *, const nn_size, const mx_t *,
+			    optimizer_t opt);
 	/**< function use in nn_fit() */
 };
 
 //------------------------------------------FUNCTIONS--------------------------------------------
 
-nn_t* nn_create(const mx_size in_len, const mx_size batch_len);
+nn_t *nn_create(const mx_size in_len, const mx_size batch_len);
 
 /** @brief Free memory allocated for neural network struct.
  * 
@@ -107,9 +105,12 @@ void nn_predict(nn_t *nn, const mx_t *input);
  */
 void nn_fit(nn_t *nn, optimizer_t optimizer, const mx_t *input, const mx_t *output);
 
-
-void
-nn_fit_all(nn_t *nn, optimizer_t opt, struct mx_iterator_t *input, struct mx_iterator_t *output, const size_t epochs);
+void nn_fit_all(
+	nn_t *nn,
+	optimizer_t opt,
+	struct mx_iterator_t *input,
+	struct mx_iterator_t *output,
+	const size_t epochs);
 
 uint8_t try_append_layers(nn_t *nn);
 

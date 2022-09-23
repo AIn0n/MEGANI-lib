@@ -32,25 +32,23 @@ typedef uint32_t mx_size;
 *   @see mx_type
 */
 typedef struct {
-	mx_type *arr;   /**<    Array with matrix data */
-	mx_size x;      /**<    matrix width */
-	mx_size y;      /**<    matrix height*/
-	mx_size size;   /**<    matrix height multiplied by width. 
-				Nothing particular special but very often used */
-}
-mx_t;
+	mx_type *arr;	/**<    Array with matrix data */
+	mx_size x;	/**<    matrix width */
+	mx_size y;	/**<    matrix height*/
+	mx_size size;	/**<    matrix height multiplied by width. 
+				Nothing particular special but very often used*/
+} mx_t;
 
 /** @brief Matrix mutliply parameters.
  *  
  *  Set this to choose which matrix is transposed in mulitplication.
  */
-typedef enum {  
-	DEF	= 0,	/**< default option */
-	A	= 1,	/**< first matrix is transposed */
-	B	= 2,	/**< second matrix is transposed */
-	BOTH= 3		/**< both matrix are transposed */
-} 
-mx_mp_params;
+typedef enum {
+	DEF = 0,/**< default option */
+	A = 1,	/**< first matrix is transposed */
+	B = 2,	/**< second matrix is transposed */
+	BOTH = 3/**< both matrix are transposed */
+} mx_mp_params;
 
 /** @brief Function creates a new matrix and returns a pointer to it. 
 * 
@@ -65,8 +63,7 @@ mx_mp_params;
 *
 *   @see mx_type
  */
-mx_t* mx_create(const mx_size x, const mx_size y);
-
+mx_t *mx_create(const mx_size x, const mx_size y);
 
 /**
 *   @brief Function free memory allocated for matrix.
@@ -133,7 +130,7 @@ void mx_mp_num(mx_t *a, const mx_type num);
  * function uses lambda on every cell of second matrix and 
  * return to first matrix hadamard product.
  */
-void mx_hadam_lambda(mx_t *a, const mx_t b, mx_type (* lambda)(mx_type));
+void mx_hadam_lambda(mx_t *a, const mx_t b, mx_type (*lambda)(mx_type));
 
 /** @brief matrix elementwise power by two
  * 
@@ -184,7 +181,7 @@ uint8_t mx_recreate_if_too_small(mx_t *mx, const mx_size x, const mx_size y);
  */
 int mx_hor_max_idx_cmp(const mx_t a, const mx_t b);
 
-void mx_print(const mx_t* a, char * name);
+void mx_print(const mx_t *a, char *name);
 
 #endif
 
