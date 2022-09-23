@@ -12,7 +12,6 @@ _INCLUDE = """#include <stdio.h>
 #include "mx_iterator.h"
 #include "def_mx_iter.h"
 #include "read_idx3.h"
-#include "optimizer.h"
 #include "bgd.h"
 #include "rms_prop.h"
 #include "get_mnist_labels.h"

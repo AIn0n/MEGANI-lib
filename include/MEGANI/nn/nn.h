@@ -1,8 +1,6 @@
 #ifndef _NN_H_
 #define _NN_H_
 #include "mx.h"
-#include "optimizer.h"
-#include "types_wrappers.h"
 #include "mx_iterator.h"
 
 //------------------------------------------------MACROS------------------------------------------
@@ -12,6 +10,9 @@
 #define RELU    ((act_func_t) {.func_cell =relu_deriv_cell, .func_mx =relu_mx})
 
 //------------------------------------------------STRUCTURES---------------------------------------
+
+/* neural network number of layers size */
+typedef uint16_t nn_size;
 
 /** @brief Structure with all activations functions subroutines used in single layer.
  * 
@@ -47,6 +48,13 @@ typedef struct {
 	uint8_t			error;	/**< Error code indicating that something was done wrong */
 }
 nn_t;
+
+typedef struct {
+    void (* update)(void* opt_data, mx_t* weights, mx_t* delta, const nn_size idx);
+    void *params;
+    nn_size size;
+}
+optimizer_t;
 
 /** @brief struct containing all data from single layer.
  * 
