@@ -1,7 +1,7 @@
 #ifndef _DENSE_H_
 #define _DENSE_H_
-#include "nn.h"
-#include "mx.h"
+#include "MEGANI/nn/nn.h"
+#include "MEGANI/mx/mx.h"
 
 //TODO DOCS
 typedef struct {

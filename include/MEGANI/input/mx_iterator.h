@@ -1,7 +1,7 @@
 #ifndef _MX_ITER_FUNCS_H_
 #define _MX_ITER_FUNCS_H_
 
-#include "mx.h"
+#include "MEGANI/mx/mx.h"
 
 struct mx_iterator_t {
 	mx_t *(*next)(struct mx_iterator_t *);

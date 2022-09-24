@@ -1,5 +1,5 @@
-#include "nn.h"
-#include "mx_iterator.h"
+#include "MEGANI/nn/nn.h"
+#include "MEGANI/input/mx_iterator.h"
 
 void
 nn_destroy(nn_t *nn)

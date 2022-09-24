@@ -1,4 +1,4 @@
-#include "dense.h" /* include dense related datatypes and mx.h header */
+#include "MEGANI/layers/dense.h" /* include dense related datatypes and mx.h header */
 
 void
 dense_forwarding(struct nl_t *self, const mx_t *input)

@@ -1,7 +1,7 @@
 #ifndef _NN_H_
 #define _NN_H_
-#include "mx.h"
-#include "mx_iterator.h"
+#include "MEGANI/mx/mx.h"
+#include "MEGANI/input/mx_iterator.h"
 
 //------------------------------------------------MACROS------------------------------------------
 

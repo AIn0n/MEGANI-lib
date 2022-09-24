@@ -1,6 +1,6 @@
 #ifndef _FLATTEN_H_
 #define _FLATTEN_H_
-#include "nn.h"
+#include "MEGANI/nn/nn.h"
 
 typedef struct {
 	mx_size pre_x, pre_y, post_x, post_y;

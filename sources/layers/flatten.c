@@ -1,5 +1,5 @@
-#include "flatten.h"
-#include "image_layer_data.h"
+#include "MEGANI/layers/flatten.h"
+#include "MEGANI/layers/image_layer_data.h"
 
 void
 flatten_forwarding(struct nl_t *self, const mx_t *input)

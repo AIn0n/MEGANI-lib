@@ -1,4 +1,4 @@
-#include "convolution.h"
+#include "MEGANI/layers/convolution.h"
 
 /*
  * images in memory layout

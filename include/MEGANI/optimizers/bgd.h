@@ -1,7 +1,7 @@
 #ifndef _BGD_H_
 #define _BGD_H_
 
-#include "nn.h"
+#include "MEGANI/nn/nn.h"
 
 typedef struct {
 	mx_type alpha;
