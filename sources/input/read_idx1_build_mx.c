@@ -62,8 +62,8 @@ err_clean_list:
 	for (mx_size m = 0; m < n; ++m)
 		mx_destroy(data->list[m]);
 err_clean_data:
-    free(data->list);
-    free(data);
+	free(data->list);
+	free(data);
 	free(buffer);
 err_close_file:
 	fclose(f);
