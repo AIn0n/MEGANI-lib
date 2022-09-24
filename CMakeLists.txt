@@ -4,7 +4,7 @@ project(
         MEGANI-lib
         VERSION 0.0.0
         DESCRIPTION "Minimal Extensible GAN implementation library for C language."
-        HOMEPAGE_URL "https://github.com/Bobini1/MEGANI-lib"
+        HOMEPAGE_URL "https://github.com/AIn0n/MEGANI-lib"
         LANGUAGES C
 )
 
