@@ -19,6 +19,7 @@ if (NOT WIN32)
     target_link_libraries(MEGANI_lib m)
 endif ()
 
+set_target_properties(MEGANI_lib PROPERTIES OUTPUT_NAME "MEGANI")
 add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/sources/tests.c
         PRE_BUILD
         COMMAND python3 ${PROJECT_SOURCE_DIR}/scripts/generate_functional_tests.py
