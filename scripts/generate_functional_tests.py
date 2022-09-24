@@ -415,4 +415,4 @@ gen.genTest("test function learning and predictions with three layers network, e
 + "\tnn_destroy(nn);\nbgd_destroy(opt);\n",
 )
 
-gen.save("sources/main.c")
+gen.save("sources/tests.c")

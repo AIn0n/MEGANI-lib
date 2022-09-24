@@ -8,8 +8,6 @@ project(
         LANGUAGES C
 )
 
-set(TEST_GENERATOR "generate_functional_tests.py" CACHE PATH "python script used to generate tests")
-
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/sources/*.c)
 
 add_library(MEGANI_lib ${sources})
@@ -21,17 +19,31 @@ if (NOT WIN32)
     target_link_libraries(MEGANI_lib m)
 endif ()
 
-add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/sources/main.c
-                   PRE_BUILD
-                   COMMAND python3 ${PROJECT_SOURCE_DIR}/scripts/${TEST_GENERATOR}
-                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-)
+add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/sources/tests.c
+        PRE_BUILD
+        COMMAND python3 ${PROJECT_SOURCE_DIR}/scripts/generate_functional_tests.py
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        )
+
+add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/sources/perf_tests.c
+        PRE_BUILD
+        COMMAND python3 ${PROJECT_SOURCE_DIR}/scripts/mx_perf_test.py
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        )
 
 add_executable(MEGANI_test
-    sources/main.c
-)
+        sources/tests.c
+        )
+
+add_executable(MEGANI_perf_test
+        sources/perf_tests.c
+        )
 
 
 target_link_libraries(MEGANI_test
-    MEGANI_lib
-)
+        MEGANI_lib
+        )
+
+target_link_libraries(MEGANI_perf_test
+        MEGANI_lib
+        )
