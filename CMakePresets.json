@@ -21,6 +21,7 @@
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
         "CMAKE_C_FLAGS": "-pedantic-errors -Werror -Wall -Wfatal-errors -Wextra"
       }
     },
