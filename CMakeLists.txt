@@ -47,3 +47,13 @@ target_link_libraries(MEGANI_test
 target_link_libraries(MEGANI_perf_test
         MEGANI_lib
         )
+
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+    add_custom_target(MEGANI_docs ALL
+            COMMAND Doxygen::doxygen ${PROJECT_SOURCE_DIR}/Doxyfile
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating documentation with Doxygen"
+            VERBATIM
+            )
+endif ()
