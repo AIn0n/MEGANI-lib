@@ -14,6 +14,7 @@ file(GLOB_RECURSE sources CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/sources/*.c)
 
 add_library(MEGANI_lib ${sources})
 target_include_directories(MEGANI_lib PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_compile_features(MEGANI_lib PUBLIC c_std_99)
 
 # link to math library if needed
 if (NOT WIN32)
