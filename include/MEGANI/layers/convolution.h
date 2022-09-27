@@ -1,7 +1,7 @@
 #ifndef _CONVOLUTION_H_
 #define _CONVOLUTION_H_
 #include "image_layer_data.h"
-#include "nn.h"
+#include "MEGANI/nn/nn.h"
 
 typedef struct {
 	act_func_t act_func;

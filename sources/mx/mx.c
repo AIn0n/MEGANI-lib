@@ -1,4 +1,4 @@
-#include "mx.h" /* matrix type, and types related to matrices */
+#include "MEGANI/mx/mx.h" /* matrix type, and types related to matrices */
 #include <stdio.h> //FOR DEBUG ONLY
 
 inline void

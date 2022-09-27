@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 14,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "common",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}",
+        "CMAKE_C_STANDARD": "11"
+      }
+    },
+    {
+      "name": "linux-gcc",
+      "inherits": "common",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_C_FLAGS": "-pedantic-errors -Werror -Wall -Wfatal-errors -Wextra"
+      }
+    },
+    {
+      "name": "gcc-debug",
+      "inherits": "linux-gcc",
+      "displayName": "GCC Debug",
+      "description": "Configures the project for a debug build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_FLAGS_DEBUG": "-g -O0"
+      }
+    },
+    {
+      "name": "gcc-release",
+      "inherits": "linux-gcc",
+      "displayName": "GCC Release",
+      "description": "Configures the project for a release build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_C_FLAGS_RELEASE": "-O3"
+      }
+    }
+  ]
+}

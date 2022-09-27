@@ -1,7 +1,7 @@
 #ifndef _RMS_PROP_H_
 #define _RMS_PROP_H_
 
-#include "nn.h"
+#include "MEGANI/nn/nn.h"
 
 typedef struct {
 	mx_type alpha;

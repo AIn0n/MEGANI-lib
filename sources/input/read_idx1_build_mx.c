@@ -1,6 +1,6 @@
-#include "read_idx1_build_mx.h"
-#include "def_mx_iter.h"
-#include "commons.h"
+#include "MEGANI/input/read_idx1_build_mx.h"
+#include "MEGANI/input/def_mx_iter.h"
+#include "MEGANI/commons.h"
 
 #include <stdio.h>
 #include <stdlib.h>

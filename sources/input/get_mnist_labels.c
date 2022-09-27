@@ -1,5 +1,5 @@
-#include "mx.h"
-#include "read_idx1_build_mx.h"
+#include "MEGANI/mx/mx.h"
+#include "MEGANI/input/read_idx1_build_mx.h"
 
 #define NUM_OF_LABELS 10
 

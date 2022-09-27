@@ -33,4 +33,4 @@ for t in ("0", "A", "B", "BOTH"):
             + genMxComp("res", "exp", DELTA),
         )
 
-gen.save("sources/main.c")
+gen.save("sources/perf_tests.c")

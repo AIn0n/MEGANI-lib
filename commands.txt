@@ -1,5 +1,0 @@
---- command to run normal test ---
-make test
-
---- command to run perfomance test with choosen optimization level ---
-make TEST_GENERATOR=mx_perf_test.py OPTIMIZE=-O2 test
