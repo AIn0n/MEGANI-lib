@@ -48,14 +48,14 @@ add_executable(MEGANI_perf_test
         sources/perf_tests.c
         )
 
+set(all_targets MEGANI_mnist_ann MEGANI_mnist_conv MEGANI_test MEGANI_perf_test)
 
-target_link_libraries(MEGANI_test
-        MEGANI_lib
+foreach(target IN LISTS all_targets)
+        target_link_libraries("${target}"
+                PUBLIC MEGANI_lib
         )
-
-target_link_libraries(MEGANI_perf_test
-        MEGANI_lib
-        )
+        MESSAGE(STATUS "here = ${target}")
+endforeach()
 
 find_package(Doxygen)
 if (DOXYGEN_FOUND)

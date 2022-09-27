@@ -1,14 +1,15 @@
 #include <stdio.h>
 
-#include "def_mx_iter.h" /* default iterator operations */
-#include "read_idx3.h" /* read mnist images */
-#include "get_mnist_labels.h" /* read mnist labels */
-#include "nn.h" /* basic nerual netwok type and functions */
-#include "dense.h" /* dense layer */
-#include "bgd.h" /* batch gradient descent optimizer */
-#include "convolution.h" /* convolution layer */
-#include "flatten.h" /* flatten layer */
-#include "image_layer_data.h" /* img_size_t type structure used in convolution creation */
+#include "MEGANI/input/def_mx_iter.h" /* default iterator operations */
+#include "MEGANI/input/read_idx3.h" /* read mnist images */
+#include "MEGANI/input/get_mnist_labels.h" /* read mnist labels */
+#include "MEGANI/nn/nn.h" /* basic nerual netwok type and functions */
+#include "MEGANI/layers/dense.h" /* dense layer */
+#include "MEGANI/layers/convolution.h" /* convolution layer */
+#include "MEGANI/layers/flatten.h" /* flatten layer */
+#include "MEGANI/optimizers/bgd.h" /* batch gradient descent optimizer */
+
+#include "MEGANI/layers/image_layer_data.h" /* img_size_t type structure used in convolution creation */
 
 #define BATCH_SIZE 5
 
