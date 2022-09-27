@@ -1,6 +1,12 @@
 # Prerequisites
 *.d
 
+#test files generated with python
+sources/tests.c
+
+#build folder
+build
+
 # Object files
 *.o
 *.ko
