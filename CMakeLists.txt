@@ -32,6 +32,14 @@ add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/sources/perf_tests.c
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         )
 
+add_executable(MEGANI_mnist_ann
+        examples/mnist_ann.c
+)
+
+add_executable(MEGANI_mnist_conv
+        examples/mnist_conv.c
+)
+
 add_executable(MEGANI_test
         sources/tests.c
         )
