@@ -48,7 +48,7 @@ add_executable(pineapple_perf_test
         sources/perf_tests.c
         )
 
-set(all_targets _mnist_ann pineapple_mnist_conv pineapple_test pineapple_perf_test)
+set(all_targets pineapple_mnist_ann pineapple_mnist_conv pineapple_test pineapple_perf_test)
 
 foreach(target IN LISTS all_targets)
         target_link_libraries("${target}"
