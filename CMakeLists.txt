@@ -1,25 +1,25 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(
-        MEGANI-lib
+        pineapple-inteligence-lib
         VERSION 0.0.0
-        DESCRIPTION "Minimal Extensible GAN implementation library for C language."
-        HOMEPAGE_URL "https://github.com/AIn0n/MEGANI-lib"
+        DESCRIPTION "Minimal extensible neural networks implementation library for C language."
+        HOMEPAGE_URL "https://github.com/AIn0n/pineapple-intelligence"
         LANGUAGES C
 )
 
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/sources/*.c)
 
-add_library(MEGANI_lib ${sources})
-target_include_directories(MEGANI_lib PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_compile_features(MEGANI_lib PUBLIC c_std_99)
+add_library(pineapple_lib ${sources})
+target_include_directories(pineapple_lib PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_compile_features(pineapple_lib PUBLIC c_std_99)
 
 # link to math library if needed
 if (NOT WIN32)
-    target_link_libraries(MEGANI_lib m)
+    target_link_libraries(pineapple_lib m)
 endif ()
 
-set_target_properties(MEGANI_lib PROPERTIES OUTPUT_NAME "MEGANI")
+set_target_properties(pineapple_lib PROPERTIES OUTPUT_NAME "pineapple")
 add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/sources/tests.c
         PRE_BUILD
         COMMAND python3 ${PROJECT_SOURCE_DIR}/scripts/generate_functional_tests.py
@@ -32,37 +32,27 @@ add_custom_command(OUTPUT ${PROJECT_SOURCE_DIR}/sources/perf_tests.c
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         )
 
-add_executable(MEGANI_mnist_ann
+add_executable(pineapple_mnist_ann
         examples/mnist_ann.c
 )
 
-add_executable(MEGANI_mnist_conv
+add_executable(pineapple_mnist_conv
         examples/mnist_conv.c
 )
 
-add_executable(MEGANI_test
+add_executable(pineapple_test
         sources/tests.c
         )
 
-add_executable(MEGANI_perf_test
+add_executable(pineapple_perf_test
         sources/perf_tests.c
         )
 
-set(all_targets MEGANI_mnist_ann MEGANI_mnist_conv MEGANI_test MEGANI_perf_test)
+set(all_targets _mnist_ann pineapple_mnist_conv pineapple_test pineapple_perf_test)
 
 foreach(target IN LISTS all_targets)
         target_link_libraries("${target}"
-                PUBLIC MEGANI_lib
+                PUBLIC pineapple_lib
         )
         MESSAGE(STATUS "here = ${target}")
 endforeach()
-
-find_package(Doxygen)
-if (DOXYGEN_FOUND)
-    add_custom_target(MEGANI_docs ALL
-            COMMAND Doxygen::doxygen ${PROJECT_SOURCE_DIR}/Doxyfile
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            COMMENT "Generating documentation with Doxygen"
-            VERBATIM
-            )
-endif ()

@@ -1,2 +1,2 @@
-# MEGANI-lib
-Minimal Extensible GAN implementation library for C language.
+# pineapple-intelligence
+Minimal neural network implementation library for C language.

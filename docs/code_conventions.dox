@@ -11,14 +11,12 @@
 *
 *   Always try to add as minimum features as possible, but whenever something
 *   is often executed do whatever you can to make it as fast as possible.
-*   This code have one simple goal: give programmer enough tools to build GAN
-*   without additional dependencies.
-*
+*   This code have one simple goal: give programmer enough tools to build 
+*   somehow functional neural networks without additional dependencies.
 *
 *   @section Naming
 *   First word in every function is always a short name of thing which 
-*   we use (example mx -> matrix). Next one is operation, after that we can 
-*   have things like _nostdlib to mark that this func works without standard C lib.
+*   we use (e.g. mx -> matrix).
 *    
 *   @section Coding style  
 *   Use <a href="https://www.kernel.org/doc/html/v4.10/process/coding-style.html"> linux kernel coding style</a>.
